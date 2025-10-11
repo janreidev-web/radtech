@@ -3,20 +3,12 @@ import Footer from './components/Footer';
 import Header from './components/Header';
 import HomeContent from './components/HomeContent';
 import ModelLoader from './components/ModelViewer/ModelLoader';
-import { useState, useEffect } from 'react';
+import About from './components/About';
+import { useState } from 'react';
 
 function App() {
-  // Load saved page from localStorage or default to 'home'
-  const [currentPage, setCurrentPage] = useState(() => {
-    return localStorage.getItem('currentPage') || 'home';
-  });
+  const [currentPage, setCurrentPage] = useState('home'); 
 
-  // Save currentPage in localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('currentPage', currentPage);
-  }, [currentPage]);
-
-  // Derive bg
   const bg = currentPage === 'model' ? 'bg-white' : 'bg-gray-900';
 
   const renderContent = () => {
@@ -25,6 +17,8 @@ function App() {
         return <HomeContent />;
       case 'model':
         return <ModelLoader />;
+      case 'about':
+        return <About/>;
       default:
         return <HomeContent />;
     }
@@ -38,7 +32,5 @@ function App() {
     </div>
   );
 }
-
-
 
 export default App;
