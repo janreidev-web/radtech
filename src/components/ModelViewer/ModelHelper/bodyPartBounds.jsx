@@ -8,15 +8,15 @@ export const bodyPartBoundsDesktop = {
   },
   Body: {
     min: { x: -0.43, y: 0.45, z: -0.45 },
-    max: { x: 0.37, y: 1.62, z: 0.32 }
+    max: { x: 0.37, y: 1.70, z: 0.32 }
   },
   "Right Arm": {
     min: { x: -1.76, y: 0.79, z: -0.06 },
-    max: { x: -0.17, y: 1.57, z: 0.74 }
+    max: { x: -0.17, y: 1.60, z: 0.74 }
   },
   "Left Arm": {
     min: { x: 0.41, y: 0.84, z: -0.95 },
-    max: { x: 1.58, y: 1.61, z: -0.31 }
+    max: { x: 1.58, y: 1.70, z: -0.20 }
   },
   Groin: {
     min: { x: -0.42, y: -0.08, z: -0.37 },
@@ -27,8 +27,8 @@ export const bodyPartBoundsDesktop = {
     max: { x: 0.04, y: -0.14, z: 0.44 }
   },
   "Left Leg": {
-    min: { x: -0.40, y: -2.10, z: -0.11 },
-    max: { x: -0.00, y: -0.20, z: 0.39 }
+    min: { x: -0.40, y: -2.10, z: -0.40 },
+    max: { x: 0.45, y: -0.15, z: 0.39 }
   }
 };
 
@@ -59,7 +59,7 @@ export const bodyPartBoundsMobile = {
     max: { x: 0.06, y: -0.84, z: 0.32 }
   },
   "Left Leg": {
-    min: { x: 0.07, y: -2.10, z: -0.11 },
+    min: { x: 0.04, y: -2.10, z: -0.30 },
     max: { x: 0.29, y: -0.79, z: 0.30 }
   }
 };

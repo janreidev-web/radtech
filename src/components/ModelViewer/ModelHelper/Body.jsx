@@ -26,25 +26,29 @@ function Body({ scale, isMobile, onPartClick }) {
       if (intersects.length > 0) {
         const intersectionPoint = intersects[0].point;
         
-        // Pass isMobile to use correct coordinate bounds
+        // Use coordinate-based detection
         const bodyPart = identifyBodyPart({
           x: intersectionPoint.x,
           y: intersectionPoint.y,
           z: intersectionPoint.z
         }, isMobile);
 
+        // Pass both 3D coordinates and screen position
         onPartClick?.({
           name: bodyPart,
           x: intersectionPoint.x.toFixed(2),
           y: intersectionPoint.y.toFixed(2),
           z: intersectionPoint.z.toFixed(2),
+        }, {
+          x: event.clientX,
+          y: event.clientY
         });
       }
     };
 
     gl.domElement.addEventListener('click', handleClick);
     return () => gl.domElement.removeEventListener('click', handleClick);
-  }, [camera, gl.domElement, scene, onPartClick, isMobile]); // Added isMobile to dependencies
+  }, [camera, gl.domElement, scene, onPartClick, isMobile]);
 
   return (
     <primitive
