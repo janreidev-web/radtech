@@ -121,8 +121,8 @@ function About() {
       {/* College and Course */}
       <footer style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #444' }}>
         <p style={{ margin: '5px 0' }}><strong></strong> {collegeName}</p>
-        <p style={{ margin: '5px 0' }}><strong></strong> {courseName}</p>
       </footer>
+        <p style={{ margin: '5px 0' }}><strong></strong> {courseName}</p>
     </div>
   );
 }
