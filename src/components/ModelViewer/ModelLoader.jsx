@@ -1,5 +1,5 @@
 // src/components/ModelLoader.jsx
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import BodyMap from './ModelHelper/Body';
@@ -10,6 +10,7 @@ function ModelLoader() {
   const [isMobile, setIsMobile] = useState(false);
   const [lastClicked, setLastClicked] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const tooltipTimerRef = useRef(null); // Ref to hold the timer ID
 
   // ✅ Detect screen size
   useEffect(() => {
@@ -19,19 +20,34 @@ function ModelLoader() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // ✅ Handle body part click
-  const handlePartClick = (data, screenPosition) => {
+  // ✅ Manage tooltip auto-hide timer
+  useEffect(() => {
+    // Clear any existing timer when the component unmounts or lastClicked changes
+    clearTimeout(tooltipTimerRef.current);
+
+    // If a part is clicked, set a new timer to hide the tooltip
+    if (lastClicked) {
+      tooltipTimerRef.current = setTimeout(() => {
+        setLastClicked(null);
+      }, 3000);
+    }
+
+    // Cleanup function to clear the timer
+    return () => clearTimeout(tooltipTimerRef.current);
+  }, [lastClicked]); // This effect runs whenever 'lastClicked' changes
+
+  // ✅ Handle body part click (memoized with useCallback)
+  const handlePartClick = useCallback((data, screenPosition) => {
     setLastClicked(data);
     setTooltipPosition(screenPosition);
+  }, []); // Empty dependency array means this function is created only once
 
-    // Auto-hide tooltip after 3 seconds
-    setTimeout(() => setLastClicked(null), 3000);
-  };
+  // ✅ Close tooltip manually (memoized with useCallback)
+  const handleCloseTooltip = useCallback(() => {
+    setLastClicked(null);
+  }, []);
 
-  // ✅ Close tooltip manually
-  const handleCloseTooltip = () => setLastClicked(null);
-
-  // ✅ Dashboard position styles (responsive)
+  // ✅ Dashboard position styles (responsive and centered on desktop)
   const dashboardStyle = {
     position: 'absolute',
     zIndex: 10,
@@ -41,19 +57,23 @@ function ModelLoader() {
     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
     transition: 'all 0.3s ease-in-out',
     ...(isMobile
-      ? {
-          top: '0.5rem',
+      ? { // Mobile styles: Top-center
+          top: '1rem',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '90%',
+          width: 'calc(100% - 2rem)',
           maxWidth: '400px',
+          maxHeight: '40vh',
+          overflowY: 'auto'
         }
-      : {
-          top: '15%',
-          left: '1rem',
+      : { // Desktop styles: Left-center
+          top: '50%',
+          left: '2rem',
           transform: 'translateY(-50%)',
           width: '20%',
           minWidth: '250px',
+          maxHeight: '80vh',
+          overflowY: 'auto'
         }),
   };
 
@@ -73,7 +93,7 @@ function ModelLoader() {
         </Suspense>
       </Canvas>
 
-      {/* 🧠 Lesson Dashboard (Left on Desktop, Top-Center on Mobile) */}
+      {/* 🧠 Lesson Dashboard */}
       <div style={dashboardStyle}>
         <LessonDashboard />
       </div>
