@@ -6,14 +6,14 @@ const universityLogo = 'https://upload.wikimedia.org/wikipedia/en/thumb/6/69/Sou
 const universityName = 'Southern Luzon State University';
 const universityAddress = 'SLSU Main Campus, Lucban, Quezon, Philippines';
 
-const thesisTitle = '';
+const thesisTitle = 'DEVELOPMENT OF AN INTERACTIVE DIGITAL LEARNING AID FOR RADIOGRAPHIC POSITIONING TECHNIQUES AND PROCEDURES OF THE LOWER CERVICAL SPIN';
 
 const proponents = [
-  { name: 'Patricia Oabel', imageUrl: 'https://scontent.fmnl12-1.fna.fbcdn.net/v/t39.30808-1/514315871_2806343656240405_150070882911600952_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=103&ccb=1-7&_nc_sid=e99d92&_nc_eui2=AeGc-kPiCgxiSbY5q8WbVPTUN__O74KP4os3_87vgo_iiwPaOnxA2_y1_sLzy4TfK13fLxFy165GtEsiKzSJK_eA&_nc_ohc=UzlqR9GlK_4Q7kNvwH-mqtE&_nc_oc=Adn7X3GjXjWKFoc9c-BsSDgn3bOR4WkboZY38EixP2WhGpQ1AvYzIXibxX6oPHEYRgs&_nc_zt=24&_nc_ht=scontent.fmnl12-1.fna&_nc_gid=XqNo6ezdy3oHc5QGsO47YQ&oh=00_AfejSAt6LA3P_ml1eaoUN3F_QnjpnLI4b0XtXz9aArIoBg&oe=68EFC90E' },
-  { name: 'Crizha Jane de Veluz', imageUrl: 'https://scontent.fmnl12-1.fna.fbcdn.net/v/t39.30808-1/462771519_1767795883626539_7960972697555939391_n.jpg?stp=dst-jpg_s100x100_tt6&_nc_cat=104&ccb=1-7&_nc_sid=e99d92&_nc_eui2=AeEVLM82oorCO9XL7WxWzRsgZbKtwJlj949lsq3AmWP3j4TGL3rixh8wnSGY3Gu0KATPmtNExhf4c1BJAQXcMOGN&_nc_ohc=wxhvtz8M88IQ7kNvwEp1Yhi&_nc_oc=AdmFyeOZJGcIJKaAyIryA-PzGdtTk9WB2lyiDev3jqWY8bWgBur3YQCjO9p93jSQNaI&_nc_zt=24&_nc_ht=scontent.fmnl12-1.fna&_nc_gid=JtWMPriCS3uLQW_3tVRryA&oh=00_AfdIbJvFuv45-QFXvOWjCWfrgOrnaoiWvwIFuuSgCSEOlw&oe=68EFE834' }
+  { name: 'Patricia Oabel', imageUrl: '/Images/pat.jpg' },
+  { name: 'Crizha Jane de Veluz', imageUrl: '/Images/chriza.jpg' }
 ];
 
-const adviserName = 'Adviser Name';
+const adviserName = 'Dr. Manuel P. Delos Santos';
 const collegeName = 'College of Allied Medicine';
 const courseName = 'Bachelor of Science in Radiologic Technology';
 
@@ -96,6 +96,7 @@ function About() {
       {/* Thesis Title */}
       <div>
         <h2 style={sectionTitleStyle}>Thesis Title</h2>
+        <br />
         <p style={{ fontSize: '1.2em', fontStyle: 'italic' }}>"{thesisTitle}"</p>
       </div>
 
@@ -115,6 +116,7 @@ function About() {
       {/* Adviser */}
       <div>
         <h2 style={sectionTitleStyle}>Adviser</h2>
+        <br />
         <p>{adviserName}</p>
       </div>
 
