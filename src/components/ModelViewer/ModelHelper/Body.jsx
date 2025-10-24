@@ -180,8 +180,8 @@ function Body({ scale, isMobile, onPartClick, armsClosed = false, isLyingDown = 
       object={scene}
       scale={scale}
       position={isMobile ? 
-        (isLyingDown ? [0, 1.9, 0] : [0, -2.3, 0]) : 
-        (isLyingDown ? [2, 1.8, 0] : [0, -2.3, 0])
+        (isLyingDown ? [0, 1.9, 0] : [0, -2.1, 0]) : 
+        (isLyingDown ? [2, 1.8, 0] : [0, -2.1, 0])
       } // Position above table when lying down, original position when standing
       rotation={isLyingDown ? [1.5, 0, 1.56] : [0, 0, 0]} // Lie down when lesson active, flip 180° so head is at detector, standing straight when not
     />
