@@ -78,24 +78,24 @@ function Body({ scale, isMobile, onPartClick, armsClosed = false, isLyingDown = 
         // Left arm controls
         if (object.name === 'CC_Base_L_Upperarm') {
           // Rotate left upper arm inward
-          object.rotation.set(0, 0, Math.PI / -2.7); // Left arm inward
+          object.rotation.set(0, -1, Math.PI / -2.7); // Left arm inward
           console.log('Rotated left upper arm inward:', object.name);
         }
         if (object.name === 'CC_Base_L_Forearm') {
           // Rotate left forearm to bring it closer to body
-          object.rotation.set(0, 0, Math.PI / -150); // Left forearm inward
+          object.rotation.set(2, 1, Math.PI / -150); // Left forearm inward
           console.log('Rotated left forearm inward:', object.name);
         }
         
         // Right arm controls
         if (object.name === 'CC_Base_R_Upperarm') {
           // Rotate right upper arm inward (opposite direction)
-          object.rotation.set(0, 0, -Math.PI / -2.7); // Right arm inward (negative for opposite direction)
+          object.rotation.set(-0.02, 0.4, -Math.PI / -2.7); // Right arm inward (negative for opposite direction)
           console.log('Rotated right upper arm inward:', object.name);
         }
         if (object.name === 'CC_Base_R_Forearm') {
           // Rotate right forearm to bring it closer to body
-          object.rotation.set(0, 0, -Math.PI / -150); // Right forearm inward (negative for opposite direction)
+          object.rotation.set(-0.2, 1, -Math.PI / -150); // Right forearm inward (negative for opposite direction)
           console.log('Rotated right forearm inward:', object.name);
         }
       } else {

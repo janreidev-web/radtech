@@ -8,6 +8,8 @@ import XRayTable3D from './ModelHelper/XRayTable3D';
 import LessonDashboard from './LessonHandler/LessonDashboard';
 import CameraController from './ModelHelper/CameraController';
 import VisualGuideController from './ModelHelper/VisualGuideController';
+import HeadController from './ModelHelper/HeadController';
+import HeadAnimationController from './ModelHelper/HeadAnimationController';
 import { LessonAnimationProvider } from './LessonHandler/LessonAnimationContext';
 import AnimationHandlerRegistrar from './LessonHandler/AnimationHandlerRegistrar';
 
@@ -33,6 +35,12 @@ function ModelLoader() {
     guideType: null,
     guideData: null,
     duration: 2000
+  });
+  
+  // Head control states
+  const [headControl, setHeadControl] = useState({
+    rotation: { tilt: 0, turn: 0 },
+    position: { y: 0 }
   });
 
   // ✅ Detect screen size
@@ -98,6 +106,21 @@ function ModelLoader() {
     setVisualGuide(prev => ({ ...prev, isActive: false }));
   }, []);
 
+  // ✅ Head control handlers
+  const handleHeadControl = useCallback((control) => {
+    setHeadControl({
+      rotation: { tilt: control.tilt, turn: control.turn },
+      position: { y: control.posY }
+    });
+  }, []);
+
+  const handleResetHead = useCallback(() => {
+    setHeadControl({
+      rotation: { tilt: 0, turn: 0 },
+      position: { y: 0 }
+    });
+  }, []);
+
   // ✅ Handle reset functionality
   const handleReset = useCallback(() => {
     setShowXRayTable(false); // Hide X-ray table on reset
@@ -142,7 +165,6 @@ function ModelLoader() {
         }),
   };
 
-
   return (
     <LessonAnimationProvider>
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
@@ -184,6 +206,13 @@ function ModelLoader() {
               onComplete={handleVisualComplete}
             />
             
+            {/* Head Animation Controller */}
+            <HeadAnimationController
+              headRotation={headControl.rotation}
+              headPosition={headControl.position}
+              meshName="CC_Base_Head"
+            />
+            
             <OrbitControls />
           </Suspense>
         </Canvas>
@@ -214,6 +243,14 @@ function ModelLoader() {
             screenY={tooltipPosition.y}
             isMobile={isMobile}
             onClose={handleCloseTooltip}
+          />
+        )}
+
+        {/* 🎮 Head Controller */}
+        {!isMobile && (
+          <HeadController
+            onHeadControl={handleHeadControl}
+            onResetHead={handleResetHead}
           />
         )}
       </div>
