@@ -1,18 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import { useThree } from '@react-three/fiber';
+import React, { useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
-import * as THREE from 'three';
-import { identifyBodyPart } from './bodyPartBounds.jsx';
 
-function Body({ scale, isMobile, onPartClick, armsClosed = false, isLyingDown = false }) {
+function Body({ scale, isMobile, armsClosed = false, isLyingDown = false, bodyLift = -0.1 }) {
   const { scene } = useGLTF('/Model/base.glb');
-  const { camera, gl } = useThree();
-  const raycaster = useRef();
-  const mouse = useRef({ x: 0, y: 0 });
-
-  useEffect(() => {
-    raycaster.current = new THREE.Raycaster();
-  }, []);
 
   // Log all mesh nodes in the scene
   useEffect(() => {
@@ -83,19 +73,19 @@ function Body({ scale, isMobile, onPartClick, armsClosed = false, isLyingDown = 
         }
         if (object.name === 'CC_Base_L_Forearm') {
           // Rotate left forearm to bring it closer to body
-          object.rotation.set(2, 1, Math.PI / -150); // Left forearm inward
+          object.rotation.set(2.2, 1, Math.PI / -150); // Left forearm inward
           console.log('Rotated left forearm inward:', object.name);
         }
         
         // Right arm controls
         if (object.name === 'CC_Base_R_Upperarm') {
           // Rotate right upper arm inward (opposite direction)
-          object.rotation.set(-0.02, 0.4, -Math.PI / -2.7); // Right arm inward (negative for opposite direction)
+          object.rotation.set(-0.02, 0.4, -Math.PI / -2.8); // Right arm inward (negative for opposite direction)
           console.log('Rotated right upper arm inward:', object.name);
         }
         if (object.name === 'CC_Base_R_Forearm') {
           // Rotate right forearm to bring it closer to body
-          object.rotation.set(-0.2, 1, -Math.PI / -150); // Right forearm inward (negative for opposite direction)
+          object.rotation.set(-0.3, 1.3, -Math.PI / -150); // Right forearm inward (negative for opposite direction)
           console.log('Rotated right forearm inward:', object.name);
         }
       } else {
@@ -128,61 +118,15 @@ function Body({ scale, isMobile, onPartClick, armsClosed = false, isLyingDown = 
     positionArms(scene);
   }, [scene, armsClosed]);
 
-  useEffect(() => {
-    const handleClick = (event) => {
-      const rect = gl.domElement.getBoundingClientRect();
-      mouse.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-      raycaster.current.setFromCamera(mouse.current, camera);
-      const intersects = raycaster.current.intersectObjects(scene.children, true);
-
-      if (intersects.length > 0) {
-        const intersectionPoint = intersects[0].point;
-        
-        // Check if the click is on the X-ray table area (rough bounds)
-        const isOnTable = intersectionPoint.x > 1.5 && intersectionPoint.x < 4.5 && 
-                         intersectionPoint.y > -0.5 && intersectionPoint.y < 1.5 &&
-                         intersectionPoint.z > -1.0 && intersectionPoint.z < 1.0;
-        
-        if (isOnTable) {
-          // Click is on the X-ray table, don't process as body part
-          console.log('Clicked on X-ray table, ignoring body part detection');
-          return;
-        }
-        
-        // Use coordinate-based detection for body parts only
-        const bodyPart = identifyBodyPart({
-          x: intersectionPoint.x,
-          y: intersectionPoint.y,
-          z: intersectionPoint.z
-        }, isMobile);
-
-        // Pass both 3D coordinates and screen position
-        onPartClick?.({
-          name: bodyPart,
-          x: intersectionPoint.x.toFixed(2),
-          y: intersectionPoint.y.toFixed(2),
-          z: intersectionPoint.z.toFixed(2),
-        }, {
-          x: event.clientX,
-          y: event.clientY
-        });
-      }
-    };
-
-    gl.domElement.addEventListener('click', handleClick);
-    return () => gl.domElement.removeEventListener('click', handleClick);
-  }, [camera, gl.domElement, scene, onPartClick, isMobile]);
 
   return (
     <primitive
       object={scene}
       scale={scale}
       position={isMobile ? 
-        (isLyingDown ? [0, 1.9, 0] : [0, -2.1, 0]) : 
-        (isLyingDown ? [2, 1.8, 0] : [0, -2.1, 0])
-      } // Position above table when lying down, original position when standing
+        (isLyingDown ? [0, 1.9 + bodyLift, 0] : [0, -2.1 + bodyLift, 0]) : 
+        (isLyingDown ? [2, 1.65 + bodyLift, 0] : [0, -2.1 + bodyLift, 0])
+      } // Position above table when lying down, original position when standing; add bodyLift for subtle raise
       rotation={isLyingDown ? [1.5, 0, 1.56] : [0, 0, 0]} // Lie down when lesson active, flip 180° so head is at detector, standing straight when not
     />
   );

@@ -25,7 +25,7 @@ function XRayTable3D({ position = [3, 0, 0], scale = 1 }) {
 
       {/* Raised Edges - All four sides */}
       <mesh position={[0, 1.26, 0.76]}>
-        <boxGeometry args={[4.0, 0.06, 0.06]} />
+        <boxGeometry args={[4.0, 0.1, 0.06]} />
         <meshLambertMaterial color="#d8d8d8" />
       </mesh>
       <mesh position={[0, 1.26, -0.76]}>
@@ -55,7 +55,7 @@ function XRayTable3D({ position = [3, 0, 0], scale = 1 }) {
 
       {/* X-ray Cassette/Digital Detector - Embedded in table */}
       <mesh ref={cassetteRef} position={[-1.5, 1.26, 0]}>
-        <boxGeometry args={[0.6, 0.2, 0.8]} />
+        <boxGeometry args={[0.6, 0.05, 0.8]} />
         <meshLambertMaterial color="#1a1a1a" />
       </mesh>
     </group>
