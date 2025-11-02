@@ -7,10 +7,13 @@ const HeadAnimationController = ({
   meshName = 'CC_Base_Head',
   headWeight = 0.10,
   neckWeights = {
-    CC_Base_NeckTwist01: 0.2,
+    CC_Base_NeckTwist01: 0.5,
     CC_Base_NeckTwist02: 0
   },
   neckNamePatterns = ['Neck'], // fallback matching if exact names differ
+  // limits (radians) for tilt and turn. Increase to allow larger rotations.
+  headLimitTilt = 1.5, // ~86°
+  headLimitTurn = 1.8, // ~103°
 }) => {
   const { scene } = useThree();
   const initialRotationsByNameRef = useRef({});
@@ -43,9 +46,9 @@ const HeadAnimationController = ({
           ? headWeight 
           : (neckWeights[name] ?? (isPatternMatch ? 0.3 : 0));
 
-        // Clamp inputs to avoid extreme bending
-        const clampedTilt = Math.max(-0.7, Math.min(0.7, headRotation.tilt));
-        const clampedTurn = Math.max(-0.9, Math.min(0.9, headRotation.turn));
+  // Clamp inputs to avoid extreme bending; use configurable limits
+  const clampedTilt = Math.max(-headLimitTilt, Math.min(headLimitTilt, headRotation.tilt));
+  const clampedTurn = Math.max(-headLimitTurn, Math.min(headLimitTurn, headRotation.turn));
 
         // Apply weighted rotation (tilt -> x, turn -> y) relative to initial
         object.rotation.x = initial.x + clampedTilt * weight;
@@ -63,7 +66,7 @@ const HeadAnimationController = ({
     if (!discoveredTargetsRef.current.logged) {
       discoveredTargetsRef.current.logged = true;
     }
-  }, [scene, headRotation, headPosition, meshName, neckWeights]);
+  }, [scene, headRotation, headPosition, meshName, neckWeights, headWeight, neckNamePatterns, headLimitTilt, headLimitTurn]);
 
   return null;
 };

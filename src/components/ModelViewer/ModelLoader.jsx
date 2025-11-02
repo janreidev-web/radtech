@@ -1,5 +1,5 @@
 // src/components/ModelLoader.jsx
-import React, { useEffect, useState, Suspense, useCallback} from 'react';
+import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import BodyMap from './ModelHelper/Body';
@@ -8,6 +8,7 @@ import LessonDashboard from './LessonHandler/LessonDashboard';
 import CameraController from './ModelHelper/CameraController';
 import HeadController from './ModelHelper/HeadController';
 import HeadAnimationController from './ModelHelper/HeadAnimationController';
+import CursorZoomController from './ModelHelper/CursorZoomController';
 import { LessonAnimationProvider } from './LessonHandler/LessonAnimationContext';
 import AnimationHandlerRegistrar from './LessonHandler/AnimationHandlerRegistrar';
 
@@ -16,6 +17,7 @@ function ModelLoader() {
   const [showXRayTable, setShowXRayTable] = useState(false);
   const [armsClosed, setArmsClosed] = useState(false);
   const [isLyingDown, setIsLyingDown] = useState(false);
+  const orbitControlsRef = useRef();
   
   // Lesson animation states
   const [cameraAnimation, setCameraAnimation] = useState({
@@ -25,12 +27,7 @@ function ModelLoader() {
     duration: 2000
   });
   
-  const [visualGuide, setVisualGuide] = useState({
-    isActive: false,
-    guideType: null,
-    guideData: null,
-    duration: 2000
-  });
+  
   
   // Head control states
   const [headControl, setHeadControl] = useState({
@@ -38,7 +35,7 @@ function ModelLoader() {
     position: { y: 0 }
   });
 
-  // ✅ Detect screen size
+  // Detect screen size
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
@@ -46,7 +43,7 @@ function ModelLoader() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // ✅ Lesson animation handlers
+  // Lesson animation handlers
   const handleCameraAnimation = useCallback((action) => {
     setCameraAnimation({
       isActive: true,
@@ -56,25 +53,16 @@ function ModelLoader() {
     });
   }, []);
 
-  const handleVisualGuide = useCallback((guide) => {
-    setVisualGuide({
-      isActive: true,
-      guideType: guide.type,
-      guideData: guide,
-      duration: guide.duration || 2000
-    });
-  }, []);
+  
 
-  // ✅ Animation completion handlers
+  // Animation completion handlers
   const handleCameraComplete = useCallback(() => {
     setCameraAnimation(prev => ({ ...prev, isActive: false }));
   }, []);
 
-  const handleVisualComplete = useCallback(() => {
-    setVisualGuide(prev => ({ ...prev, isActive: false }));
-  }, []);
+  
 
-  // ✅ Head control handlers
+  // Head control handlers
   const handleHeadControl = useCallback((control) => {
     setHeadControl({
       rotation: { tilt: control.tilt, turn: control.turn },
@@ -89,20 +77,48 @@ function ModelLoader() {
     });
   }, []);
 
-  // ✅ Handle reset functionality
+  // Handle reset functionality
   const handleReset = useCallback(() => {
     setShowXRayTable(false); // Hide X-ray table on reset
     setArmsClosed(false); // Reset arms to original position
     setIsLyingDown(false); // Return to standing position
+    
+    // Reset head control to default position
+    setHeadControl({
+      rotation: { tilt: 0, turn: 0 },
+      position: { y: 0 }
+    });
+    
+    // Reset camera animation state
+    setCameraAnimation({
+      isActive: false,
+      targetPosition: null,
+      targetLookAt: null,
+      duration: 2000
+    });
+    
+    // Reset camera and orbit controls to initial state
+    if (orbitControlsRef.current) {
+      const controls = orbitControlsRef.current;
+      const camera = controls.object;
+      
+      // Reset camera position to initial [0, 2, 5]
+      camera.position.set(0, 2, 5);
+      
+      // Reset orbit controls target to origin
+      controls.target.set(0, 0, 0);
+      
+      // Update controls
+      controls.update();
+    }
   }, []);
 
-  // ✅ Register animation handlers with context
+  // Register animation handlers with context
   const animationHandlers = {
-    handleCameraAnimation,
-    handleVisualGuide
+    handleCameraAnimation
   };
 
-  // ✅ Dashboard position styles (responsive and centered on desktop)
+  // Dashboard position styles (responsive and centered on desktop)
   const dashboardStyle = {
     position: 'absolute',
     zIndex: 10,
@@ -135,7 +151,7 @@ function ModelLoader() {
   return (
     <LessonAnimationProvider>
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
-        {/* 🧍 3D Human Model Canvas */}
+        {/* 3D Human Model Canvas */}
         <Canvas camera={{ position: [0, 2, 5], fov: 50 }}>
           <Suspense fallback={null}>
             <ambientLight intensity={0.5} />
@@ -181,12 +197,26 @@ function ModelLoader() {
               meshName="CC_Base_Head"
               debug={true}
             />
+
+            {/* Camera and orbit controls */}
+            <OrbitControls
+              ref={orbitControlsRef}
+              enablePan={true}
+              enableRotate={true}
+              minDistance={0.5}
+              maxDistance={20}
+              minPolarAngle={0}
+              maxPolarAngle={Math.PI / 1.4}
+              enableDamping={true}
+              dampingFactor={0.05}
+            />
             
-            <OrbitControls />
+            {/* Cursor-based zoom controller */}
+            <CursorZoomController controlsRef={orbitControlsRef} />
           </Suspense>
         </Canvas>
 
-        {/* 🧠 Lesson Dashboard */}
+        {/* Lesson Dashboard */}
         <div style={dashboardStyle}>
           <LessonDashboard
             onLessonSelected={() => {

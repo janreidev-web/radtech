@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   ArrowUp, 
   ArrowDown, 
@@ -11,44 +11,110 @@ function HeadController({ onHeadControl, onResetHead }) {
   const [tilt, setTilt] = useState(0); // X rotation
   const [turn, setTurn] = useState(0); // Y rotation
   const [posY, setPosY] = useState(0); // Y position
+  // refs to hold latest values for use inside intervals
+  const tiltRef = useRef(tilt);
+  const turnRef = useRef(turn);
+  const posYRef = useRef(posY);
+  const repeatIntervalRef = useRef(null);
+  const repeatTimeoutRef = useRef(null);
 
   const degreeToRadian = Math.PI / 180; // 1 degree in radians
 
   const handleTiltUp = () => {
-    const newTilt = tilt - degreeToRadian;
-    setTilt(newTilt);
-    onHeadControl({ tilt: newTilt, turn, posY });
-    // console removed
+    setTilt(prev => {
+      const newTilt = prev - degreeToRadian;
+      tiltRef.current = newTilt;
+      onHeadControl({ tilt: newTilt, turn: turnRef.current, posY: posYRef.current });
+      return newTilt;
+    });
   };
 
   const handleTiltDown = () => {
-    const newTilt = tilt + degreeToRadian;
-    setTilt(newTilt);
-    onHeadControl({ tilt: newTilt, turn, posY });
-    // console removed
+    setTilt(prev => {
+      const newTilt = prev + degreeToRadian;
+      tiltRef.current = newTilt;
+      onHeadControl({ tilt: newTilt, turn: turnRef.current, posY: posYRef.current });
+      return newTilt;
+    });
   };
 
   const handleTurnLeft = () => {
-    const newTurn = turn - degreeToRadian;
-    setTurn(newTurn);
-    onHeadControl({ tilt, turn: newTurn, posY });
-    // console removed
+    setTurn(prev => {
+      const newTurn = prev - degreeToRadian;
+      turnRef.current = newTurn;
+      onHeadControl({ tilt: tiltRef.current, turn: newTurn, posY: posYRef.current });
+      return newTurn;
+    });
   };
 
   const handleTurnRight = () => {
-    const newTurn = turn + degreeToRadian;
-    setTurn(newTurn);
-    onHeadControl({ tilt, turn: newTurn, posY });
-    // console removed
+    setTurn(prev => {
+      const newTurn = prev + degreeToRadian;
+      turnRef.current = newTurn;
+      onHeadControl({ tilt: tiltRef.current, turn: newTurn, posY: posYRef.current });
+      return newTurn;
+    });
   };
 
   const handleReset = () => {
     setTilt(0);
+    tiltRef.current = 0;
     setTurn(0);
+    turnRef.current = 0;
     setPosY(0);
+    posYRef.current = 0;
     onResetHead();
-    // console removed
   };
+
+  // Keep refs in sync if state changes externally
+  useEffect(() => { tiltRef.current = tilt; }, [tilt]);
+  useEffect(() => { turnRef.current = turn; }, [turn]);
+  useEffect(() => { posYRef.current = posY; }, [posY]);
+
+  // Start a repeating action: call immediately, then after a short delay start interval
+  const startContinuous = (action, { initialDelay = 300, interval = 80 } = {}) => {
+    // clear existing
+    stopContinuous();
+    // call once immediately
+    action();
+    // after initialDelay, start interval repeats
+    repeatTimeoutRef.current = setTimeout(() => {
+      repeatIntervalRef.current = setInterval(action, interval);
+    }, initialDelay);
+  };
+
+  const stopContinuous = () => {
+    if (repeatTimeoutRef.current) {
+      clearTimeout(repeatTimeoutRef.current);
+      repeatTimeoutRef.current = null;
+    }
+    if (repeatIntervalRef.current) {
+      clearInterval(repeatIntervalRef.current);
+      repeatIntervalRef.current = null;
+    }
+  };
+
+  // Return pointer/touch/keyboard handlers for a button action
+  const longPressProps = (action) => ({
+    onMouseDown: (e) => { e.preventDefault(); startContinuous(action); },
+    onMouseUp: stopContinuous,
+    onMouseLeave: stopContinuous,
+    onTouchStart: (e) => { e.preventDefault(); startContinuous(action); },
+    onTouchEnd: stopContinuous,
+    onTouchCancel: stopContinuous,
+    onKeyDown: (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        startContinuous(action);
+      }
+    },
+    onKeyUp: (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        stopContinuous();
+      }
+    }
+  });
 
   const tiltDegrees = Math.round((tilt * -180) / Math.PI);
   const turnDegrees = Math.round((turn * -180) / Math.PI);
@@ -76,8 +142,8 @@ function HeadController({ onHeadControl, onResetHead }) {
           <div style={styles.emptyCell}></div>
           <button 
             style={styles.button} 
-            onClick={handleTiltUp}
             title="Tilt Up"
+            {...longPressProps(handleTiltUp)}
           >
             <ArrowUp size={28} />
           </button>
@@ -88,16 +154,16 @@ function HeadController({ onHeadControl, onResetHead }) {
         <div style={styles.buttonRow}>
           <button 
             style={styles.button} 
-            onClick={handleTurnLeft}
             title="Turn Left"
+            {...longPressProps(handleTurnLeft)}
           >
             <ArrowLeft size={28} />
           </button>
           <div style={styles.emptyCell}></div>
           <button 
             style={styles.button} 
-            onClick={handleTurnRight}
             title="Turn Right"
+            {...longPressProps(handleTurnRight)}
           >
             <ArrowRight size={28} />
           </button>
@@ -108,8 +174,8 @@ function HeadController({ onHeadControl, onResetHead }) {
           <div style={styles.emptyCell}></div>
           <button 
             style={styles.button} 
-            onClick={handleTiltDown}
             title="Tilt Down"
+            {...longPressProps(handleTiltDown)}
           >
             <ArrowDown size={28} />
           </button>

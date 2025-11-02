@@ -6,7 +6,7 @@ const universityLogo = 'https://upload.wikimedia.org/wikipedia/en/thumb/6/69/Sou
 const universityName = 'Southern Luzon State University';
 const universityAddress = 'SLSU Main Campus, Lucban, Quezon, Philippines';
 
-const thesisTitle = 'DEVELOPMENT OF AN INTERACTIVE DIGITAL LEARNING AID FOR RADIOGRAPHIC POSITIONING TECHNIQUES AND PROCEDURES OF THE LOWER CERVICAL SPIN';
+const thesisTitle = 'Challenges and Positioning techniques in performing lateral cervicothoracic spine among Bachelor of Science in Radiologic Technology- IV interns';
 
 const proponents = [
   { name: 'Patricia Oabel', imageUrl: '/Images/pat.jpg' },
