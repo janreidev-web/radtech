@@ -9,6 +9,7 @@ import CameraController from './ModelHelper/CameraController';
 import HeadController from './ModelHelper/HeadController';
 import HeadAnimationController from './ModelHelper/HeadAnimationController';
 import CursorZoomController from './ModelHelper/CursorZoomController';
+import LoadingIndicator from './ModelHelper/LoadingIndicator';
 import { LessonAnimationProvider } from './LessonHandler/LessonAnimationContext';
 import AnimationHandlerRegistrar from './LessonHandler/AnimationHandlerRegistrar';
 
@@ -17,6 +18,7 @@ function ModelLoader() {
   const [showXRayTable, setShowXRayTable] = useState(false);
   const [armsClosed, setArmsClosed] = useState(false);
   const [isLyingDown, setIsLyingDown] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const orbitControlsRef = useRef();
   
   // Lesson animation states
@@ -151,6 +153,9 @@ function ModelLoader() {
   return (
     <LessonAnimationProvider>
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
+        {/* Loading Indicator */}
+        {isLoading && <LoadingIndicator />}
+        
         {/* 3D Human Model Canvas */}
         <Canvas camera={{ position: [0, 2, 5], fov: 50 }}>
           <Suspense fallback={null}>
@@ -168,6 +173,7 @@ function ModelLoader() {
                   armsClosed={armsClosed}
                   isLyingDown={isLyingDown}
                   bodyLift={bodyLift}
+                  onLoad={() => setIsLoading(false)}
                 />
               );
             })()}

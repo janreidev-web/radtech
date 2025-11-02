@@ -1,10 +1,17 @@
 import React, { useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 
-function Body({ scale, isMobile, armsClosed = false, isLyingDown = false }) {
+function Body({ scale, isMobile, armsClosed = false, isLyingDown = false, onLoad }) {
   const { scene } = useGLTF('/Model/base.glb');
 
   // (debug logging removed) previously listed mesh nodes here
+
+  // Call onLoad when model is ready
+  useEffect(() => {
+    if (onLoad && scene) {
+      onLoad();
+    }
+  }, [scene, onLoad]);
 
   // Position the arms based on armsClosed state
   useEffect(() => {
