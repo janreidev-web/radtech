@@ -207,7 +207,7 @@ const styles = {
     padding: '1.5rem',
     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
     minWidth: '200px',
-    zIndex: 100,
+    zIndex: 10,
   },
   title: {
     margin: '0 0 1rem 0',

@@ -13,7 +13,7 @@ const LoadingIndicator = () => {
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: 'rgba(240, 240, 240, 0.9)',
-      zIndex: 100
+      zIndex: 40
     }}>
       <div style={{
         fontSize: '1.5rem',

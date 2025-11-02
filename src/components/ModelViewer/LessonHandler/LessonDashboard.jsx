@@ -143,22 +143,37 @@ function LessonDashboard({ onLessonSelected, onReset }) {
 
   return (
     <>
-    <div className="flex flex-col h-40 md:h-100">
+    <div
+      className="flex flex-col h-40 md:h-100"
+      // Prevent wheel events inside the dashboard from bubbling to the canvas/scene
+      // Use capture phase and overscroll-behavior to stop scroll chaining to ancestor (the canvas)
+      onWheelCapture={(e) => {
+        e.stopPropagation();
+      }}
+      onWheel={(e) => {
+        // also stop propagation in bubble phase as a fallback
+        e.stopPropagation();
+      }}
+      style={{ overscrollBehavior: 'contain' }}
+    >
       {/* Header with Lessons title and Reset button */}
-      <div className="flex items-center justify-between mb-4 px-1">
-        <h2 className="text-md md:text-xl font-bold">Lessons</h2>
-        <button
-          onClick={handleResetClick}
-          className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md transition-colors duration-200"
-          title="Reset camera to original position"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-          </svg>
-          Reset
-        </button>
-      </div>
-      <div className="flex flex-col space-y-2">
+    <div className="relative mb-4 px-1">
+      <h2 className="text-md md:text-xl font-bold text-center">Lessons</h2>
+      <button
+        onClick={handleResetClick}
+        className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md transition-colors duration-200"
+        title="Reset camera to original position"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        Reset
+      </button>
+    </div>
+
+
+      {/* Scrollable lesson list - header above stays fixed */}
+      <div className="flex-1 overflow-auto space-y-2 pr-2" style={{ WebkitOverflowScrolling: 'touch' }}>
         {Categories.map((category, index) => (
           <div key={index} className="border-b border-gray-200 last:border-b-0">
             {/* Category Header Button */}
@@ -177,6 +192,9 @@ function LessonDashboard({ onLessonSelected, onReset }) {
               className={`overflow-hidden transition-all duration-300 ease-in-out ${
                 openIndex === index ? 'max-h-96' : 'max-h-0'
               }`}
+              // Stop wheel propagation from inner lists (capture-phase to be safe)
+              onWheelCapture={(e) => e.stopPropagation()}
+              onWheel={(e) => e.stopPropagation()}
             >
               <ul className="py-2 pl-6 pr-3">
                 {category.lessons.map((lesson, lessonIndex) => (
