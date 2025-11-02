@@ -9,84 +9,86 @@ const ChevronDownIcon = () => (
   </svg>
 );
 
-const anatomyCategories = [
+const Categories = [
   { 
-    title: "Vertebral column", 
-    lessons: ["Cervical Region", "Thoracic Region", "Lumbar Region", "Sacrum & Pelvic Region"] 
+    title: "Lateral Cervical Spine (Grandy Method)", 
+    lessons: [
+      "Purpose and Clinical Use",
+      "Patient Positioning and Body Alignment",
+      "Head and Neck Placement",
+      "Central Ray (CR) Direction and Level",
+      "Evaluation Criteria for C1–C7",
+      "Common Errors and Corrections"
+    ] 
   },
   { 
-    title: "Spinal curvatures", 
-    lessons: ["Cervical & Lumbar Curve", "Thoracic & Pelvic Curve", "Scoliosis"] 
+    title: "Lateral Cervicothoracic Spine (Swimmer’s View - Twinning Method)", 
+    lessons: [
+      "Purpose and Indications (C7–T1 Visualization)",
+      "Patient Position (Upright Lateral)",
+      "Arm and Shoulder Positioning",
+      "CR Centering and Beam Alignment",
+      "Image Evaluation and Landmarks",
+      "Positioning Errors and Correction Techniques"
+    ] 
   },
   { 
-    title: "Atlanto-occipital joints", 
-    lessons: ["Articular Surfaces", "Ligaments", "Movements (Nodding)"] 
+    title: "Lateral Cervicothoracic Spine (Swimmer’s View - Pawlow Method)", 
+    lessons: [
+      "Purpose and Patient Considerations",
+      "Recumbent Lateral Setup",
+      "Arm Placement and Shoulder Depression",
+      "CR Angulation and Centering",
+      "Evaluation Criteria (C7–T1 Clarity)",
+      "Correction and Safety Measures"
+    ] 
   },
   { 
-    title: "Dens", 
-    lessons: ["Structure of the Dens", "Articulation with Atlas", "Transverse Ligament"] 
+    title: "Monda Modification (Cephalad Angulation)", 
+    lessons: [
+      "Purpose of CR Angulation Adjustment",
+      "When to Apply Cephalad Angle (5–15°)",
+      "Technique for Shoulder Overlap Correction",
+      "Positioning Tips for Disk Space Visibility",
+      "Image Quality and Evaluation Points"
+    ] 
   },
   { 
-    title: "Atlas & axis", 
-    lessons: ["Anatomy of C1 (Atlas)", "Anatomy of C2 (Axis)", "Atlanto-axial Joint"] 
+    title: "Lateral Thoracic Spine Projection", 
+    lessons: [
+      "Purpose and Anatomical Coverage (T1–T12)",
+      "Patient Position and Support Aids",
+      "Arm Elevation and Body Alignment",
+      "CR Centering at T7",
+      "Breathing Technique and Exposure Control",
+      "Evaluation Criteria and Common Errors"
+    ] 
   },
   { 
-    title: "Cervical vertebrae", 
-    lessons: ["Typical Cervical (C3-C6)", "Atypical Cervical (C1, C2, C7)", "Foramina Transversaria"] 
-  },
-  { 
-    title: "Thoracic vertebrae", 
-    lessons: ["Costal Facets", "Spinous Process Shape", "Articulation with Ribs"] 
-  },
-  { 
-    title: "Lumbar & lumbosacral vertebrae", 
-    lessons: ["Large Vertebral Body", "Lumbar Spine Biomechanics", "Lumbosacral Angle"] 
-  },
-  { 
-    title: "L5-s1 lumbosacral junction", 
-    lessons: ["Anatomy of L5", "Anatomy of S1", "Intervertebral Disc and Ligaments"] 
-  },
-  { 
-    title: "Zygapophyseal joints", 
-    lessons: ["Also known as Facet Joints", "Joint Capsule", "Clinical Significance"] 
-  },
-  { 
-    title: "Lumbosacral joints & sacral joints", 
-    lessons: ["Lumbosacral Articulation", "Sacrococcygeal Joint", "Median Sacral Crest"] 
-  },
-  { 
-    title: "Sacroiliac joints", 
-    lessons: ["Articulation with Pelvis", "Supporting Ligaments", "SI Joint Dysfunction"] 
-  },
-  { 
-    title: "Pubic symphysis", 
-    lessons: ["Cartilaginous Joint", "Role in Pelvic Girdle", "Changes During Pregnancy"] 
-  },
-  { 
-    title: "Sacrum", 
-    lessons: ["Fused Vertebrae (S1-S5)", "Sacral Foramina", "Sacral Canal"] 
-  },
-  { 
-    title: "Coccyx", 
-    lessons: ["Tailbone Anatomy", "Vestigial Structure", "Coccygeal Ligaments"] 
-  },
-  { 
-    title: "Lumbar intervertebral disks", 
-    lessons: ["Annulus Fibrosus", "Nucleus Pulposus", "Disc Herniation"] 
-  },
+    title: "Comparative Analysis of Lateral Spine Techniques", 
+    lessons: [
+      "Differences Between Cervical, Cervicothoracic, and Thoracic Views",
+      "Challenges Faced by Radiologic Technology Interns",
+      "Proper Positioning Strategies for Difficult Patients",
+      "Techniques to Reduce Shoulder Superimposition",
+      "Importance of Correct CR Angulation",
+      "Recommendations for Clinical Improvement"
+    ] 
+  }
 ];
+
 
 function LessonDashboard({ onLessonSelected, onReset }) {
   // ✅ State to track which accordion item is currently open. '-1' means all are closed.
   const [openIndex, setOpenIndex] = useState(-1);
-  const [isMobile, setIsMobile] = useState(false);
+  const [_isMobile, _setIsMobile] = useState(false);
 
   // ✅ Get animation handlers from context
   const { triggerCameraAnimation } = useLessonAnimations();
 
   // ✅ Detect mobile screen size
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+  const checkMobile = () => _setIsMobile(window.innerWidth <= 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -100,7 +102,7 @@ function LessonDashboard({ onLessonSelected, onReset }) {
 
   // ✅ Function to handle lesson click
   const handleLessonClick = (lessonName, categoryTitle) => {
-    console.log('Lesson clicked:', lessonName, 'Mobile:', isMobile);
+    // console removed
 
     // Zoom out camera when lesson is clicked
     const zoomOutAnimation = {
@@ -121,7 +123,7 @@ function LessonDashboard({ onLessonSelected, onReset }) {
 
   // ✅ Function to handle reset button click
   const handleResetClick = () => {
-    console.log('Reset clicked, Mobile:', isMobile);
+    // console removed
     
     // Reset to exact initial camera position from ModelLoader
     const resetAnimation = {
@@ -157,7 +159,7 @@ function LessonDashboard({ onLessonSelected, onReset }) {
         </button>
       </div>
       <div className="flex flex-col space-y-2">
-        {anatomyCategories.map((category, index) => (
+        {Categories.map((category, index) => (
           <div key={index} className="border-b border-gray-200 last:border-b-0">
             {/* Category Header Button */}
             <button

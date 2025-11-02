@@ -1,12 +1,11 @@
 // src/components/ModelLoader.jsx
-import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react';
+import React, { useEffect, useState, Suspense, useCallback} from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import BodyMap from './ModelHelper/Body';
 import XRayTable3D from './ModelHelper/XRayTable3D';
 import LessonDashboard from './LessonHandler/LessonDashboard';
 import CameraController from './ModelHelper/CameraController';
-import VisualGuideController from './ModelHelper/VisualGuideController';
 import HeadController from './ModelHelper/HeadController';
 import HeadAnimationController from './ModelHelper/HeadAnimationController';
 import { LessonAnimationProvider } from './LessonHandler/LessonAnimationContext';
@@ -174,13 +173,6 @@ function ModelLoader() {
               onComplete={handleCameraComplete}
             />
             
-            <VisualGuideController
-              guideType={visualGuide.guideType}
-              guideData={visualGuide.guideData}
-              duration={visualGuide.duration}
-              isActive={visualGuide.isActive}
-              onComplete={handleVisualComplete}
-            />
             
             {/* Head Animation Controller */}
             <HeadAnimationController

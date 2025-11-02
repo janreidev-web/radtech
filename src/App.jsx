@@ -11,7 +11,7 @@ function App() {
   // Initialize currentPage using NavigationManager
   const [currentPage, setCurrentPage] = useState(() => {
     const page = NavigationManager.initialize();
-    console.log('App initialized with page:', page, 'Is refresh:', NavigationManager.isRefresh());
+    // console removed
     return page;
   }); 
 
@@ -28,7 +28,7 @@ function App() {
 
   // Enhanced navigation handler that updates both state and sessionStorage
   const handleNavClick = (pageId) => {
-    console.log('Navigating to:', pageId);
+    // console removed
     setCurrentPage(pageId);
     NavigationManager.savePage(pageId);
   };

@@ -1,44 +1,10 @@
 import React, { useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 
-function Body({ scale, isMobile, armsClosed = false, isLyingDown = false, bodyLift = 0 }) {
+function Body({ scale, isMobile, armsClosed = false, isLyingDown = false }) {
   const { scene } = useGLTF('/Model/base.glb');
 
-  // Log all mesh nodes in the scene
-  useEffect(() => {
-    const logAllMeshNodes = (object, depth = 0) => {
-      const indent = '  '.repeat(depth);
-      
-      if (object.isMesh) {
-        console.log(`${indent}MESH: ${object.name || 'unnamed'}`, {
-          name: object.name,
-          type: object.type,
-          position: object.position,
-          rotation: object.rotation,
-          scale: object.scale,
-          geometry: object.geometry?.type,
-          material: object.material?.type,
-          visible: object.visible,
-          userData: object.userData
-        });
-      } else if (object.name) {
-        console.log(`${indent}GROUP: ${object.name}`, {
-          name: object.name,
-          type: object.type,
-          children: object.children.length,
-          position: object.position,
-          rotation: object.rotation,
-          scale: object.scale
-        });
-      }
-      
-      object.children.forEach(child => logAllMeshNodes(child, depth + 1));
-    };
-    
-    console.log('=== ALL MESH NODES IN SCENE ===');
-    logAllMeshNodes(scene);
-    console.log('=== END MESH NODES ===');
-  }, [scene]);
+  // (debug logging removed) previously listed mesh nodes here
 
   // Position the arms based on armsClosed state
   useEffect(() => {
@@ -50,46 +16,46 @@ function Body({ scale, isMobile, armsClosed = false, isLyingDown = false, bodyLi
         if (object.name === 'CC_Base_L_Upperarm') {
           // Rotate left upper arm inward
           object.rotation.set(0.5, 0.2, -1.3); // Left arm inward
-          console.log('Rotated left upper arm inward:', object.name);
+          // console removed
         }
         if (object.name === 'CC_Base_L_Forearm') {
           // Rotate left forearm to bring it closer to body
           object.rotation.set(0, 1, 0); // Left forearm inward
-          console.log('Rotated left forearm inward:', object.name);
+          // console removed
         }
         
         // Right arm controls
         if (object.name === 'CC_Base_R_Upperarm') {
           // Rotate right upper arm inward (opposite direction)
           object.rotation.set(1.5, -0.3, 1.5); // Right arm inward (negative for opposite direction)
-          console.log('Rotated right upper arm inward:', object.name);
+          // console removed
         }
         if (object.name === 'CC_Base_R_Forearm') {
           // Rotate right forearm to bring it closer to body
           object.rotation.set(0, 0, 0); // Right forearm inward (negative for opposite direction)
-          console.log('Rotated right forearm inward:', object.name);
+          // console removed
         }
       } else {
         // Reset individual arm bones to original position (same as initial state)
         if (object.name === 'CC_Base_L_Upperarm') {
           // Reset left upper arm to original position
           object.rotation.set(0, 0, 0); // Reset to original rotation
-          console.log('Reset left upper arm to original:', object.name);
+          // console removed
         }
         if (object.name === 'CC_Base_L_Forearm') {
           // Reset left forearm to original position
           object.rotation.set(0, 0, 0); // Reset to original rotation
-          console.log('Reset left forearm to original:', object.name);
+          // console removed
         }
         if (object.name === 'CC_Base_R_Upperarm') {
           // Reset right upper arm to original position
           object.rotation.set(0, 0, 0); // Reset to original rotation
-          console.log('Reset right upper arm to original:', object.name);
+          // console removed
         }
         if (object.name === 'CC_Base_R_Forearm') {
           // Reset right forearm to original position
           object.rotation.set(0, 0, 0); // Reset to original rotation
-          console.log('Reset right forearm to original:', object.name);
+          // console removed
         }
       }
       

@@ -18,28 +18,28 @@ function HeadController({ onHeadControl, onResetHead }) {
     const newTilt = tilt - degreeToRadian;
     setTilt(newTilt);
     onHeadControl({ tilt: newTilt, turn, posY });
-    console.log('[HeadController] Tilt Up -> tilt(rad):', newTilt.toFixed(3), 'turn(rad):', turn.toFixed(3), 'tilt(deg):', Math.round((newTilt * -180) / Math.PI));
+    // console removed
   };
 
   const handleTiltDown = () => {
     const newTilt = tilt + degreeToRadian;
     setTilt(newTilt);
     onHeadControl({ tilt: newTilt, turn, posY });
-    console.log('[HeadController] Tilt Down -> tilt(rad):', newTilt.toFixed(3), 'turn(rad):', turn.toFixed(3), 'tilt(deg):', Math.round((newTilt * -180) / Math.PI));
+    // console removed
   };
 
   const handleTurnLeft = () => {
     const newTurn = turn - degreeToRadian;
     setTurn(newTurn);
     onHeadControl({ tilt, turn: newTurn, posY });
-    console.log('[HeadController] Turn Left -> tilt(rad):', tilt.toFixed(3), 'turn(rad):', newTurn.toFixed(3), 'turn(deg):', Math.round((newTurn * -180) / Math.PI));
+    // console removed
   };
 
   const handleTurnRight = () => {
     const newTurn = turn + degreeToRadian;
     setTurn(newTurn);
     onHeadControl({ tilt, turn: newTurn, posY });
-    console.log('[HeadController] Turn Right -> tilt(rad):', tilt.toFixed(3), 'turn(rad):', newTurn.toFixed(3), 'turn(deg):', Math.round((newTurn * -180) / Math.PI));
+    // console removed
   };
 
   const handleReset = () => {
@@ -47,7 +47,7 @@ function HeadController({ onHeadControl, onResetHead }) {
     setTurn(0);
     setPosY(0);
     onResetHead();
-    console.log('[HeadController] Reset -> tilt(rad): 0.000 turn(rad): 0.000');
+    // console removed
   };
 
   const tiltDegrees = Math.round((tilt * -180) / Math.PI);

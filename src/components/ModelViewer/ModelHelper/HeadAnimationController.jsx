@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { useThree } from '@react-three/fiber';
-import * as THREE from 'three';
 
 const HeadAnimationController = ({ 
   headRotation = { tilt: 0, turn: 0 }, 
@@ -12,7 +11,6 @@ const HeadAnimationController = ({
     CC_Base_NeckTwist02: 0
   },
   neckNamePatterns = ['Neck'], // fallback matching if exact names differ
-  debug = false
 }) => {
   const { scene } = useThree();
   const initialRotationsByNameRef = useRef({});
@@ -37,9 +35,6 @@ const HeadAnimationController = ({
             y: object.rotation.y,
             z: object.rotation.z
           };
-          if (!discoveredTargetsRef.current.logged) {
-            console.log(`Head/Neck controller initialized for ${name}`);
-          }
         }
 
         const initial = initialRotationsByNameRef.current[name];
@@ -57,13 +52,7 @@ const HeadAnimationController = ({
         object.rotation.y = initial.y + clampedTurn * weight;
         object.rotation.z = initial.z; // unchanged
 
-        if (debug && weight > 0) {
-          console.log('[HeadAnimationController] Applied', name, {
-            weight: Number(weight.toFixed(2)),
-            tiltRad: Number(clampedTilt.toFixed(3)),
-            turnRad: Number(clampedTurn.toFixed(3))
-          });
-        }
+        // debug logs removed
       }
 
       // Continue traversing children
