@@ -116,8 +116,8 @@ function HeadController({ onHeadControl, onResetHead }) {
     }
   });
 
-  const tiltDegrees = Math.round((tilt * -180) / Math.PI);
-  const turnDegrees = Math.round((turn * -180) / Math.PI);
+  const tiltDegrees = Math.abs(Math.round((tilt * -180) / Math.PI));
+  const turnDegrees = Math.abs(Math.round((turn * -180) / Math.PI));
 
   return (
     <div style={styles.container}>

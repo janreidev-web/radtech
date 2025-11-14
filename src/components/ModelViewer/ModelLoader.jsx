@@ -4,6 +4,8 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import BodyMap from './ModelHelper/Body';
 import XRayTable3D from './ModelHelper/XRayTable3D';
+import Cassette from './ModelHelper/Cassette';
+import Vertical from './ModelHelper/Vertical';
 import LessonDashboard from './LessonHandler/LessonDashboard';
 import CameraController from './ModelHelper/CameraController';
 import HeadController from './ModelHelper/HeadController';
@@ -12,11 +14,22 @@ import CursorZoomController from './ModelHelper/CursorZoomController';
 import LoadingIndicator from './ModelHelper/LoadingIndicator';
 import { LessonAnimationProvider } from './LessonHandler/LessonAnimationContext';
 import AnimationHandlerRegistrar from './LessonHandler/AnimationHandlerRegistrar';
+import EquipmentControls from './ModelHelper/EquipmentControls';
 
 function ModelLoader() {
   const [isMobile, setIsMobile] = useState(false);
   const [showXRayTable, setShowXRayTable] = useState(false);
+  const [showCassette, setShowCassette] = useState(false);
+  const [showVertical, setShowVertical] = useState(false);
   const [armsClosed, setArmsClosed] = useState(false);
+  const [armPosition, setArmPosition] = useState('default');
+  const [cassetteOffset, setCassetteOffset] = useState(0);
+  const [verticalOffset, setVerticalOffset] = useState(0);
+  const [cassetteActualZ, setCassetteActualZ] = useState(null);
+  const [verticalActualZ, setVerticalActualZ] = useState(null);
+  const [cassetteBaselineZ, setCassetteBaselineZ] = useState(null);
+  const [verticalBaselineZ, setVerticalBaselineZ] = useState(null);
+  const [resetKey, setResetKey] = useState(0);
   const [isLyingDown, setIsLyingDown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const orbitControlsRef = useRef();
@@ -79,10 +92,54 @@ function ModelLoader() {
     });
   }, []);
 
+  const handleArmPositionChange = useCallback((position) => {
+    setArmPosition(position);
+    setArmsClosed(position === 'closed');
+  }, []);
+
+  const handleAdjustCassette = useCallback((delta) => {
+    setCassetteOffset(prev => Math.max(0, prev + delta));
+  }, []);
+
+  const handleAdjustVertical = useCallback((delta) => {
+    setVerticalOffset(prev => Math.max(0, prev + delta));
+  }, []);
+
+  const handleCassettePositionUpdate = useCallback((actualZ, isBaseline = false) => {
+    setCassetteActualZ(actualZ);
+    if (isBaseline && cassetteBaselineZ === null) {
+      setCassetteBaselineZ(actualZ);
+    }
+  }, [cassetteBaselineZ]);
+
+  const handleVerticalPositionUpdate = useCallback((actualZ, isBaseline = false) => {
+    setVerticalActualZ(actualZ);
+    if (isBaseline && verticalBaselineZ === null) {
+      setVerticalBaselineZ(actualZ);
+    }
+  }, [verticalBaselineZ]);
+
   // Handle reset functionality
   const handleReset = useCallback(() => {
+    // Reset offsets first
+    setCassetteOffset(0); // Reset cassette offset to original position
+    setVerticalOffset(0); // Reset vertical offset to original position
+    setCassetteActualZ(null); // Reset actual Z tracking
+    setVerticalActualZ(null); // Reset actual Z tracking
+    // Keep baseline Z values - they persist across resets
+    
+    // Increment resetKey to force remount - use setTimeout to ensure it happens
+    // after offsets are set but before components are hidden
+    setTimeout(() => {
+      setResetKey(prev => prev + 1); // Force equipment components to reset
+    }, 10);
+    
+    // Hide components and reset other states
     setShowXRayTable(false); // Hide X-ray table on reset
+    setShowCassette(false); // Hide cassette on reset
+    setShowVertical(false); // Hide vertical on reset
     setArmsClosed(false); // Reset arms to original position
+    setArmPosition('default'); // Reset arm position to default
     setIsLyingDown(false); // Return to standing position
     
     // Reset head control to default position
@@ -171,6 +228,7 @@ function ModelLoader() {
                   scale={isMobile ? 1.7 : 2.4}
                   isMobile={isMobile}
                   armsClosed={armsClosed}
+                  armPosition={armPosition}
                   isLyingDown={isLyingDown}
                   bodyLift={bodyLift}
                   onLoad={() => setIsLoading(false)}
@@ -183,6 +241,32 @@ function ModelLoader() {
               <XRayTable3D 
                 position={isMobile ? [0, -0.5, 0] : [0, -0.5, 0]} // Position directly under the sleeping model
                 scale={isMobile ? 1.2 : 1.5} 
+              />
+            )}
+            
+            {/* 3D Cassette Model - Show when lesson is selected */}
+            {showCassette && (
+              <Cassette 
+                key={`cassette-${resetKey}`}
+                position={isMobile ? [-2, 1.5, 0] : [-0.6, -2.15, 0.6]} 
+                scale={isMobile ? 0.5 : 0.8}
+                rotation={[0, 0, 0]}
+                heightOffset={cassetteOffset}
+                baselineZ={cassetteBaselineZ}
+                onPositionUpdate={handleCassettePositionUpdate}
+              />
+            )}
+            
+            {/* 3D Vertical Model - Show when lesson is selected */}
+            {showVertical && (
+              <Vertical 
+                key={`vertical-${resetKey}`}
+                position={isMobile ? [-2, 1.5, 0] : [3, -2.15, 0]} 
+                scale={isMobile ? 0.3 : 0.6}
+                rotation={[0, Math.PI, 0]}
+                heightOffset={verticalOffset}
+                baselineZ={verticalBaselineZ}
+                onPositionUpdate={handleVerticalPositionUpdate}
               />
             )}
             
@@ -225,14 +309,42 @@ function ModelLoader() {
         {/* Lesson Dashboard */}
         <div style={dashboardStyle}>
           <LessonDashboard
-            onLessonSelected={() => {
-              setShowXRayTable(true); // Show X-ray table when lesson is selected
-              setArmsClosed(true); // Close arms when lesson is selected
-              setIsLyingDown(true); // Make model lie down when lesson is selected
+            onLessonSelected={(lessonData) => {
+              // Check if this is the Pawlow Method (recumbent setup)
+              const isPawlowMethod = lessonData.categoryTitle && lessonData.categoryTitle.includes('Pawlow');
+              
+              if (isPawlowMethod) {
+                // Pawlow Method: Show x-ray table and make model lie down
+                setShowXRayTable(true);
+                setShowCassette(true);
+                setShowVertical(true);
+                handleArmPositionChange('closed');
+                setCassetteOffset(0);
+                setVerticalOffset(0);
+                setIsLyingDown(true);
+              } else {
+                // Twinning Method: Keep standing, no x-ray table, arms closer to torso
+                setShowXRayTable(false);
+                setShowCassette(true);
+                setShowVertical(true);
+                handleArmPositionChange('twinning');
+                setCassetteOffset(0);
+                setVerticalOffset(0);
+                setIsLyingDown(false);
+              }
             }}
             onReset={handleReset}
           />
         </div>
+        {/* Equipment Controls - Only show when lesson is selected */}
+        <EquipmentControls
+          showCassette={showCassette}
+          showVertical={showVertical}
+          cassetteOffset={cassetteOffset}
+          verticalOffset={verticalOffset}
+          onAdjustCassette={handleAdjustCassette}
+          onAdjustVertical={handleAdjustVertical}
+        />
 
         {/* Register animation handlers */}
         <AnimationHandlerRegistrar handlers={animationHandlers} />

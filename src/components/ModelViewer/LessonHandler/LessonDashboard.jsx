@@ -11,70 +11,28 @@ const ChevronDownIcon = () => (
 
 const Categories = [
   { 
-    title: "Lateral Cervical Spine (Grandy Method)", 
+    title: "Cervicothoracic Lateral - 'Swimmer's' (Twinning Method)", 
     lessons: [
-      "Purpose and Clinical Use",
-      "Patient Positioning and Body Alignment",
-      "Head and Neck Placement",
-      "Central Ray (CR) Direction and Level",
-      "Evaluation Criteria for C1–C7",
-      "Common Errors and Corrections"
+      "Purpose: Visualizing C7–T1 (Addressing Shoulder Superimposition)",
+      "Patient Position: True Upright Lateral (Standing or Sitting)",
+      "Interactive Arm & Shoulder Positioning (Proximal Arm Up, Distal Arm Depressed)",
+      "CR Centering: C7–T1 Junction (Suprasternal Notch)",
+      "Consideration: Patient Body Habitus",
+      "Image Evaluation: C7–T1 Clearly Demonstrated",
+      "Troubleshooting: Insufficient Shoulder Depression"
     ] 
   },
   { 
-    title: "Lateral Cervicothoracic Spine (Swimmer’s View - Twinning Method)", 
+    title: "Cervicothoracic Lateral - 'Swimmer's' (Pawlow Method)", 
     lessons: [
-      "Purpose and Indications (C7–T1 Visualization)",
-      "Patient Position (Upright Lateral)",
-      "Arm and Shoulder Positioning",
-      "CR Centering and Beam Alignment",
-      "Image Evaluation and Landmarks",
-      "Positioning Errors and Correction Techniques"
+      "Purpose: C7–T1 Visualization for Trauma/Recumbent Patients (Lying on Table)",
+      "Patient Position: Recumbent Lateral Setup (Lying on Table, Trauma Considerations)",
+      "Interactive Arm Placement (Recumbent)",
+      "CR Alignment: Horizontal Beam Centering",
+      "Evaluation Criteria: C7–T1 Clarity, No Motion",
+      "Troubleshooting: Patient Safety and Alignment Corrections"
     ] 
   },
-  { 
-    title: "Lateral Cervicothoracic Spine (Swimmer’s View - Pawlow Method)", 
-    lessons: [
-      "Purpose and Patient Considerations",
-      "Recumbent Lateral Setup",
-      "Arm Placement and Shoulder Depression",
-      "CR Angulation and Centering",
-      "Evaluation Criteria (C7–T1 Clarity)",
-      "Correction and Safety Measures"
-    ] 
-  },
-  { 
-    title: "Monda Modification (Cephalad Angulation)", 
-    lessons: [
-      "Purpose of CR Angulation Adjustment",
-      "When to Apply Cephalad Angle (5–15°)",
-      "Technique for Shoulder Overlap Correction",
-      "Positioning Tips for Disk Space Visibility",
-      "Image Quality and Evaluation Points"
-    ] 
-  },
-  { 
-    title: "Lateral Thoracic Spine Projection", 
-    lessons: [
-      "Purpose and Anatomical Coverage (T1–T12)",
-      "Patient Position and Support Aids",
-      "Arm Elevation and Body Alignment",
-      "CR Centering at T7",
-      "Breathing Technique and Exposure Control",
-      "Evaluation Criteria and Common Errors"
-    ] 
-  },
-  { 
-    title: "Comparative Analysis of Lateral Spine Techniques", 
-    lessons: [
-      "Differences Between Cervical, Cervicothoracic, and Thoracic Views",
-      "Challenges Faced by Radiologic Technology Interns",
-      "Proper Positioning Strategies for Difficult Patients",
-      "Techniques to Reduce Shoulder Superimposition",
-      "Importance of Correct CR Angulation",
-      "Recommendations for Clinical Improvement"
-    ] 
-  }
 ];
 
 
@@ -116,7 +74,8 @@ function LessonDashboard({ onLessonSelected, onReset }) {
     if (onLessonSelected) {
       onLessonSelected({
         lessonName,
-        description: `${lessonName} is part of ${categoryTitle}. This lesson introduces the key anatomy and concepts you will explore next. Use the steps and camera controls to examine structures and their clinical relevance.`
+        description: `${lessonName} is part of ${categoryTitle}. This lesson introduces the key anatomy and concepts you will explore next. Use the steps and camera controls to examine structures and their clinical relevance.`,
+        categoryTitle
       });
     }
   };
@@ -144,7 +103,7 @@ function LessonDashboard({ onLessonSelected, onReset }) {
   return (
     <>
     <div
-      className="flex flex-col h-40 md:h-100"
+      className="flex flex-col h-45 md:h-60 gap-2"
       // Prevent wheel events inside the dashboard from bubbling to the canvas/scene
       // Use capture phase and overscroll-behavior to stop scroll chaining to ancestor (the canvas)
       onWheelCapture={(e) => {

@@ -1,68 +1,61 @@
 import React, { useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 
-function Body({ scale, isMobile, armsClosed = false, isLyingDown = false, onLoad }) {
+function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', isLyingDown = false, onLoad }) {
   const { scene } = useGLTF('/Model/base.glb');
 
-  // (debug logging removed) previously listed mesh nodes here
-
-  // Call onLoad when model is ready
   useEffect(() => {
     if (onLoad && scene) {
       onLoad();
     }
   }, [scene, onLoad]);
 
-  // Position the arms based on armsClosed state
   useEffect(() => {
     const positionArms = (object) => {
+      const position = armPosition !== 'default' ? armPosition : (armsClosed ? 'closed' : 'default');
       
-      // Also try to control individual arm bones for more dramatic effect
-      if (armsClosed) {
-        // Left arm controls
+      if (position === 'closed') {
         if (object.name === 'CC_Base_L_Upperarm') {
-          // Rotate left upper arm inward
-          object.rotation.set(0.5, 0.2, -1.3); // Left arm inward
-          // console removed
+          object.rotation.set(0.5, 0.2, -1.3);
         }
         if (object.name === 'CC_Base_L_Forearm') {
-          // Rotate left forearm to bring it closer to body
-          object.rotation.set(0, 1, 0); // Left forearm inward
-          // console removed
+          object.rotation.set(0, 1, 0);
         }
-        
-        // Right arm controls
         if (object.name === 'CC_Base_R_Upperarm') {
-          // Rotate right upper arm inward (opposite direction)
-          object.rotation.set(1.5, -0.3, 1.5); // Right arm inward (negative for opposite direction)
-          // console removed
+          object.rotation.set(1.5, -0.3, 1.5);
         }
         if (object.name === 'CC_Base_R_Forearm') {
-          // Rotate right forearm to bring it closer to body
-          object.rotation.set(0, 0, 0); // Right forearm inward (negative for opposite direction)
-          // console removed
+          object.rotation.set(0, 0, 0);
+        }
+      } else if (position === 'twinning') {
+        if (object.name === 'CC_Base_L_Upperarm') {
+          //object.rotation.set(0.32, 0.12, -1.25);
+          object.rotation.set(0.32, 0.12, -1.25);
+        }
+        if (object.name === 'CC_Base_L_Forearm') {
+          //object.rotation.set(0, 0.55, 0);
+          object.rotation.set(0, -0.5, -0.05);
+        }
+        if (object.name === 'CC_Base_R_Upperarm') {
+          //object.rotation.set(1.05, -0.18, 1.25);
+          object.rotation.set(0.64, -0.12, 1.25);
+        }
+        if (object.name === 'CC_Base_R_Forearm') {
+          //object.rotation.set(0, -0.55, 0);
+          object.rotation.set(0, 0.5, 0.05);
         }
       } else {
-        // Reset individual arm bones to original position (same as initial state)
         if (object.name === 'CC_Base_L_Upperarm') {
-          // Reset left upper arm to original position
-          object.rotation.set(0, 0, 0); // Reset to original rotation
-          // console removed
+          object.rotation.set(0, 0, 0);
         }
         if (object.name === 'CC_Base_L_Forearm') {
-          // Reset left forearm to original position
-          object.rotation.set(0, 0, 0); // Reset to original rotation
-          // console removed
+          object.rotation.set(0, 0, 0);
         }
         if (object.name === 'CC_Base_R_Upperarm') {
-          // Reset right upper arm to original position
-          object.rotation.set(0, 0, 0); // Reset to original rotation
-          // console removed
+          object.rotation.set(0, 0, 0);
         }
         if (object.name === 'CC_Base_R_Forearm') {
-          // Reset right forearm to original position
-          object.rotation.set(0, 0, 0); // Reset to original rotation
-          // console removed
+          object.rotation.set(0, 0, 0);
         }
       }
       
@@ -70,18 +63,18 @@ function Body({ scale, isMobile, armsClosed = false, isLyingDown = false, onLoad
     };
     
     positionArms(scene);
-  }, [scene, armsClosed]);
-
+  }, [scene, armsClosed, armPosition]);
 
   return (
     <primitive
       object={scene}
       scale={scale}
-      position={isMobile ? 
-        (isLyingDown ? [0, 1.9 , 0] : [0, -2.1, 0]) : 
-        (isLyingDown ? [2, 1.60, 0] : [0, -2.1, 0])
-      } // Position above table when lying down, original position when standing; add bodyLift for subtle raise
-      rotation={isLyingDown ? [-1.5, 0, 1.56] : [0, 0, 0]} // Lie down when lesson active, flip 180° so head is at detector, standing straight when not
+      position={
+        isMobile 
+          ? (isLyingDown ? [0, 1.9, 0] : [0, -2.1, 0])
+          : (isLyingDown ? [2, 1.6, 0] : [0, -2.1, 0])
+      }
+      rotation={isLyingDown ? [-1.5, 0, 1.56] : [0, 0, 0]}
     />
   );
 }
