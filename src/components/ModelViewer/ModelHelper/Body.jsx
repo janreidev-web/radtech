@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 
-function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', isLyingDown = false, onLoad }) {
+function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', isLyingDown = false, baseRotation = 'front', onLoad }) {
   const { scene } = useGLTF('/Model/base.glb');
 
   useEffect(() => {
@@ -27,24 +27,27 @@ function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', is
         if (object.name === 'CC_Base_R_Forearm') {
           object.rotation.set(0, 0, 0);
         }
+        
       } else if (position === 'twinning') {
         if (object.name === 'CC_Base_L_Upperarm') {
           //object.rotation.set(0.32, 0.12, -1.25);
           object.rotation.set(0.32, 0.12, -1.25);
         }
         if (object.name === 'CC_Base_L_Forearm') {
-          //object.rotation.set(0, 0.55, 0);
+          //object.rotation.set(0, 0.5, -0.05);
           object.rotation.set(0, -0.5, -0.05);
         }
         if (object.name === 'CC_Base_R_Upperarm') {
-          //object.rotation.set(1.05, -0.18, 1.25);
+          //object.rotation.set(0.64, -0.12, 1.25);
           object.rotation.set(0.64, -0.12, 1.25);
         }
         if (object.name === 'CC_Base_R_Forearm') {
-          //object.rotation.set(0, -0.55, 0);
+          //object.rotation.set(0, -0.5, 0.05);
           object.rotation.set(0, 0.5, 0.05);
         }
-      } else {
+      } 
+      
+      else {
         if (object.name === 'CC_Base_L_Upperarm') {
           object.rotation.set(0, 0, 0);
         }
@@ -65,6 +68,23 @@ function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', is
     positionArms(scene);
   }, [scene, armsClosed, armPosition]);
 
+  // Calculate rotation based on baseRotation and isLyingDown
+  const getRotation = () => {
+    if (isLyingDown) {
+      return [-1.5, 0, 1.56];
+    }
+    
+    // Base rotations for different views (Y-axis rotation in radians)
+    const rotations = {
+      'front': [0, 0, 0],
+      'side-right': [0, Math.PI / 2, 0],      // 90 degrees
+      'side-left': [0, -Math.PI / 2, 0],      // -90 degrees
+      'back': [0, Math.PI, 0]                  // 180 degrees
+    };
+    
+    return rotations[baseRotation] || rotations['front'];
+  };
+
   return (
     <primitive
       object={scene}
@@ -74,7 +94,7 @@ function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', is
           ? (isLyingDown ? [0, 1.9, 0] : [0, -2.1, 0])
           : (isLyingDown ? [2, 1.6, 0] : [0, -2.1, 0])
       }
-      rotation={isLyingDown ? [-1.5, 0, 1.56] : [0, 0, 0]}
+      rotation={getRotation()}
     />
   );
 }

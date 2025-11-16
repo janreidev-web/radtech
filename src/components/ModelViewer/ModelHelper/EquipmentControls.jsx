@@ -122,9 +122,14 @@ function EquipmentControls({
 
   const isMobile = window.innerWidth <= 768;
 
+  // Calculate top position to be below rotation controls
+  // Rotation controls panel is approximately 100px tall including padding
+  const rotationControlsHeight = 100;
+  const topOffset = isMobile ? '60%' : `${20 + rotationControlsHeight + 12}px`; // 12px gap
+
   const panelStyle = {
     position: 'absolute',
-    top: isMobile ? '60%' : '20px',
+    top: topOffset,
     right: '20px',
     backgroundColor: 'rgba(50, 50, 50, 0.9)',
     borderRadius: '8px',

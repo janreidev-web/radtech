@@ -15,6 +15,7 @@ import LoadingIndicator from './ModelHelper/LoadingIndicator';
 import { LessonAnimationProvider } from './LessonHandler/LessonAnimationContext';
 import AnimationHandlerRegistrar from './LessonHandler/AnimationHandlerRegistrar';
 import EquipmentControls from './ModelHelper/EquipmentControls';
+import ModelRotationControls from './ModelHelper/ModelRotationControls';
 
 function ModelLoader() {
   const [isMobile, setIsMobile] = useState(false);
@@ -32,6 +33,7 @@ function ModelLoader() {
   const [resetKey, setResetKey] = useState(0);
   const [isLyingDown, setIsLyingDown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [baseRotation, setBaseRotation] = useState('front');
   const orbitControlsRef = useRef();
   
   // Lesson animation states
@@ -148,6 +150,9 @@ function ModelLoader() {
       position: { y: 0 }
     });
     
+    // Reset base rotation to front
+    setBaseRotation('front');
+    
     // Reset camera animation state
     setCameraAnimation({
       isActive: false,
@@ -230,6 +235,7 @@ function ModelLoader() {
                   armsClosed={armsClosed}
                   armPosition={armPosition}
                   isLyingDown={isLyingDown}
+                  baseRotation={baseRotation}
                   bodyLift={bodyLift}
                   onLoad={() => setIsLoading(false)}
                 />
@@ -248,8 +254,8 @@ function ModelLoader() {
             {showCassette && (
               <Cassette 
                 key={`cassette-${resetKey}`}
-                position={isMobile ? [-2, 1.5, 0] : [-0.6, -2.15, 0.6]} 
-                scale={isMobile ? 0.5 : 0.8}
+                position={isMobile ? [-2, 1.5, 0] : [-1, -2.15, 0.6]} 
+                scale={isMobile ? 0.5 : 1.3}
                 rotation={[0, 0, 0]}
                 heightOffset={cassetteOffset}
                 baselineZ={cassetteBaselineZ}
@@ -356,6 +362,12 @@ function ModelLoader() {
             onResetHead={handleResetHead}
           />
         )}
+
+        {/* Model Rotation Controls */}
+        <ModelRotationControls
+          currentRotation={baseRotation}
+          onRotationChange={setBaseRotation}
+        />
       </div>
     </LessonAnimationProvider>
   );
