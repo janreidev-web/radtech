@@ -92,7 +92,7 @@ function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', is
       position={
         isMobile 
           ? (isLyingDown ? [0, 1.9, 0] : [0, -2.1, 0])
-          : (isLyingDown ? [2, 1.6, 0] : [0, -2.1, 0])
+          : (isLyingDown ? [2, 0.6, 0] : [0, -2.1, 0])
       }
       rotation={getRotation()}
     />

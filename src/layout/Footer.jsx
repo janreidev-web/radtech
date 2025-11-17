@@ -1,10 +1,6 @@
 import React from 'react';
-import Icon from './Icon'; // Import the centralized Icon component
+import Icon from '../shared/components/Icon';
 
-/**
- * A creative and mobile-friendly footer for a Radiotechnology application.
- * Matches the style of the Header component.
- */
 function Footer() {
   const footerNav = [
     { name: 'About', href: '#' },
@@ -12,8 +8,8 @@ function Footer() {
   ];
 
   const legalNav = [
-      { name: 'Privacy Policy', href: '#' },
-      { name: 'Terms of Service', href: '#' },
+    { name: 'Privacy Policy', href: '#' },
+    { name: 'Terms of Service', href: '#' },
   ];
 
   const socialLinks = [
@@ -29,7 +25,6 @@ function Footer() {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8 xl:col-span-1">
-            {/* Logo and App Name */}
             <a href="#" className="flex items-center space-x-3">
               <Icon name="logo" className="h-10 w-10 text-teal-400" />
               <span className="text-2xl font-bold text-white tracking-wider">
@@ -43,7 +38,7 @@ function Footer() {
           <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
             <div>
               <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase">Navigation</h3>
-              <ul role="list" className="mt-4 space-y-4">
+              <ul className="mt-4 space-y-4">
                 {footerNav.map((item) => (
                   <li key={item.name}>
                     <a href={item.href} className="text-base text-gray-400 hover:text-teal-400 transition-colors">
@@ -53,13 +48,15 @@ function Footer() {
                 ))}
               </ul>
             </div>
-            <div className="mt-0">
+            <div>
               <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase">Legal</h3>
-              <ul role="list" className="mt-4 space-y-4">
+              <ul className="mt-4 space-y-4">
                 {legalNav.map((item) => (
-                    <li key={item.name}>
-                        <a href={item.href} className="text-base text-gray-400 hover:text-teal-400 transition-colors">{item.name}</a>
-                    </li>
+                  <li key={item.name}>
+                    <a href={item.href} className="text-base text-gray-400 hover:text-teal-400 transition-colors">
+                      {item.name}
+                    </a>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -84,3 +81,4 @@ function Footer() {
 }
 
 export default Footer;
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Icon from './Icon';
+import Icon from '../shared/components/Icon';
 
 function Header({ onNavClick, currentPage }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,7 +14,7 @@ function Header({ onNavClick, currentPage }) {
   const navLinks = [
     { name: 'Home', id: 'home' },
     { name: 'Model Viewer', id: 'model' },
-    { name: 'About', id: 'about' } // You can handle this later
+    { name: 'About', id: 'about' },
   ];
 
   return (
@@ -27,8 +27,6 @@ function Header({ onNavClick, currentPage }) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-
-          {/* Logo */}
           <div className="flex items-center space-x-3">
             <Icon name="logo" className="h-10 w-10 text-teal-400" />
             <span className="text-2xl font-bold text-white tracking-wider">
@@ -36,7 +34,6 @@ function Header({ onNavClick, currentPage }) {
             </span>
           </div>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => {
               const isActive = currentPage === link.id;
@@ -59,7 +56,6 @@ function Header({ onNavClick, currentPage }) {
             })}
           </nav>
 
-          {/* Mobile Menu Toggle */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -77,7 +73,6 @@ function Header({ onNavClick, currentPage }) {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
       <div
         className={`md:hidden transition-all duration-500 ease-in-out ${
           isMenuOpen ? 'max-h-96 opacity-100 visible' : 'max-h-0 opacity-0 invisible'
@@ -110,3 +105,4 @@ function Header({ onNavClick, currentPage }) {
 }
 
 export default Header;
+

@@ -16,21 +16,25 @@ import { LessonAnimationProvider } from './LessonHandler/LessonAnimationContext'
 import AnimationHandlerRegistrar from './LessonHandler/AnimationHandlerRegistrar';
 import EquipmentControls from './ModelHelper/EquipmentControls';
 import ModelRotationControls from './ModelHelper/ModelRotationControls';
-import { useResponsiveFlag } from '../../features/model-viewer/hooks/useResponsiveFlag';
-import { useCameraAnimation } from '../../features/model-viewer/hooks/useCameraAnimation';
-import { useHeadControls } from '../../features/model-viewer/hooks/useHeadControls';
+import { useResponsiveFlag } from './hooks/useResponsiveFlag';
+import { useCameraAnimation } from './hooks/useCameraAnimation';
+import { useHeadControls } from './hooks/useHeadControls';
 
 function ModelLoader() {
   const isMobile = useResponsiveFlag();
   const [showXRayTable, setShowXRayTable] = useState(false);
   const [showCassette, setShowCassette] = useState(false);
-  const [showVertical, setShowVertical] = useState(false);
+  const [showVerticalA, setShowVerticalA] = useState(false);
+  const [showVerticalB, setShowVerticalB] = useState(false);
   const [armsClosed, setArmsClosed] = useState(false);
   const [armPosition, setArmPosition] = useState('default');
   const [cassetteOffset, setCassetteOffset] = useState(0);
-  const [verticalOffset, setVerticalOffset] = useState(0);
+  const [verticalAOffset, setVerticalAOffset] = useState(0);
+  const [verticalBOffset, setVerticalBOffset] = useState(0);
+  const [verticalBHorizontalOffset, setVerticalBHorizontalOffset] = useState(0);
   const [cassetteBaselineZ, setCassetteBaselineZ] = useState(null);
-  const [verticalBaselineZ, setVerticalBaselineZ] = useState(null);
+  const [verticalABaselineZ, setVerticalABaselineZ] = useState(null);
+  const [verticalBBaselineZ, setVerticalBBaselineZ] = useState(null);
   const [resetKey, setResetKey] = useState(0);
   const [isLyingDown, setIsLyingDown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,11 +57,19 @@ function ModelLoader() {
   }, []);
 
   const handleAdjustCassette = useCallback((delta) => {
-    setCassetteOffset(prev => Math.max(0, prev + delta));
+    setCassetteOffset(prev => prev + delta);
   }, []);
 
   const handleAdjustVertical = useCallback((delta) => {
-    setVerticalOffset(prev => Math.max(0, prev + delta));
+    if (showVerticalA) {
+      setVerticalAOffset(prev => prev + delta);
+    } else if (showVerticalB) {
+      setVerticalBOffset(prev => prev + delta);
+    }
+  }, [showVerticalA, showVerticalB]);
+
+  const handleAdjustVerticalBHorizontal = useCallback((delta) => {
+    setVerticalBHorizontalOffset(prev => prev + delta);
   }, []);
 
   const handleCassettePositionUpdate = useCallback((actualZ, isBaseline = false) => {
@@ -66,17 +78,25 @@ function ModelLoader() {
     }
   }, [cassetteBaselineZ]);
 
-  const handleVerticalPositionUpdate = useCallback((actualZ, isBaseline = false) => {
-    if (isBaseline && verticalBaselineZ === null) {
-      setVerticalBaselineZ(actualZ);
+  const handleVerticalBaselineUpdate = useCallback((variant, actualZ, isBaseline = false) => {
+    if (variant === 'A') {
+      if (isBaseline && verticalABaselineZ === null) {
+        setVerticalABaselineZ(actualZ);
+      }
+    } else if (variant === 'B') {
+      if (isBaseline && verticalBBaselineZ === null) {
+        setVerticalBBaselineZ(actualZ);
+      }
     }
-  }, [verticalBaselineZ]);
+  }, [verticalABaselineZ, verticalBBaselineZ]);
 
   // Handle reset functionality
   const handleReset = useCallback(() => {
     // Reset offsets first
     setCassetteOffset(0); // Reset cassette offset to original position
-    setVerticalOffset(0); // Reset vertical offset to original position
+    setVerticalAOffset(0);
+    setVerticalBOffset(0);
+    setVerticalBHorizontalOffset(0);
     // Keep baseline Z values - they persist across resets
     
     // Increment resetKey to force remount - use setTimeout to ensure it happens
@@ -88,7 +108,8 @@ function ModelLoader() {
     // Hide components and reset other states
     setShowXRayTable(false); // Hide X-ray table on reset
     setShowCassette(false); // Hide cassette on reset
-    setShowVertical(false); // Hide vertical on reset
+    setShowVerticalA(false); // Hide verticals on reset
+    setShowVerticalB(false);
     setArmsClosed(false); // Reset arms to original position
     setArmPosition('default'); // Reset arm position to default
     setIsLyingDown(false); // Return to standing position
@@ -186,7 +207,7 @@ function ModelLoader() {
             {/* 3D X-ray Table - Only show when lesson is selected */}
             {showXRayTable && (
               <XRayTable3D 
-                position={isMobile ? [0, -0.5, 0] : [0, -0.5, 0]} // Position directly under the sleeping model
+                position={isMobile ? [0, -0.5, 0] : [0, -1.5, 0]} // Position directly under the sleeping model
                 scale={isMobile ? 1.2 : 1.5} 
               />
             )}
@@ -195,7 +216,7 @@ function ModelLoader() {
             {showCassette && (
               <Cassette 
                 key={`cassette-${resetKey}`}
-                position={isMobile ? [-2, 1.5, 0] : [-1, -2.15, 0.6]} 
+                position={isMobile ? [-2, 1.5, 0] : [-1, -2.20, 1.1]} 
                 scale={isMobile ? 0.5 : 1.3}
                 rotation={[0, 0, 0]}
                 heightOffset={cassetteOffset}
@@ -204,16 +225,34 @@ function ModelLoader() {
               />
             )}
             
-            {/* 3D Vertical Model - Show when lesson is selected */}
-            {showVertical && (
+            {/* 3D Vertical Model A - Show when Twinning method is selected */}
+            {showVerticalA && (
               <Vertical 
-                key={`vertical-${resetKey}`}
-                position={isMobile ? [-2, 1.5, 0] : [3, -2.15, 0]} 
+                key={`vertical-a-${resetKey}`}
+                variant="A"
+                position={isMobile ? [-2, 1.5, 0] : [1.5, -3.15, 3]} 
+                scale={isMobile ? 0.3 : 0.3}
+                rotation={[0, -Math.PI, 0]}
+                heightOffset={verticalAOffset}
+                baselineZ={verticalABaselineZ}
+                onPositionUpdate={(actualZ, isBaseline) =>
+                  handleVerticalBaselineUpdate('A', actualZ, isBaseline)
+                }
+              />
+            )}
+            {/* 3D Vertical Model B - Show when Pawlow method is selected */}
+            {showVerticalB && (
+              <Vertical 
+                key={`vertical-b-${resetKey}`}
+                variant="B"
+                position={isMobile ? [-2 + verticalBHorizontalOffset, 1.5, 0] : [1 + verticalBHorizontalOffset, -2.5, -2.2]} 
                 scale={isMobile ? 0.3 : 0.3}
                 rotation={[0, Math.PI, 0]}
-                heightOffset={verticalOffset}
-                baselineZ={verticalBaselineZ}
-                onPositionUpdate={handleVerticalPositionUpdate}
+                heightOffset={verticalBOffset}
+                baselineZ={verticalBBaselineZ}
+                onPositionUpdate={(actualZ, isBaseline) =>
+                  handleVerticalBaselineUpdate('B', actualZ, isBaseline)
+                }
               />
             )}
             
@@ -263,20 +302,23 @@ function ModelLoader() {
               if (isPawlowMethod) {
                 // Pawlow Method: Show x-ray table and make model lie down
                 setShowXRayTable(true);
-                setShowCassette(true);
-                setShowVertical(true);
+                setShowCassette(false);
+                setShowVerticalA(false);
+                setShowVerticalB(true);
                 handleArmPositionChange('closed');
                 setCassetteOffset(0);
-                setVerticalOffset(0);
+                setVerticalBOffset(0);
+                setVerticalBHorizontalOffset(0);
                 setIsLyingDown(true);
               } else {
-                // Twinning Method: Keep standing, no x-ray table, arms closer to torso
+                // Twinning Method: Keep standing, no x-ray table, no cassette, arms closer to torso
                 setShowXRayTable(false);
                 setShowCassette(true);
-                setShowVertical(true);
+                setShowVerticalA(true);
+                setShowVerticalB(false);
                 handleArmPositionChange('twinning');
                 setCassetteOffset(0);
-                setVerticalOffset(0);
+                setVerticalAOffset(0);
                 setIsLyingDown(false);
               }
             }}
@@ -286,11 +328,12 @@ function ModelLoader() {
         {/* Equipment Controls - Only show when lesson is selected */}
         <EquipmentControls
           showCassette={showCassette}
-          showVertical={showVertical}
-          cassetteOffset={cassetteOffset}
-          verticalOffset={verticalOffset}
+          showVertical={showVerticalA || showVerticalB}
+          showVerticalB={showVerticalB}
+          verticalLabel={showVerticalA ? 'Vertical A' : showVerticalB ? 'Vertical B' : 'Vertical'}
           onAdjustCassette={handleAdjustCassette}
           onAdjustVertical={handleAdjustVertical}
+          onAdjustVerticalBHorizontal={showVerticalB ? handleAdjustVerticalBHorizontal : undefined}
         />
 
         {/* Register animation handlers */}

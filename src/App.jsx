@@ -1,9 +1,9 @@
 import './App.css';
-import Footer from './components/Footer';
-import Header from './components/Header';
-import HomeContent from './components/HomeContent';
-import ModelLoader from './components/ModelViewer/ModelLoader';
-import About from './components/About';
+import Footer from './layout/Footer';
+import Header from './layout/Header';
+import HomeContent from './features/home/HomeContent';
+import ModelLoader from './features/model-viewer/ModelLoader';
+import About from './features/about/About';
 import { useState, useEffect } from 'react';
 import { NavigationManager } from './utils/navigationManager';
 

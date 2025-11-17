@@ -70,10 +70,11 @@ function useLongPressHandlers(adjustFn) {
 function EquipmentControls({
   showCassette,
   showVertical,
-  cassetteOffset,
-  verticalOffset,
+  showVerticalB = false,
+  verticalLabel = 'Vertical',
   onAdjustCassette,
-  onAdjustVertical
+  onAdjustVertical,
+  onAdjustVerticalBHorizontal
 }) {
   // Only show controls if at least one equipment is visible
   if (!showCassette && !showVertical) {
@@ -86,11 +87,15 @@ function EquipmentControls({
   const cassetteDecrease = useCallback(() => onAdjustCassette(-step), [onAdjustCassette]);
   const verticalIncrease = useCallback(() => onAdjustVertical(step), [onAdjustVertical]);
   const verticalDecrease = useCallback(() => onAdjustVertical(-step), [onAdjustVertical]);
+  const verticalBLeft = useCallback(() => onAdjustVerticalBHorizontal && onAdjustVerticalBHorizontal(-step), [onAdjustVerticalBHorizontal]);
+  const verticalBRight = useCallback(() => onAdjustVerticalBHorizontal && onAdjustVerticalBHorizontal(step), [onAdjustVerticalBHorizontal]);
 
   const cassetteUpHandlers = useLongPressHandlers(cassetteIncrease);
   const cassetteDownHandlers = useLongPressHandlers(cassetteDecrease);
   const verticalUpHandlers = useLongPressHandlers(verticalIncrease);
   const verticalDownHandlers = useLongPressHandlers(verticalDecrease);
+  const verticalBLeftHandlers = useLongPressHandlers(verticalBLeft);
+  const verticalBRightHandlers = useLongPressHandlers(verticalBRight);
 
   const buttonStyle = {
     padding: '8px 16px',
@@ -108,16 +113,6 @@ function EquipmentControls({
   const downButtonStyle = {
     ...buttonStyle,
     backgroundColor: '#f44336'
-  };
-
-  const valueStyle = {
-    padding: '6px 12px',
-    fontSize: '12px',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    color: 'white',
-    borderRadius: '5px',
-    textAlign: 'center',
-    minWidth: '80px'
   };
 
   const isMobile = window.innerWidth <= 768;
@@ -188,16 +183,13 @@ function EquipmentControls({
             >
               ↓ Down
             </button>
-            <div style={valueStyle}>
-              Height: {Math.max(0, cassetteOffset).toFixed(2)} cm
-            </div>
           </div>
         </div>
       )}
 
       {showVertical && (
         <div style={sectionStyle}>
-          <div style={titleStyle}>Vertical</div>
+          <div style={titleStyle}>{verticalLabel}</div>
           <div style={controlsRowStyle}>
             <button 
               style={buttonStyle} 
@@ -215,10 +207,27 @@ function EquipmentControls({
             >
               ↓ Down
             </button>
-            <div style={valueStyle}>
-              Height: {Math.max(0, verticalOffset).toFixed(2)} cm
-            </div>
           </div>
+          {showVerticalB && onAdjustVerticalBHorizontal && (
+            <div style={{ ...controlsRowStyle, marginTop: '8px' }}>
+              <button 
+                style={buttonStyle} 
+                {...verticalBLeftHandlers}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+              >
+                ← Left
+              </button>
+              <button 
+                style={buttonStyle} 
+                {...verticalBRightHandlers}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+              >
+                Right →
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -8,9 +8,11 @@ function Vertical({
   rotation = [0, 0, 0],
   heightOffset = 0,
   baselineZ = null,
-  onPositionUpdate
+  onPositionUpdate,
+  variant = 'A' // 'A' or 'B'
 }) {
-  const { scene } = useGLTF('/Model/vertical.glb');
+  const modelPath = variant === 'B' ? '/Model/verticalB.glb' : '/Model/verticalA.glb';
+  const { scene } = useGLTF(modelPath);
   const mainRef = useRef(null);
   const originalPositionRef = useRef(null);
   const originalZRef = useRef(null); // Store original Z value as baseline
@@ -41,12 +43,12 @@ function Vertical({
           // Use provided baseline
           originalPositionRef.current = mainObj.position.clone();
           originalZRef.current = baselineZ;
-          console.log('Vertical: Using provided baseline Z:', originalZRef.current);
+          console.log(`Vertical ${variant}: Using provided baseline Z:`, originalZRef.current);
         } else if (originalZRef.current === null) {
           // First time - capture current Z as baseline
           originalPositionRef.current = mainObj.position.clone();
           originalZRef.current = mainObj.position.z;
-          console.log('Vertical: Captured baseline Z:', originalZRef.current);
+          console.log(`Vertical ${variant}: Captured baseline Z:`, originalZRef.current);
           // Report baseline to parent
           if (onPositionUpdate) {
             onPositionUpdate(originalZRef.current, true);
@@ -94,9 +96,9 @@ function Vertical({
       // Small delay to ensure scene is stable
       setTimeout(captureBaseline, 50);
     } else {
-      console.warn('Vertical: object named "main" not found in GLB scene.');
+      console.warn(`Vertical ${variant}: object named "main" not found in GLB scene.`);
     }
-  }, [scene, baselineZ, heightOffset, onPositionUpdate]);
+  }, [scene, baselineZ, heightOffset, onPositionUpdate, variant]);
 
   // Handle height offset adjustments - only run if original position is already captured
   useEffect(() => {
@@ -124,8 +126,8 @@ function Vertical({
       onPositionUpdate(mainObj.position.z);
     }
     
-    console.log('Vertical: Updated position - Original Z:', originalZ, 'Height Offset:', heightOffset, 'Final Z:', mainObj.position.z);
-  }, [heightOffset, onPositionUpdate]);
+    console.log(`Vertical ${variant}: Updated position - Original Z:`, originalZ, 'Height Offset:', heightOffset, 'Final Z:', mainObj.position.z);
+  }, [heightOffset, onPositionUpdate, variant]);
   
   return (
     <primitive
@@ -138,4 +140,6 @@ function Vertical({
 }
 
 export default Vertical;
-useGLTF.preload('/Model/vertical.glb');
+// Preload both vertical models
+useGLTF.preload('/Model/verticalA.glb');
+useGLTF.preload('/Model/verticalB.glb');
