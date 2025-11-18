@@ -16,6 +16,7 @@ import { LessonAnimationProvider } from './LessonHandler/LessonAnimationContext'
 import AnimationHandlerRegistrar from './LessonHandler/AnimationHandlerRegistrar';
 import EquipmentControls from './ModelHelper/EquipmentControls';
 import ModelRotationControls from './ModelHelper/ModelRotationControls';
+import ControlTray from './ModelHelper/ControlTray';
 import { useResponsiveFlag } from './hooks/useResponsiveFlag';
 import { useCameraAnimation } from './hooks/useCameraAnimation';
 import { useHeadControls } from './hooks/useHeadControls';
@@ -39,6 +40,10 @@ function ModelLoader() {
   const [isLyingDown, setIsLyingDown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [baseRotation, setBaseRotation] = useState('front');
+  const [hasLessonSelected, setHasLessonSelected] = useState(false);
+  const [showModelRotationPanel, setShowModelRotationPanel] = useState(false);
+  const [showEquipmentPanel, setShowEquipmentPanel] = useState(false);
+  const [showHeadControlPanel, setShowHeadControlPanel] = useState(false);
   const orbitControlsRef = useRef();
   
   // Lesson animation states
@@ -70,6 +75,43 @@ function ModelLoader() {
 
   const handleAdjustVerticalBHorizontal = useCallback((delta) => {
     setVerticalBHorizontalOffset(prev => prev + delta);
+  }, []);
+
+  // Toggle handlers for control panels - only one panel open at a time
+  const toggleModelRotation = useCallback(() => {
+    setShowModelRotationPanel(prev => {
+      const newValue = !prev;
+      // Close other panels when opening this one
+      if (newValue) {
+        setShowEquipmentPanel(false);
+        setShowHeadControlPanel(false);
+      }
+      return newValue;
+    });
+  }, []);
+
+  const toggleEquipment = useCallback(() => {
+    setShowEquipmentPanel(prev => {
+      const newValue = !prev;
+      // Close other panels when opening this one
+      if (newValue) {
+        setShowModelRotationPanel(false);
+        setShowHeadControlPanel(false);
+      }
+      return newValue;
+    });
+  }, []);
+
+  const toggleHeadControl = useCallback(() => {
+    setShowHeadControlPanel(prev => {
+      const newValue = !prev;
+      // Close other panels when opening this one
+      if (newValue) {
+        setShowModelRotationPanel(false);
+        setShowEquipmentPanel(false);
+      }
+      return newValue;
+    });
   }, []);
 
   const handleCassettePositionUpdate = useCallback((actualZ, isBaseline = false) => {
@@ -119,6 +161,12 @@ function ModelLoader() {
 
     // Reset base rotation to front
     setBaseRotation('front');
+    
+    // Reset panel visibility
+    setShowModelRotationPanel(false);
+    setShowEquipmentPanel(false);
+    setShowHeadControlPanel(false);
+    setHasLessonSelected(false);
     
     // Reset camera animation state
     resetCameraAnimation();
@@ -299,6 +347,9 @@ function ModelLoader() {
               // Check if this is the Pawlow Method (recumbent setup)
               const isPawlowMethod = lessonData.categoryTitle && lessonData.categoryTitle.includes('Pawlow');
               
+              // Mark that a lesson has been selected
+              setHasLessonSelected(true);
+              
               if (isPawlowMethod) {
                 // Pawlow Method: Show x-ray table and make model lie down
                 setShowXRayTable(true);
@@ -325,33 +376,48 @@ function ModelLoader() {
             onReset={handleReset}
           />
         </div>
-        {/* Equipment Controls - Only show when lesson is selected */}
-        <EquipmentControls
-          showCassette={showCassette}
-          showVertical={showVerticalA || showVerticalB}
-          showVerticalB={showVerticalB}
-          verticalLabel={showVerticalA ? 'Vertical A' : showVerticalB ? 'Vertical B' : 'Vertical'}
-          onAdjustCassette={handleAdjustCassette}
-          onAdjustVertical={handleAdjustVertical}
-          onAdjustVerticalBHorizontal={showVerticalB ? handleAdjustVerticalBHorizontal : undefined}
+        {/* Control Tray - Shows when lesson is selected */}
+        <ControlTray
+          hasLessonSelected={hasLessonSelected}
+          showModelRotation={showModelRotationPanel}
+          showEquipment={showEquipmentPanel}
+          showHeadControl={showHeadControlPanel}
+          onToggleModelRotation={toggleModelRotation}
+          onToggleEquipment={toggleEquipment}
+          onToggleHeadControl={toggleHeadControl}
         />
+
+        {/* Equipment Controls - Only show when panel is toggled */}
+        {showEquipmentPanel && (
+          <EquipmentControls
+            showCassette={showCassette}
+            showVertical={showVerticalA || showVerticalB}
+            showVerticalB={showVerticalB}
+            verticalLabel={showVerticalA ? 'Vertical A' : showVerticalB ? 'Vertical B' : 'Vertical'}
+            onAdjustCassette={handleAdjustCassette}
+            onAdjustVertical={handleAdjustVertical}
+            onAdjustVerticalBHorizontal={showVerticalB ? handleAdjustVerticalBHorizontal : undefined}
+          />
+        )}
 
         {/* Register animation handlers */}
         <AnimationHandlerRegistrar handlers={animationHandlers} />
 
-        {/* 🎮 Head Controller (shown on desktop and mobile when X-ray table is active) */}
-        {showXRayTable && (
+        {/* 🎮 Head Controller - Only show when panel is toggled */}
+        {showHeadControlPanel && (
           <HeadController
             onHeadControl={updateHeadControl}
             onResetHead={resetHeadControl}
           />
         )}
 
-        {/* Model Rotation Controls */}
-        <ModelRotationControls
-          currentRotation={baseRotation}
-          onRotationChange={setBaseRotation}
-        />
+        {/* Model Rotation Controls - Only show when panel is toggled */}
+        {showModelRotationPanel && (
+          <ModelRotationControls
+            currentRotation={baseRotation}
+            onRotationChange={setBaseRotation}
+          />
+        )}
       </div>
     </LessonAnimationProvider>
   );

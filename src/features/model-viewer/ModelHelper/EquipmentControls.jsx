@@ -81,12 +81,12 @@ function EquipmentControls({
     return null;
   }
 
-  const step = 1;
+  const step = 0.1;
 
-  const cassetteIncrease = useCallback(() => onAdjustCassette(step), [onAdjustCassette]);
-  const cassetteDecrease = useCallback(() => onAdjustCassette(-step), [onAdjustCassette]);
-  const verticalIncrease = useCallback(() => onAdjustVertical(step), [onAdjustVertical]);
-  const verticalDecrease = useCallback(() => onAdjustVertical(-step), [onAdjustVertical]);
+  const cassetteIncrease = useCallback(() => onAdjustCassette(step + 0.9), [onAdjustCassette]);
+  const cassetteDecrease = useCallback(() => onAdjustCassette(-step - 0.9), [onAdjustCassette]);
+  const verticalIncrease = useCallback(() => onAdjustVertical(step + 0.9), [onAdjustVertical]);
+  const verticalDecrease = useCallback(() => onAdjustVertical(-step - 0.9), [onAdjustVertical]);
   const verticalBLeft = useCallback(() => onAdjustVerticalBHorizontal && onAdjustVerticalBHorizontal(-step), [onAdjustVerticalBHorizontal]);
   const verticalBRight = useCallback(() => onAdjustVerticalBHorizontal && onAdjustVerticalBHorizontal(step), [onAdjustVerticalBHorizontal]);
 
@@ -124,8 +124,8 @@ function EquipmentControls({
 
   const panelStyle = {
     position: 'absolute',
-    top: topOffset,
-    right: '20px',
+    top: '120px',
+    right: '170px',
     backgroundColor: 'rgba(50, 50, 50, 0.9)',
     borderRadius: '8px',
     padding: '16px',

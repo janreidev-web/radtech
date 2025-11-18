@@ -26,8 +26,8 @@ function ModelRotationControls({ currentRotation, onRotationChange }) {
 
   const panelStyle = {
     position: 'absolute',
-    top: '20px',
-    right: '20px',
+    top: '120px',
+    right: '50px',
     backgroundColor: 'rgba(50, 50, 50, 0.9)',
     borderRadius: '8px',
     padding: '12px',
