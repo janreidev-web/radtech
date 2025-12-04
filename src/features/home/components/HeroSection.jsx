@@ -2,7 +2,7 @@ import React from 'react';
 import Lottie from 'lottie-react';
 import radiologyAnimation from '../../../assets/Animations/radiology.json';
 
-function HeroSection() {
+function HeroSection({ onNavigate }) {
   return (
     <div className="relative isolate">
       <div
@@ -29,15 +29,16 @@ function HeroSection() {
             Stop memorizing. Start visualizing. Our interactive platform brings radiographic positioning to life,
             helping you build a deep, intuitive understanding of anatomy, procedures, and beam alignment.
           </p>
-          <div className="mt-10 flex items-center gap-x-6">
-            <a
-              href="#"
-              className="rounded-md bg-teal-500 px-5 py-3 text-base font-semibold text-white shadow-sm hover:bg-teal-400 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-teal-500 transition-colors duration-300"
+          <div className="mt-10 flex flex-wrap items-center gap-4 sm:gap-x-6">
+            <button
+              type="button"
+              onClick={() => onNavigate && onNavigate('model')}
+              className="inline-flex items-center justify-center rounded-md bg-teal-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-teal-400 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-teal-500 transition-colors duration-300"
             >
               Start Learning Now
-            </a>
+            </button>
             <a
-              href="#"
+              href="#features"
               className="text-base font-semibold leading-6 text-slate-300 hover:text-white transition-colors duration-300"
             >
               Explore Features <span aria-hidden="true">→</span>

@@ -38,13 +38,13 @@ function App() {
   const renderContent = () => {
     switch (currentPage) {
       case 'home':
-        return <HomeContent />;
+        return <HomeContent onNavigate={handleNavClick} />;
       case 'model':
         return <ModelLoader />;
       case 'about':
         return <About/>;
       default:
-        return <HomeContent />;
+        return <HomeContent onNavigate={handleNavClick} />;
     }
   };
 

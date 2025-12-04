@@ -3,12 +3,12 @@ import HeroSection from './components/HeroSection';
 import FeatureShowcase from './components/FeatureShowcase';
 import CTASection from './components/CTASection';
 
-function HomeContent() {
+function HomeContent({ onNavigate }) {
   return (
     <div className="bg-slate-900 text-white overflow-x-hidden">
-      <HeroSection />
+      <HeroSection onNavigate={onNavigate} />
       <FeatureShowcase />
-      <CTASection />
+      <CTASection onNavigate={onNavigate} />
     </div>
   );
 }

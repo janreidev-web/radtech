@@ -1,6 +1,6 @@
 import React from 'react';
 
-function CTASection() {
+function CTASection({ onNavigate }) {
   return (
     <div className="relative isolate">
       <div
@@ -21,13 +21,14 @@ function CTASection() {
           Join the next generation of radiologic technologists. Gain the confidence and competence to excel in your
           clinical practice.
         </p>
-        <div className="mt-10">
-          <a
-            href="#"
-            className="rounded-md bg-gradient-to-r from-teal-500 to-cyan-600 px-8 py-4 text-base font-semibold text-white shadow-lg hover:opacity-90 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-teal-500 transition-opacity duration-300"
+        <div className="mt-10 flex justify-center">
+          <button
+            type="button"
+            onClick={() => onNavigate && onNavigate('model')}
+            className="inline-flex items-center justify-center rounded-md bg-gradient-to-r from-teal-500 to-cyan-600 px-10 py-4 text-base font-semibold text-white shadow-lg hover:opacity-90 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-teal-500 transition-opacity duration-300"
           >
             Get Started for Free
-          </a>
+          </button>
         </div>
       </div>
     </div>
