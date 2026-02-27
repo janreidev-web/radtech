@@ -1,6 +1,7 @@
 // src/components/LessonHandler/LessonDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useLessonAnimations } from './LessonAnimationContext';
+import { getCameraPreset } from './cameraPresets';
 
 // Icons for the accordion open/close state
 const ChevronDownIcon = () => (
@@ -10,41 +11,100 @@ const ChevronDownIcon = () => (
 );
 
 const Categories = [
-  { 
-    title: "Cervicothoracic Lateral - 'Swimmer's' (Twinning Method)", 
+  {
+    title: "Cervicothoracic Junction (C7–T1)",
+    type: "introduction",
     lessons: [
-      "Purpose: Visualizing C7–T1 (Addressing Shoulder Superimposition)",
-      "Patient Position: True Upright Lateral (Standing or Sitting)",
-      "Interactive Arm & Shoulder Positioning (Proximal Arm Up, Distal Arm Depressed)",
-      "CR Centering: C7–T1 Junction (Suprasternal Notch)",
-      "Consideration: Patient Body Habitus",
-      "Image Evaluation: C7–T1 Clearly Demonstrated",
-      "Troubleshooting: Insufficient Shoulder Depression"
-    ] 
+      {
+        id: "complete-introduction",
+        title: "Complete Introduction",
+        type: "flashcard",
+        cameraPreset: "cervicalSpine_lateral_close",
+        flashcards: [
+          // Anatomy Overview Section
+          {
+            title: "Cervical Spine (C1-C7)",
+            content: "The cervical spine consists of 7 vertebrae forming the neck region. C1 (Atlas) supports the skull, C2 (Axis) allows head rotation, and C7 (Vertebra Prominens) has a prominent spinous process that serves as a palpable landmark.",
+            focusTarget: "Cervical",
+            cameraPreset: "cervicalSpine_lateral_close"
+          },
+          {
+            title: "Thoracic Spine (T1-T12)",
+            content: "The thoracic spine consists of 12 vertebrae that articulate with the ribs. T1 marks the beginning of the thoracic region and is the first vertebra to connect with ribs, forming the thoracic cage.",
+            focusTarget: "Thoracic",
+            cameraPreset: "cervicalSpine_lateral_close"
+          },
+          {
+            title: "Cervicothoracic Junction (C7-T1)",
+            content: "This critical transition area between cervical and thoracic spine is commonly obscured by dense shoulder anatomy in lateral radiographs, requiring special positioning techniques like the Swimmer's view.",
+            focusTarget: "CT_Junction",
+            cameraPreset: "cervicalSpine_lateral_close"
+          }
+        ]
+      }
+    ]
   },
-  { 
-    title: "Cervicothoracic Lateral - 'Swimmer's' (Pawlow Method)", 
+
+  {
+    title: "Swimmer's View (Twinning Method)",
+    type: "practical",
     lessons: [
-      "Purpose: C7–T1 Visualization for Trauma/Recumbent Patients (Lying on Table)",
-      "Patient Position: Recumbent Lateral Setup (Lying on Table, Trauma Considerations)",
-      "Interactive Arm Placement (Recumbent)",
-      "CR Alignment: Horizontal Beam Centering",
-      "Evaluation Criteria: C7–T1 Clarity, No Motion",
-      "Troubleshooting: Patient Safety and Alignment Corrections"
-    ] 
+      { 
+        id: "twinning-positioning",
+        title: "Patient Positioning", 
+        type: "pre-exposure",
+        description: "True Upright Lateral (Standing or Sitting)"
+      },
+      { 
+        id: "twinning-exposure",
+        title: "CR Centering & Technical Factors", 
+        type: "exposure",
+        description: "C7–T1 Junction (Suprasternal Notch)"
+      },
+      { 
+        id: "twinning-evaluation",
+        title: "Image Evaluation", 
+        type: "post-exposure",
+        description: "C7–T1 Clearly Demonstrated"
+      }
+    ]
   },
+
+  {
+    title: "Swimmer's View (Pawlow Method)",
+    type: "practical",
+    lessons: [
+      { 
+        id: "pawlow-positioning",
+        title: "Trauma Setup", 
+        type: "pre-exposure",
+        description: "Recumbent Lateral Setup (Lying on Table)"
+      },
+      { 
+        id: "pawlow-exposure",
+        title: "Horizontal Beam Alignment", 
+        type: "exposure",
+        description: "CR Alignment for Recumbent Position"
+      },
+      { 
+        id: "pawlow-evaluation",
+        title: "Image Evaluation", 
+        type: "post-exposure",
+        description: "C7–T1 Clarity, No Motion"
+      }
+    ]
+  }
 ];
 
-
 function LessonDashboard({ onLessonSelected, onReset }) {
-  // ✅ State to track which accordion item is currently open. '-1' means all are closed.
+  //  State to track which accordion item is currently open. '-1' means all are closed.
   const [openIndex, setOpenIndex] = useState(-1);
   const [_isMobile, _setIsMobile] = useState(false);
 
-  // ✅ Get animation handlers from context
+  //  Get animation handlers from context
   const { triggerCameraAnimation } = useLessonAnimations();
 
-  // ✅ Detect mobile screen size
+  //  Detect mobile screen size
   useEffect(() => {
   const checkMobile = () => _setIsMobile(window.innerWidth <= 768);
     checkMobile();
@@ -52,30 +112,47 @@ function LessonDashboard({ onLessonSelected, onReset }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // ✅ Function to handle clicking a category header
+  //  Function to handle clicking a category header
   const handleToggle = (index) => {
     // If the clicked item is already open, close it. Otherwise, open the new one.
     setOpenIndex(openIndex === index ? -1 : index);
   };
 
-  // ✅ Function to handle lesson click
-  const handleLessonClick = (lessonName, categoryTitle) => {
-    // console removed
+  //  Function to handle lesson click
+  const handleLessonClick = (lesson, category) => {
+    if (lesson.type === "flashcard") {
+      // Trigger flashcard mode with camera preset
+      const preset = getCameraPreset(lesson.cameraPreset);
+      
+      triggerCameraAnimation({
+        position: preset.position,
+        lookAt: preset.lookAt,
+        duration: 1500
+      });
 
-    // Zoom out camera when lesson is clicked
+      if (onLessonSelected) {
+        onLessonSelected({
+          mode: "flashcard",
+          lessonData: lesson,
+          categoryTitle: category.title
+        });
+      }
+      return;
+    }
+
+    // Practical lesson behavior (existing zoom)
     const zoomOutAnimation = {
-      position: [0, 2, 8], // Zoom out further from [0, 2, 5]
+      position: [0, 2, 8],
       lookAt: [0, 0, 0],
       duration: 2000
     };
     triggerCameraAnimation(zoomOutAnimation);
 
-    // Notify parent to handle lesson selection
     if (onLessonSelected) {
       onLessonSelected({
-        lessonName,
-        description: `${lessonName} is part of ${categoryTitle}. This lesson introduces the key anatomy and concepts you will explore next. Use the steps and camera controls to examine structures and their clinical relevance.`,
-        categoryTitle
+        mode: "practical",
+        lessonData: lesson,
+        categoryTitle: category.title
       });
     }
   };
@@ -158,12 +235,15 @@ function LessonDashboard({ onLessonSelected, onReset }) {
               <ul className="py-2 pl-6 pr-3">
                 {category.lessons.map((lesson, lessonIndex) => (
                 <li
-                  key={lessonIndex}
+                  key={lesson.id || lessonIndex}
                   className="text-gray-700 text-sm md:text-xs p-2 rounded-md hover:bg-blue-50 cursor-pointer transition-colors duration-200"
-                  onClick={() => handleLessonClick(lesson, category.title)}
-                  title={`Click to zoom to ${lesson}`}
+                  onClick={() => handleLessonClick(lesson, category)}
+                  title={`Click to view ${lesson.title}`}
                 >
-                  {lesson}
+                  <div className="font-medium">{lesson.title}</div>
+                  {lesson.description && (
+                    <div className="text-xs text-gray-500 mt-1">{lesson.description}</div>
+                  )}
                 </li>
                 ))}
               </ul>

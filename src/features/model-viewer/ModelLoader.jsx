@@ -7,6 +7,7 @@ import XRayTable3D from './ModelHelper/XRayTable3D';
 import Cassette from './ModelHelper/Cassette';
 import Vertical from './ModelHelper/Vertical';
 import LessonDashboard from './LessonHandler/LessonDashboard';
+import FlashcardViewer from './LessonHandler/FlashcardViewer';
 import CameraController from './ModelHelper/CameraController';
 import HeadController from './ModelHelper/HeadController';
 import HeadAnimationController from './ModelHelper/HeadAnimationController';
@@ -44,6 +45,8 @@ function ModelLoader() {
   const [showModelRotationPanel, setShowModelRotationPanel] = useState(false);
   const [showEquipmentPanel, setShowEquipmentPanel] = useState(false);
   const [showHeadControlPanel, setShowHeadControlPanel] = useState(false);
+  const [showFlashcards, setShowFlashcards] = useState(false);
+  const [currentFlashcardData, setCurrentFlashcardData] = useState(null);
   const orbitControlsRef = useRef();
   
   // Lesson animation states
@@ -167,6 +170,10 @@ function ModelLoader() {
     setShowEquipmentPanel(false);
     setShowHeadControlPanel(false);
     setHasLessonSelected(false);
+    
+    // Reset flashcard viewer state
+    setShowFlashcards(false);
+    setCurrentFlashcardData(null);
     
     // Reset camera animation state
     resetCameraAnimation();
@@ -334,18 +341,23 @@ function ModelLoader() {
               enableDamping={true}
               dampingFactor={0.05}
             />
-            
-            {/* Cursor-based zoom controller */}
-            <CursorZoomController controlsRef={orbitControlsRef} />
           </Suspense>
         </Canvas>
 
         {/* Lesson Dashboard */}
         <div style={dashboardStyle}>
           <LessonDashboard
-            onLessonSelected={(lessonData) => {
-              // Check if this is the Pawlow Method (recumbent setup)
-              const isPawlowMethod = lessonData.categoryTitle && lessonData.categoryTitle.includes('Pawlow');
+            onLessonSelected={(data) => {
+              // Handle flashcard mode
+              if (data.mode === "flashcard") {
+                setShowFlashcards(true);
+                setCurrentFlashcardData(data);
+                setBaseRotation('back'); // Rotate model to show back
+                return;
+              }
+
+              // Handle practical lessons
+              const isPawlowMethod = data.categoryTitle && data.categoryTitle.includes('Pawlow');
               
               // Mark that a lesson has been selected
               setHasLessonSelected(true);
@@ -376,6 +388,23 @@ function ModelLoader() {
             onReset={handleReset}
           />
         </div>
+
+        {/* Flashcard Viewer - Shows when flashcard lesson is selected */}
+        {showFlashcards && currentFlashcardData && (
+          <FlashcardViewer
+            flashcards={currentFlashcardData.lessonData.flashcards}
+            categoryTitle={currentFlashcardData.categoryTitle}
+            onClose={() => {
+              setShowFlashcards(false);
+              setCurrentFlashcardData(null);
+            }}
+            onFocusChange={(focusTarget) => {
+              // Future: Can trigger camera animation to focus on specific anatomy
+              console.log('Focus on:', focusTarget);
+            }}
+          />
+        )}
+
         {/* Control Tray - Shows when lesson is selected */}
         <ControlTray
           hasLessonSelected={hasLessonSelected}
