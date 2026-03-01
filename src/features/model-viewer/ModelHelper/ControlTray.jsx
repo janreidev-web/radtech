@@ -4,10 +4,12 @@ function ControlTray({
   onToggleModelRotation, 
   onToggleEquipment, 
   onToggleHeadControl,
+  onDonePositioning,
   showModelRotation,
   showEquipment,
   showHeadControl,
-  hasLessonSelected
+  hasLessonSelected,
+  simulationStep
 }) {
   if (!hasLessonSelected) {
     return null;
@@ -107,6 +109,26 @@ function ControlTray({
       >
         Head Control
       </button>
+
+      {simulationStep === 'positioning' && (
+        <button
+          style={{
+            ...buttonStyle,
+            backgroundColor: '#4CAF50',
+            border: '2px solid #45a049',
+            minWidth: isMobile ? '120px' : '160px'
+          }}
+          onClick={onDonePositioning}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = '#45a049';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = '#4CAF50';
+          }}
+        >
+          Done Positioning
+        </button>
+      )}
     </div>
   );
 }

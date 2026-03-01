@@ -47,6 +47,9 @@ function ModelLoader() {
   const [showHeadControlPanel, setShowHeadControlPanel] = useState(false);
   const [showFlashcards, setShowFlashcards] = useState(false);
   const [currentFlashcardData, setCurrentFlashcardData] = useState(null);
+  const [simulationStep, setSimulationStep] = useState('positioning'); // 'positioning', 'computation', 'post-exposure'
+  const [bodyThickness, setBodyThickness] = useState(null);
+  const [userCalculations, setUserCalculations] = useState({ kVp: '', mAs: '' });
   const orbitControlsRef = useRef();
   
   // Lesson animation states
@@ -135,6 +138,28 @@ function ModelLoader() {
     }
   }, [verticalABaselineZ, verticalBBaselineZ]);
 
+  // Handle Done Positioning functionality
+  const handleDonePositioning = useCallback(() => {
+    // Generate realistic body thickness based on patient type
+    const minThickness = 15; // Minimum realistic thickness in cm
+    const maxThickness = 35; // Maximum realistic thickness in cm
+    const randomThickness = Math.floor(Math.random() * (maxThickness - minThickness + 1)) + minThickness;
+    setBodyThickness(randomThickness);
+    setSimulationStep('computation');
+    
+    // Show alert with body thickness
+    alert(`Body Thickness = ${randomThickness} cm`);
+  }, []);
+
+  // Handle calculation submission
+  const handleCalculationSubmit = useCallback(() => {
+    if (userCalculations.kVp && userCalculations.mAs) {
+      setSimulationStep('post-exposure');
+    } else {
+      alert('Please enter both kVp and mAs values');
+    }
+  }, [userCalculations]);
+
   // Handle reset functionality
   const handleReset = useCallback(() => {
     // Reset offsets first
@@ -174,6 +199,11 @@ function ModelLoader() {
     // Reset flashcard viewer state
     setShowFlashcards(false);
     setCurrentFlashcardData(null);
+    
+    // Reset positioning workflow state
+    setSimulationStep('positioning');
+    setBodyThickness(null);
+    setUserCalculations({ kVp: '', mAs: '' });
     
     // Reset camera animation state
     resetCameraAnimation();
@@ -411,9 +441,11 @@ function ModelLoader() {
           showModelRotation={showModelRotationPanel}
           showEquipment={showEquipmentPanel}
           showHeadControl={showHeadControlPanel}
+          simulationStep={simulationStep}
           onToggleModelRotation={toggleModelRotation}
           onToggleEquipment={toggleEquipment}
           onToggleHeadControl={toggleHeadControl}
+          onDonePositioning={handleDonePositioning}
         />
 
         {/* Equipment Controls - Only show when panel is toggled */}
@@ -421,7 +453,6 @@ function ModelLoader() {
           <EquipmentControls
             showCassette={showCassette}
             showVertical={showVerticalA || showVerticalB}
-            showVerticalB={showVerticalB}
             verticalLabel={showVerticalA ? 'Vertical A' : showVerticalB ? 'Vertical B' : 'Vertical'}
             onAdjustCassette={handleAdjustCassette}
             onAdjustVertical={handleAdjustVertical}
@@ -432,7 +463,7 @@ function ModelLoader() {
         {/* Register animation handlers */}
         <AnimationHandlerRegistrar handlers={animationHandlers} />
 
-        {/* 🎮 Head Controller - Only show when panel is toggled */}
+        {/* Head Controller - Only show when panel is toggled */}
         {showHeadControlPanel && (
           <HeadController
             onHeadControl={updateHeadControl}
@@ -440,12 +471,163 @@ function ModelLoader() {
           />
         )}
 
-        {/* Model Rotation Controls - Only show when panel is toggled */}
-        {showModelRotationPanel && (
-          <ModelRotationControls
-            currentRotation={baseRotation}
-            onRotationChange={setBaseRotation}
-          />
+        {/* Computation Panel - Shows after Done Positioning */}
+        {simulationStep === 'computation' && bodyThickness && (
+          <div style={{
+            position: 'absolute',
+            top: isMobile ? '80px' : '90px',
+            right: isMobile ? '20px' : '30px',
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            padding: '20px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+            zIndex: 1000,
+            minWidth: isMobile ? '280px' : '350px',
+            maxWidth: isMobile ? '90%' : '400px'
+          }}>
+            <h3 style={{ margin: '0 0 15px 0', color: '#4CAF50' }}>Calculate Exposure Factors</h3>
+            <p style={{ margin: '0 0 15px 0', fontSize: '14px' }}>
+              Body Thickness: <strong>{bodyThickness} cm</strong>
+            </p>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                kVp (Kilovoltage Peak):
+              </label>
+              <input
+                type="number"
+                value={userCalculations.kVp}
+                onChange={(e) => setUserCalculations(prev => ({ ...prev, kVp: e.target.value }))}
+                placeholder="Enter kVp"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  fontSize: '14px',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  color: 'white',
+                  border: '1px solid rgba(255,255,255,0.3)'
+                }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                mAs (Milliamperage-seconds):
+              </label>
+              <input
+                type="number"
+                value={userCalculations.mAs}
+                onChange={(e) => setUserCalculations(prev => ({ ...prev, mAs: e.target.value }))}
+                placeholder="Enter mAs"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  fontSize: '14px',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  color: 'white',
+                  border: '1px solid rgba(255,255,255,0.3)'
+                }}
+              />
+            </div>
+            
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button
+                onClick={handleCalculationSubmit}
+                style={{
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                Submit & Show Exposure
+              </button>
+              <button
+                onClick={() => {
+                  setSimulationStep('positioning');
+                  setBodyThickness(null);
+                  setUserCalculations({ kVp: '', mAs: '' });
+                }}
+                style={{
+                  backgroundColor: '#f44336',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Post-Exposure Display */}
+        {simulationStep === 'post-exposure' && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            color: 'white',
+            padding: '30px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
+            zIndex: 1000,
+            minWidth: isMobile ? '300px' : '450px',
+            maxWidth: '90%',
+            textAlign: 'center'
+          }}>
+            <h2 style={{ margin: '0 0 20px 0', color: '#4CAF50' }}> Exposure Complete</h2>
+            <div style={{ marginBottom: '20px', fontSize: '16px' }}>
+              <p><strong>Body Thickness:</strong> {bodyThickness} cm</p>
+              <p><strong>Calculated kVp:</strong> {userCalculations.kVp}</p>
+              <p><strong>Calculated mAs:</strong> {userCalculations.mAs}</p>
+            </div>
+            <div style={{ 
+              padding: '15px', 
+              backgroundColor: 'rgba(76, 175, 80, 0.2)', 
+              borderRadius: '8px',
+              marginBottom: '20px',
+              border: '1px solid #4CAF50'
+            }}>
+              <p style={{ margin: 0, fontSize: '14px' }}>
+                <strong>Simulation Complete!</strong><br/>
+                The radiographic exposure has been successfully calculated and applied.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setSimulationStep('positioning');
+                setBodyThickness(null);
+                setUserCalculations({ kVp: '', mAs: '' });
+              }}
+              style={{
+                backgroundColor: '#2196F3',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold'
+              }}
+            >
+              Start New Positioning
+            </button>
+          </div>
         )}
       </div>
     </LessonAnimationProvider>
