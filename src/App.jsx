@@ -4,6 +4,7 @@ import Header from './layout/Header';
 import HomeContent from './features/home/HomeContent';
 import ModelLoader from './features/model-viewer/ModelLoader';
 import About from './features/about/About';
+import AssessmentContent from './features/assessment/AssessmentContent';
 import { useState, useEffect } from 'react';
 import { NavigationManager } from './utils/navigationManager';
 
@@ -41,6 +42,8 @@ function App() {
         return <HomeContent onNavigate={handleNavClick} />;
       case 'model':
         return <ModelLoader />;
+      case 'assessment':
+        return <AssessmentContent />;
       case 'about':
         return <About/>;
       default:

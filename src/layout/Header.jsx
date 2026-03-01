@@ -14,6 +14,7 @@ function Header({ onNavClick, currentPage }) {
   const navLinks = [
     { name: 'Home', id: 'home' },
     { name: 'Model Viewer', id: 'model' },
+    { name: 'Assessment', id: 'assessment' },
     { name: 'About', id: 'about' },
   ];
 
