@@ -7,7 +7,7 @@ export const NavigationManager = {
   DEFAULT_PAGE: 'home',
   
   // Valid pages
-  VALID_PAGES: ['home', 'model', 'about'],
+  VALID_PAGES: ['home', 'model', 'assessment', 'about'],
   
   // Get current page from sessionStorage or return default
   getCurrentPage() {

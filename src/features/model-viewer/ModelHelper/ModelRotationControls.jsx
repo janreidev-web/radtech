@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ModelRotationControls({ currentRotation, onRotationChange }) {
+function ModelRotationControls({ currentRotation, onRotationChange, isPawlowMethod = false }) {
   const buttonStyle = {
     padding: '10px 16px',
     fontSize: '14px',
@@ -51,17 +51,23 @@ function ModelRotationControls({ currentRotation, onRotationChange }) {
 
   const buttonsContainerStyle = {
     display: 'grid',
-    gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+    gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : (isPawlowMethod ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)'),
     gap: '8px',
     width: '100%'
   };
 
-  const rotations = [
-    { key: 'front', label: 'Front' },
-    { key: 'side-right', label: 'Side Right' },
-    { key: 'side-left', label: 'Side Left' },
-    { key: 'back', label: 'Back' }
-  ];
+  // Different rotation options based on method
+  const rotations = isPawlowMethod 
+    ? [
+        { key: 'front', label: 'Front' },
+        { key: 'back', label: 'Back' }
+      ]
+    : [
+        { key: 'front', label: 'Front' },
+        { key: 'side-right', label: 'Side Right' },
+        { key: 'side-left', label: 'Side Left' },
+        { key: 'back', label: 'Back' }
+      ];
 
   return (
     <div style={panelStyle}>

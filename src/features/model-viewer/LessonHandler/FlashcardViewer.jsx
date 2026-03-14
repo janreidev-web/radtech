@@ -4,7 +4,7 @@ import AnatomyPointer from './AnatomyPointer';
 import { useLessonAnimations } from './LessonAnimationContext';
 import { getCameraPreset } from './cameraPresets';
 
-function FlashcardViewer({ flashcards, categoryTitle, onClose, onFocusChange }) {
+function FlashcardViewer({ flashcards, categoryTitle, onClose, onFocusChange, onReset }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { triggerCameraAnimation } = useLessonAnimations();
 
@@ -29,6 +29,18 @@ function FlashcardViewer({ flashcards, categoryTitle, onClose, onFocusChange }) 
     // Trigger focus change callback
     if (onFocusChange && newCard.focusTarget) {
       onFocusChange(newCard.focusTarget);
+    }
+  };
+
+  const handleComplete = () => {
+    // First trigger reset if available, then close
+    if (onReset) {
+      onReset();
+      setTimeout(() => {
+        onClose();
+      }, 100);
+    } else {
+      onClose();
     }
   };
 
@@ -153,7 +165,7 @@ function FlashcardViewer({ flashcards, categoryTitle, onClose, onFocusChange }) 
               </button>
 
               <button
-                onClick={isLast ? onClose : handleNext}
+                onClick={isLast ? handleComplete : handleNext}
                 className="flex items-center space-x-1 px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-semibold hover:bg-teal-600 transition-colors flex-shrink-0"
               >
                 <span>{isLast ? 'Complete' : 'Next'}</span>

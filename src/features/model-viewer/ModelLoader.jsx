@@ -140,25 +140,181 @@ function ModelLoader() {
 
   // Handle Done Positioning functionality
   const handleDonePositioning = useCallback(() => {
-    // Generate realistic body thickness based on patient type
-    const minThickness = 15; // Minimum realistic thickness in cm
-    const maxThickness = 35; // Maximum realistic thickness in cm
-    const randomThickness = Math.floor(Math.random() * (maxThickness - minThickness + 1)) + minThickness;
-    setBodyThickness(randomThickness);
-    setSimulationStep('computation');
-    
-    // Show alert with body thickness
-    alert(`Body Thickness = ${randomThickness} cm`);
+    // Move to body thickness input step instead of generating random thickness
+    setSimulationStep('thickness-input');
   }, []);
+
+  // Function to calculate optimal exposure factors based on body thickness
+  const calculateExposureFactors = (thickness) => {
+    const thicknessNum = parseFloat(thickness);
+    
+    // Calculate optimal kVp and mAs using the 15% rule
+    const baseKvp = 70; // Base kVp for average patient (25cm)
+    const baseMas = 10; // Base mAs for average patient
+    
+    const thicknessDifference = thicknessNum - 25; // Difference from average
+    const optimalKvp = baseKvp + (thicknessDifference * 2);
+    const optimalMas = baseMas + (thicknessDifference * 0.5);
+    
+    return {
+      kVp: Math.round(optimalKvp),
+      mAs: Math.round(optimalMas),
+      thickness: thicknessNum
+    };
+  };
+
+  // Function to validate cervicothoracic positioning before showing images
+  const validateCervicothoracicPositioning = () => {
+    const coords = getEquipmentCoordinates();
+    
+    // Check if we're in Pawlow method (showVerticalB is true)
+    const isPawlowMethod = showVerticalB;
+    
+    if (isPawlowMethod) {
+      // Pawlow Method: Only validate Vertical B coordinates, ignore cassette
+      if (!showVerticalB) {
+        return {
+          isValid: false,
+          message: "Vertical B equipment must be positioned for Pawlow method."
+        };
+      }
+      
+      const verticalBActualZ = coords.verticalB.actualZ || 0;
+      
+      // Validate Vertical B is in cervicothoracic range: 470-500
+      const verticalBInRange = verticalBActualZ >= 470 && verticalBActualZ <= 500;
+      
+      if (!verticalBInRange) {
+        return {
+          isValid: false,
+          message: `Vertical B not positioned for cervicothoracic imaging.\n\n` +
+            `Required range for Pawlow method:\n` +
+            `Vertical B Z: 470-500 (Current: ${verticalBActualZ.toFixed(1)})\n\n` +
+            `Base coordinate:\n` +
+            `Vertical B: Z=484.72 (need offset: -14.72 to 15.28)\n\n` +
+            `Please adjust Vertical B positioning and try again.`
+        };
+      }
+      
+      return { isValid: true };
+    }
+    
+    // Twinning Method: Validate both cassette and Vertical A
+    if (!showCassette || !showVerticalA) {
+      return {
+        isValid: false,
+        message: "Both cassette and Vertical A equipment must be positioned for Twinning method."
+      };
+    }
+    
+    const cassetteActualZ = coords.cassette.actualZ || 0;
+    const verticalAActualZ = coords.verticalA.actualZ || 0;
+    
+    // Validate coordinates are within cervicothoracic ranges
+    // Cassette base: Z=4, target range: 85-115 (offset of 81-111)
+    // Vertical A base: Z=531.57, target range: 520-580 (offset of -11.57 to 48.43)
+    const cassetteInRange = cassetteActualZ >= 85 && cassetteActualZ <= 115;
+    const verticalAInRange = verticalAActualZ >= 520 && verticalAActualZ <= 580;
+    
+    if (!cassetteInRange || !verticalAInRange) {
+      return {
+        isValid: false,
+        message: `Equipment not positioned for cervicothoracic imaging.\n\n` +
+          `Required ranges for Twinning method:\n` +
+          `Cassette Z: 85-115 (Current: ${cassetteActualZ.toFixed(1)})\n` +
+          `Vertical A Z: 520-580 (Current: ${verticalAActualZ.toFixed(1)})\n\n` +
+          `Base coordinates:\n` +
+          `Cassette: Z=4 (need offset: +81 to +111)\n` +
+          `Vertical A: Z=531.57 (need offset: -11.57 to 48.43)\n\n` +
+          `Please adjust equipment positioning and try again.`
+      };
+    }
+    
+    return { isValid: true };
+  };
+
+  // Handle body thickness submission and auto-calculation
+  const handleThicknessSubmit = () => {
+    if (bodyThickness && parseFloat(bodyThickness) >= 15 && parseFloat(bodyThickness) <= 35) {
+      // First validate positioning
+      const positioningValidation = validateCervicothoracicPositioning();
+      
+      if (!positioningValidation.isValid) {
+        alert(positioningValidation.message);
+        return;
+      }
+      
+      // Calculate optimal exposure factors
+      const calculatedFactors = calculateExposureFactors(bodyThickness);
+      
+      // Set the calculated values
+      setUserCalculations({
+        kVp: calculatedFactors.kVp.toString(),
+        mAs: calculatedFactors.mAs.toString()
+      });
+      
+      // Move to post-exposure to show results
+      setSimulationStep('post-exposure');
+    } else {
+      alert('Please enter a valid body thickness between 15-35 cm');
+    }
+  };
+
+  // Function to validate user calculations based on body thickness
+  const validateCalculations = (kVp, mAs, thickness) => {
+    const kvpNum = parseFloat(kVp);
+    const masNum = parseFloat(mAs);
+    const thicknessNum = parseFloat(thickness);
+    
+    // Calculate expected exposure based on body thickness
+    // Using the 15% rule: for every 1cm increase in thickness, increase kVp by 2kVp (approximately 15%)
+    const baseKvp = 70; // Base kVp for average patient (25cm)
+    const baseMas = 10; // Base mAs for average patient
+    
+    // Calculate optimal kVp based on thickness
+    const thicknessDifference = thicknessNum - 25; // Difference from average
+    const optimalKvp = baseKvp + (thicknessDifference * 2);
+    const optimalMas = baseMas + (thicknessDifference * 0.5);
+    
+    // Acceptable range (±10% for kVp, ±20% for mAs)
+    const kvpTolerance = optimalKvp * 0.1;
+    const masTolerance = optimalMas * 0.2;
+    
+    const kvpCorrect = kvpNum >= (optimalKvp - kvpTolerance) && kvpNum <= (optimalKvp + kvpTolerance);
+    const masCorrect = masNum >= (optimalMas - masTolerance) && masNum <= (optimalMas + masTolerance);
+    
+    return {
+      isCorrect: kvpCorrect && masCorrect,
+      optimalKvp: Math.round(optimalKvp),
+      optimalMas: Math.round(optimalMas),
+      userKvp: kvpNum,
+      userMas: masNum,
+      feedback: kvpCorrect && masCorrect ? 'Correct!' : 'Incorrect - please recalculate'
+    };
+  };
 
   // Handle calculation submission
   const handleCalculationSubmit = useCallback(() => {
     if (userCalculations.kVp && userCalculations.mAs) {
-      setSimulationStep('post-exposure');
+      const validation = validateCalculations(userCalculations.kVp, userCalculations.mAs, bodyThickness);
+      
+      if (validation.isCorrect) {
+        setSimulationStep('post-exposure');
+      } else {
+        // Show detailed feedback and prompt to recompute
+        const message = `Incorrect calculations!\n\n` +
+          `For body thickness: ${bodyThickness} cm\n` +
+          `Optimal range: kVp ${Math.round(validation.optimalKvp - validation.optimalKvp * 0.1)}-${Math.round(validation.optimalKvp + validation.optimalKvp * 0.1)}, ` +
+          `mAs ${Math.round(validation.optimalMas - validation.optimalMas * 0.2)}-${Math.round(validation.optimalMas + validation.optimalMas * 0.2)}\n\n` +
+          `Your values: kVp ${validation.userKvp}, mAs ${validation.userMas}\n\n` +
+          `Please recalculate and try again.`;
+        
+        alert(message);
+      }
     } else {
       alert('Please enter both kVp and mAs values');
     }
-  }, [userCalculations]);
+  }, [userCalculations, bodyThickness]);
 
   // Handle reset functionality
   const handleReset = useCallback(() => {
@@ -225,41 +381,81 @@ function ModelLoader() {
   }, []);
 
   // Register animation handlers with context
-  const animationHandlers = {
-    handleCameraAnimation: triggerCameraAnimation
+  // Function to get equipment coordinates for measurement mapping
+  const getEquipmentCoordinates = () => {
+    const coordinates = {
+      cassette: {
+        position: showCassette ? (isMobile ? [-2, 1.5, 0] : [-1, -2.20, 1.1]) : null,
+        offset: cassetteOffset,
+        baselineZ: cassetteBaselineZ,
+        actualZ: cassetteBaselineZ !== null ? cassetteBaselineZ + cassetteOffset : null
+      },
+      verticalA: {
+        position: showVerticalA ? (isMobile ? [-2, 1.5, 0] : [1.5, -3.15, 3]) : null,
+        offset: verticalAOffset,
+        baselineZ: verticalABaselineZ,
+        actualZ: verticalABaselineZ !== null ? verticalABaselineZ + verticalAOffset : null
+      },
+      verticalB: {
+        position: showVerticalB ? (isMobile ? [-2 + verticalBHorizontalOffset, 1.5, 0] : [1 + verticalBHorizontalOffset, -2.5, -2.2]) : null,
+        offset: verticalBOffset,
+        horizontalOffset: verticalBHorizontalOffset,
+        baselineZ: verticalBBaselineZ,
+        actualZ: verticalBBaselineZ !== null ? verticalBBaselineZ + verticalBOffset : null
+      }
+    };
+
+    return coordinates;
   };
 
-  // Dashboard position styles (responsive and centered on desktop)
-  const dashboardStyle = {
-    position: 'absolute',
-    zIndex: 10,
-    background: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: '12px',
-    padding: '1rem',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-    transition: 'all 0.3s ease-in-out',
-    ...(isMobile
-      ? { // Mobile styles: Top-center
-          top: '1rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'calc(100% - 2rem)',
-          maxWidth: '400px',
-          maxHeight: '40vh',
-          overflowY: 'auto'
-        }
-      : { // Desktop styles: Left-center
-          top: '30%',
-          left: '2rem',
-          transform: 'translateY(-50%)',
-          width: '20%',
-          minWidth: '250px',
-          maxHeight: '80vh',
-          overflowY: 'auto'
-        }),
+  // Function to determine result image based on model rotation
+  const getResultImage = () => {
+    switch (baseRotation) {
+      case 'front':
+        return '/Images/Result/Front1.jpg';
+      case 'back':
+        return '/Images/Result/Back1.png';
+      case 'side-right':
+      case 'side-left':
+        return `/Images/Result/${Math.random() < 0.5 ? 'Right1.png' : 'Right2.png'}`;
+      default:
+        return '/Images/Result/Front1.jpg';
+    }
   };
 
-  return (
+const animationHandlers = {
+  handleCameraAnimation: triggerCameraAnimation,
+};
+
+// Dashboard position styles (responsive and centered on desktop)
+const dashboardStyle = {
+  position: 'absolute',
+  zIndex: 10,
+  background: 'rgba(255, 255, 255, 0.9)',
+  borderRadius: '12px',
+  padding: '1rem',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+  transition: 'all 0.3s ease-in-out',
+  ...(isMobile
+    ? { // Mobile styles: Top-center
+        top: '1rem',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: 'calc(100% - 2rem)',
+        maxWidth: '400px',
+        maxHeight: '40vh',
+        overflowY: 'auto'
+      }
+    : { // Desktop styles: Left-center
+        top: '30%',
+        left: '2rem',
+        transform: 'translateY(-50%)',
+        width: '20%',
+        minWidth: '250px',
+      }),
+};
+
+return (
     <LessonAnimationProvider>
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
         {/* Loading Indicator */}
@@ -286,7 +482,7 @@ function ModelLoader() {
                   bodyLift={bodyLift}
                   onLoad={() => setIsLoading(false)}
                 />
-              );
+              )
             })()}
             
             {/* 3D X-ray Table - Only show when lesson is selected */}
@@ -374,8 +570,12 @@ function ModelLoader() {
           </Suspense>
         </Canvas>
 
-        {/* Lesson Dashboard */}
-        <div style={dashboardStyle}>
+        
+        {/* Hide all control panels during post-exposure */}
+        {simulationStep !== 'post-exposure' && (
+          <>
+            {/* Lesson Dashboard */}
+            <div style={dashboardStyle}>
           <LessonDashboard
             onLessonSelected={(data) => {
               // Handle flashcard mode
@@ -393,18 +593,17 @@ function ModelLoader() {
               setHasLessonSelected(true);
               
               if (isPawlowMethod) {
-                // Pawlow Method: Show x-ray table and make model lie down
+                // Pawlow Method: Show x-ray table and Vertical B only, make model lie down
                 setShowXRayTable(true);
-                setShowCassette(false);
+                setShowCassette(false);  // Remove cassette for Pawlow method
                 setShowVerticalA(false);
                 setShowVerticalB(true);
                 handleArmPositionChange('closed');
-                setCassetteOffset(0);
                 setVerticalBOffset(0);
                 setVerticalBHorizontalOffset(0);
                 setIsLyingDown(true);
               } else {
-                // Twinning Method: Keep standing, no x-ray table, no cassette, arms closer to torso
+                // Twinning Method: Keep standing, show cassette and Vertical A, arms closer to torso
                 setShowXRayTable(false);
                 setShowCassette(true);
                 setShowVerticalA(true);
@@ -428,6 +627,7 @@ function ModelLoader() {
               setShowFlashcards(false);
               setCurrentFlashcardData(null);
             }}
+            onReset={handleReset}
             onFocusChange={(focusTarget) => {
               // Future: Can trigger camera animation to focus on specific anatomy
               console.log('Focus on:', focusTarget);
@@ -442,6 +642,7 @@ function ModelLoader() {
           showEquipment={showEquipmentPanel}
           showHeadControl={showHeadControlPanel}
           simulationStep={simulationStep}
+          isPawlowMethod={showVerticalB}
           onToggleModelRotation={toggleModelRotation}
           onToggleEquipment={toggleEquipment}
           onToggleHeadControl={toggleHeadControl}
@@ -453,15 +654,13 @@ function ModelLoader() {
           <EquipmentControls
             showCassette={showCassette}
             showVertical={showVerticalA || showVerticalB}
+            showVerticalB={showVerticalB}
             verticalLabel={showVerticalA ? 'Vertical A' : showVerticalB ? 'Vertical B' : 'Vertical'}
             onAdjustCassette={handleAdjustCassette}
             onAdjustVertical={handleAdjustVertical}
             onAdjustVerticalBHorizontal={showVerticalB ? handleAdjustVerticalBHorizontal : undefined}
           />
         )}
-
-        {/* Register animation handlers */}
-        <AnimationHandlerRegistrar handlers={animationHandlers} />
 
         {/* Head Controller - Only show when panel is toggled */}
         {showHeadControlPanel && (
@@ -471,8 +670,22 @@ function ModelLoader() {
           />
         )}
 
-        {/* Computation Panel - Shows after Done Positioning */}
-        {simulationStep === 'computation' && bodyThickness && (
+        {/* Model Rotation Controls - Only show when panel is toggled */}
+        {showModelRotationPanel && (
+          <ModelRotationControls
+            currentRotation={baseRotation}
+            onRotationChange={setBaseRotation}
+            isPawlowMethod={showVerticalB}
+          />
+        )}
+          </>
+        )}
+
+        {/* Register animation handlers */}
+        <AnimationHandlerRegistrar handlers={animationHandlers} />
+
+        {/* Body Thickness Input Panel - Shows after Done Positioning */}
+        {simulationStep === 'thickness-input' && (
           <div style={{
             position: 'absolute',
             top: isMobile ? '80px' : '90px',
@@ -486,25 +699,27 @@ function ModelLoader() {
             minWidth: isMobile ? '280px' : '350px',
             maxWidth: isMobile ? '90%' : '400px'
           }}>
-            <h3 style={{ margin: '0 0 15px 0', color: '#4CAF50' }}>Calculate Exposure Factors</h3>
+            <h3 style={{ margin: '0 0 15px 0', color: '#4CAF50' }}>Enter Body Thickness</h3>
             <p style={{ margin: '0 0 15px 0', fontSize: '14px' }}>
-              Body Thickness: <strong>{bodyThickness} cm</strong>
+              Please measure and enter the patient's body thickness:
             </p>
             
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
-                kVp (Kilovoltage Peak):
+                Body Thickness (cm):
               </label>
               <input
                 type="number"
-                value={userCalculations.kVp}
-                onChange={(e) => setUserCalculations(prev => ({ ...prev, kVp: e.target.value }))}
-                placeholder="Enter kVp"
+                value={bodyThickness || ''}
+                onChange={(e) => setBodyThickness(e.target.value)}
+                placeholder="Enter thickness (15-35 cm)"
+                min="15"
+                max="35"
+                step="0.1"
                 style={{
                   width: '100%',
                   padding: '8px',
                   borderRadius: '4px',
-                  border: '1px solid #ccc',
                   fontSize: '14px',
                   backgroundColor: 'rgba(255,255,255,0.1)',
                   color: 'white',
@@ -513,31 +728,23 @@ function ModelLoader() {
               />
             </div>
             
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
-                mAs (Milliamperage-seconds):
-              </label>
-              <input
-                type="number"
-                value={userCalculations.mAs}
-                onChange={(e) => setUserCalculations(prev => ({ ...prev, mAs: e.target.value }))}
-                placeholder="Enter mAs"
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc',
-                  fontSize: '14px',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  color: 'white',
-                  border: '1px solid rgba(255,255,255,0.3)'
-                }}
-              />
+            <div style={{ 
+              marginBottom: '15px', 
+              padding: '10px', 
+              backgroundColor: 'rgba(33, 150, 243, 0.1)', 
+              borderRadius: '6px',
+              fontSize: '12px',
+              border: '1px solid rgba(33, 150, 243, 0.3)'
+            }}>
+              <strong style={{ color: '#2196F3' }}>System will calculate:</strong><br/>
+              • Optimal kVp based on 15% rule<br/>
+              • Optimal mAs for body thickness<br/>
+              • Display appropriate radiographic image
             </div>
             
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button
-                onClick={handleCalculationSubmit}
+                onClick={handleThicknessSubmit}
                 style={{
                   backgroundColor: '#4CAF50',
                   color: 'white',
@@ -549,13 +756,12 @@ function ModelLoader() {
                   fontWeight: 'bold'
                 }}
               >
-                Submit & Show Exposure
+                Calculate & Show Results
               </button>
               <button
                 onClick={() => {
                   setSimulationStep('positioning');
                   setBodyThickness(null);
-                  setUserCalculations({ kVp: '', mAs: '' });
                 }}
                 style={{
                   backgroundColor: '#f44336',
@@ -586,16 +792,58 @@ function ModelLoader() {
             borderRadius: '12px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
             zIndex: 1000,
-            minWidth: isMobile ? '300px' : '450px',
-            maxWidth: '90%',
+            minWidth: isMobile ? '350px' : '600px',
+            maxWidth: isMobile ? '95%' : '800px',
+            maxHeight: isMobile ? '90vh' : '85vh',
+            overflowY: 'auto',
             textAlign: 'center'
           }}>
             <h2 style={{ margin: '0 0 20px 0', color: '#4CAF50' }}> Exposure Complete</h2>
+            
             <div style={{ marginBottom: '20px', fontSize: '16px' }}>
               <p><strong>Body Thickness:</strong> {bodyThickness} cm</p>
               <p><strong>Calculated kVp:</strong> {userCalculations.kVp}</p>
               <p><strong>Calculated mAs:</strong> {userCalculations.mAs}</p>
             </div>
+            
+            {/* Result Image Display */}
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ margin: '0 0 10px 0', color: '#2196F3', fontSize: '18px' }}>
+                Radiographic Result
+              </h3>
+              <div style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '8px',
+                padding: '10px',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '200px'
+              }}>
+                <img
+                  src={getResultImage()}
+                  alt="Radiographic Result"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '400px',
+                    width: 'auto',
+                    height: 'auto',
+                    borderRadius: '6px',
+                    border: '2px solid #4CAF50',
+                    objectFit: 'contain'
+                  }}
+                  onError={(e) => {
+                    e.target.src = '/Images/Result/Front1.jpg';
+                  }}
+                />
+              </div>
+              <p style={{ margin: '10px 0 0 0', fontSize: '12px', color: '#ccc' }}>
+                Image selected based on model rotation: {baseRotation}
+              </p>
+            </div>
+            
+            {/* New div added here */}
             <div style={{ 
               padding: '15px', 
               backgroundColor: 'rgba(76, 175, 80, 0.2)', 
@@ -605,14 +853,20 @@ function ModelLoader() {
             }}>
               <p style={{ margin: 0, fontSize: '14px' }}>
                 <strong>Simulation Complete!</strong><br/>
-                The radiographic exposure has been successfully calculated and applied.
+                The radiographic exposure has been successfully calculated and applied.<br/>
+                The exposure factors have been optimized based on the body thickness and positioning.
               </p>
             </div>
+            
             <button
               onClick={() => {
-                setSimulationStep('positioning');
-                setBodyThickness(null);
-                setUserCalculations({ kVp: '', mAs: '' });
+                // First reset to clean state, then start new positioning
+                handleReset();
+                setTimeout(() => {
+                  setSimulationStep('positioning');
+                  setBodyThickness(null);
+                  setUserCalculations({ kVp: '', mAs: '' });
+                }, 100);
               }}
               style={{
                 backgroundColor: '#2196F3',
