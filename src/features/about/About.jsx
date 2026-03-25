@@ -6,7 +6,7 @@ const universityName = 'Southern Luzon State University';
 const universityAddress = 'SLSU Main Campus, Lucban, Quezon, Philippines';
 
 const thesisTitle =
-  'Challenges and Positioning techniques in performing lateral cervicothoracic spine among Bachelor of Science in Radiologic Technology- IV interns';
+  'Challenges of Radiologic Technologists in Performing Spine Radiography: Basis for an Interactive Digital Learning Aid';
 
 const proponents = [
   { name: 'Patricia Nicole J. Oabel', imageUrl: '/Images/pat.jpg' },
