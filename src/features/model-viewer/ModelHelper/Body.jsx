@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 
-function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', isLyingDown = false, baseRotation = 'front', onLoad }) {
-  const { scene } = useGLTF('/Model/base.glb');
+function Body({ modelPath = '/Model/base.glb', scale, isMobile, armsClosed = false, armPosition = 'default', isLyingDown = false, baseRotation = 'front', onLoad }) {
+  const { scene } = useGLTF(modelPath);
+  const isSkeleton = modelPath.includes('skeleton');
 
   useEffect(() => {
     if (onLoad && scene) {
@@ -87,9 +88,13 @@ function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', is
       object={scene}
       scale={scale}
       position={
-        isMobile 
-          ? (isLyingDown ? [0, 1.9, 0] : [0, -2.1, 0])
-          : (isLyingDown ? [2, 0.6, 0] : [0, -2.1, 0])
+        isSkeleton
+          ? (isMobile
+              ? (isLyingDown ? [0, 1.9, 0]  : [0, -0.5, 0])
+              : (isLyingDown ? [-0.3, 0.6, 0]  : [0, -0.05, 0]))
+          : (isMobile
+              ? (isLyingDown ? [0, 1.9, 0]  : [0, -2.1, 0])
+              : (isLyingDown ? [2, 0.6, 0]  : [0, -2.1, 0]))
       }
       rotation={getRotation()}
     />
@@ -98,3 +103,4 @@ function Body({ scale, isMobile, armsClosed = false, armPosition = 'default', is
 
 export default Body;
 useGLTF.preload('/Model/base.glb');
+useGLTF.preload('/Model/skeleton.glb');

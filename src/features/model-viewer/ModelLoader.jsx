@@ -29,7 +29,7 @@ function ModelLoader() {
   const [showVerticalA, setShowVerticalA] = useState(false);
   const [showVerticalB, setShowVerticalB] = useState(false);
   const [armsClosed, setArmsClosed] = useState(false);
-  const [armPosition, setArmPosition] = useState('default');
+  const [armPosition, setArmPosition] = useState('twinning');
   const [cassetteOffset, setCassetteOffset] = useState(0);
   const [verticalAOffset, setVerticalAOffset] = useState(0);
   const [verticalBOffset, setVerticalBOffset] = useState(0);
@@ -40,6 +40,7 @@ function ModelLoader() {
   const [resetKey, setResetKey] = useState(0);
   const [isLyingDown, setIsLyingDown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [modelType, setModelType] = useState('base');
   const [baseRotation, setBaseRotation] = useState('front');
   const [hasLessonSelected, setHasLessonSelected] = useState(false);
   const [showModelRotationPanel, setShowModelRotationPanel] = useState(false);
@@ -336,8 +337,8 @@ function ModelLoader() {
     setShowCassette(false); // Hide cassette on reset
     setShowVerticalA(false); // Hide verticals on reset
     setShowVerticalB(false);
-    setArmsClosed(false); // Reset arms to original position
-    setArmPosition('default'); // Reset arm position to default
+    setArmsClosed(false); // Reset arms to default twinning position
+    setArmPosition('twinning'); // Reset arm position to default
     setIsLyingDown(false); // Return to standing position
     
     // Reset head control to default position
@@ -473,7 +474,8 @@ return (
               const bodyLift = Math.min(0.03, liftFromNegativeTilt); // cap at 0.02
               return (
                 <BodyMap
-                  scale={isMobile ? 1.7 : 2.4}
+                  modelPath={modelType === 'skeleton' ? '/Model/skeleton.glb' : '/Model/base.glb'}
+                  scale={modelType === 'skeleton' ? (isMobile ? 0.3 : 0.6) : (isMobile ? 1.7 : 2.4)}
                   isMobile={isMobile}
                   armsClosed={armsClosed}
                   armPosition={armPosition}
@@ -482,7 +484,7 @@ return (
                   bodyLift={bodyLift}
                   onLoad={() => setIsLoading(false)}
                 />
-              )
+              );
             })()}
             
             {/* 3D X-ray Table - Only show when lesson is selected */}
@@ -616,6 +618,49 @@ return (
             }}
             onReset={handleReset}
           />
+          {/* Model Type Toggle - inside dashboard card */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: '12px',
+            paddingTop: '10px',
+            borderTop: '1px solid rgba(0,0,0,0.08)'
+          }}>
+            <div style={{
+              display: 'flex',
+              backgroundColor: 'rgba(15, 23, 42, 0.88)',
+              borderRadius: '32px',
+              padding: '4px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.25)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              gap: '2px'
+            }}>
+              {['base', 'skeleton'].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => {
+                    setIsLoading(true);
+                    setModelType(type);
+                  }}
+                  style={{
+                    padding: '6px 18px',
+                    borderRadius: '28px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    letterSpacing: '0.03em',
+                    transition: 'all 0.25s ease',
+                    backgroundColor: modelType === type ? '#14b8a6' : 'transparent',
+                    color: modelType === type ? '#fff' : 'rgba(255,255,255,0.5)',
+                    boxShadow: modelType === type ? '0 2px 8px rgba(20,184,166,0.4)' : 'none',
+                  }}
+                >
+                  {type === 'base' ? 'Body' : 'Skeleton'}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Flashcard Viewer - Shows when flashcard lesson is selected */}

@@ -29,6 +29,18 @@ const Categories = [
             cameraPreset: "cervicalSpine_lateral_close"
           },
           {
+            title: "Atlas – C1",
+            content: "The Atlas (C1) is a ring-shaped vertebra with no vertebral body and no spinous process. It supports the skull (atlanto-occipital joint) and has two large lateral masses that articulate with the occipital condyles superiorly and the axis inferiorly.",
+            focusTarget: "Atlas",
+            cameraPreset: "cervicalSpine_lateral_close"
+          },
+          {
+            title: "Axis – C2",
+            content: "The Axis (C2) has a distinctive bony projection called the odontoid process (dens) that projects superiorly through the ring of the Atlas. This peg-like structure acts as a pivot allowing approximately 50% of the head's rotational movement.",
+            focusTarget: "Axis",
+            cameraPreset: "cervicalSpine_lateral_close"
+          },
+          {
             title: "Thoracic Spine (T1-T12)",
             content: "The thoracic spine consists of 12 vertebrae that articulate with the ribs. T1 marks the beginning of the thoracic region and is the first vertebra to connect with ribs, forming the thoracic cage.",
             focusTarget: "Thoracic",
@@ -165,7 +177,7 @@ function LessonDashboard({ onLessonSelected, onReset }) {
   return (
     <>
     <div
-      className="flex flex-col h-45 md:h-60 gap-2"
+      className="flex flex-col h-auto gap-2"
       // Prevent wheel events inside the dashboard from bubbling to the canvas/scene
       // Use capture phase and overscroll-behavior to stop scroll chaining to ancestor (the canvas)
       onWheelCapture={(e) => {

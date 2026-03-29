@@ -6,28 +6,60 @@ function AnatomyPointer({ focusTarget, position = 'center' }) {
     // Positions are relative to viewport - adjusted based on camera angle and 3D model position
     const paths = {
       'Cervical': {
-        start: { x: 60, y: 38 }, // From flashcard area (right side)
-        end: { x: 50, y: 25 },   // Cervical spine region (C1-C7)
+        start: { x: 60, y: 38 },
+        end: { x: 50, y:30 },   // Cervical spine region (C1-C7)
         label: 'Cervical Spine (C1-C7)',
-        curveOffset: { x: -10, y: -5 }
+        curveOffset: { x: -10, y: -5 },
+        marker: { color: '#ff0000', width: 18, height: 30, lineLength: 5.5, indicatorType: 'bracket' }
       },
       'Thoracic': {
         start: { x: 60, y: 42 },
-        end: { x: 50, y: 35 },   // Thoracic spine region (T1-T12)
+        end: { x: 50, y: 39 },   // Thoracic spine region (T1-T12)
         label: 'Thoracic Spine (T1-T12)',
-        curveOffset: { x: -10, y: -2 }
+        curveOffset: { x: -10, y: -2 },
+        marker: { color: '#ff0000', width: 18, height: 18, lineLength: 14, indicatorType: 'bracket' }
       },
       'CT_Junction': {
         start: { x: 60, y: 39 },
-        end: { x: 50, y: 29 },   // C7-T1 junction area
+        end: { x: 50, y: 32 },   // C7-T1 junction area
         label: 'C7-T1 Junction',
-        curveOffset: { x: -10, y: -4 }
+        curveOffset: { x: -10, y: -4 },
+        marker: { color: '#ff0000', width: 18, height: 18, lineLength: 2, indicatorType: 'bracket' }
+      },
+      'Atlas': {
+        start: { x: 60, y: 36 },
+        end: { x: 50, y: 27 },   // C1 Atlas - uppermost cervical
+        label: 'Atlas (C1)',
+        curveOffset: { x: -10, y: -6 }, 
+        marker: { color: '#ff0000', width: 18, height: 18, lineLength: 4, indicatorType: 'circle' }
+      },
+      'Axis': {
+        start: { x: 60, y: 37 },
+        end: { x: 50, y: 27.5 },   // C2 Axis - just below Atlas
+        label: 'Axis (C2)',
+        curveOffset: { x: -10, y: -6 },
+        marker: { color: '#ff0000', width: 18, height: 18, lineLength: 4, indicatorType: 'circle' }
+      },
+      'CervicalAP': {
+        start: { x: 60, y: 38 },
+        end: { x: 50, y: 25 },
+        label: 'Cervical Spine (AP)',
+        curveOffset: { x: -10, y: -5 },
+        marker: { color: '#22c55e', width: 18, height: 18, lineLength: 8, indicatorType: 'bracket' }
+      },
+      'CervicalOblique': {
+        start: { x: 60, y: 38 },
+        end: { x: 48, y: 25 },
+        label: 'Cervical Foramina',
+        curveOffset: { x: -8, y: -5 },
+        marker: { color: '#f97316', width: 18, height: 18, lineLength: 8, indicatorType: 'bracket' }
       },
       'default': {
         start: { x: 60, y: 40 },
         end: { x: 35, y: 32 },
         label: focusTarget,
-        curveOffset: { x: -10, y: -5 }
+        curveOffset: { x: -10, y: -5 },
+        marker: { color: '#0891b2', width: 18, height: 18, lineLength: 8, indicatorType: 'circle' }
       }
     };
 
@@ -42,26 +74,25 @@ function AnatomyPointer({ focusTarget, position = 'center' }) {
       style={{ mixBlendMode: 'normal' }}
     >
       <defs>
-        {/* Animated gradient for the arrow */}
+        {/* Per-target gradient */}
         <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.3" />
-          <stop offset="50%" stopColor="#06b6d4" stopOpacity="1" />
-          <stop offset="100%" stopColor="#0891b2" stopOpacity="1" />
+          <stop offset="0%" stopColor={pointer.marker.color} stopOpacity="0.3" />
+          <stop offset="50%" stopColor={pointer.marker.color} stopOpacity="1" />
+          <stop offset="100%" stopColor={pointer.marker.color} stopOpacity="1" />
         </linearGradient>
 
-        {/* Arrowhead marker */}
+        {/* Per-target arrowhead marker */}
         <marker
           id="arrowhead-pointer"
-          markerWidth="12"
-          markerHeight="12"
+          markerWidth={pointer.marker.width}
+          markerHeight={pointer.marker.height}
           refX="10"
           refY="6"
           orient="auto"
         >
           <path
             d="M 0 0 L 12 6 L 0 12 L 3 6 Z"
-            fill="#0891b2"
-            className="drop-shadow-lg"
+            fill={pointer.marker.color}
           />
         </marker>
 
@@ -97,7 +128,7 @@ function AnatomyPointer({ focusTarget, position = 'center' }) {
       </path>
 
       {/* Different indicators based on focus target */}
-      {focusTarget === 'CT_Junction' ? (
+      {pointer.marker?.indicatorType === 'circle' ? (
         // Pulsating circle for CT Junction
         <g>
           {/* Outer pulsing ring */}
@@ -106,7 +137,7 @@ function AnatomyPointer({ focusTarget, position = 'center' }) {
             cy={`${pointer.end.y}%`}
             r="12"
             fill="none"
-            stroke="#ef4444"
+            stroke={pointer.marker.color}
             strokeWidth="3"
             opacity="0.8"
           >
@@ -132,7 +163,7 @@ function AnatomyPointer({ focusTarget, position = 'center' }) {
             cy={`${pointer.end.y}%`}
             r="8"
             fill="none"
-            stroke="#f97316"
+            stroke={pointer.marker.color}
             strokeWidth="2"
             opacity="0.6"
           >
@@ -159,7 +190,7 @@ function AnatomyPointer({ focusTarget, position = 'center' }) {
             cx={`${pointer.end.x}%`}
             cy={`${pointer.end.y}%`}
             r="6"
-            fill="#ef4444"
+            fill={pointer.marker.color}
             className="drop-shadow-lg"
           >
             <animate
@@ -177,9 +208,7 @@ function AnatomyPointer({ focusTarget, position = 'center' }) {
         <g>
           {/* Calculate line length based on anatomical region */}
           {(() => {
-            let lineLength = 8; // default
-            if (focusTarget === 'Cervical') lineLength = 5; // shorter for cervical (C1-C7)
-            if (focusTarget === 'Thoracic') lineLength = 12; // longer for thoracic (T1-T12)
+            const lineLength = pointer.marker?.lineLength ?? 8;
             
             return (
               <>
