@@ -15,18 +15,28 @@ const mcQuestions = [
   { id:10, question:"The Swimmer's View is the primary radiographic method used to demonstrate which region?", options:['Upper cervical spine (C1–C2)','Cervicothoracic junction (C7–T1)','Thoracic spine (T1–T12)','Lumbar spine (L1–L5)'], answer:1 },
   { id:11, question:'Why is the cervicothoracic junction (C7–T1) difficult to visualize on a standard lateral cervical radiograph?', options:['The vertebrae are too small to resolve','Overlapping shoulder anatomy obscures C7–T1','The region falls outside the collimated field','High tissue density prevents x-ray penetration'], answer:1 },
   { id:12, question:'Which structure, unique to cervical vertebrae, transmits the vertebral arteries on each side?', options:['Spinous process','Transverse foramen','Vertebral foramen','Pedicle'], answer:1 },
+  { id:13, question:'The largest and most weight-bearing intervertebral disk is located between which vertebrae?', options:['L2\u2013L3','L3\u2013L4','L4\u2013L5','L5\u2013S1'], answer:3 },
+  { id:14, question:'Which vertebra articulates directly with the sacrum at the lumbosacral junction?', options:['L3','L4','L5','T12'], answer:2 },
+  { id:15, question:'Herniation of the nucleus pulposus most commonly occurs at which spinal level?', options:['C4\u2013C5','T4\u2013T5','L4\u2013L5 or L5\u2013S1','S1\u2013S2'], answer:2 },
 ];
 
-// ── Section 2: Fill in the Blanks ───────────────────────────────────────────
+// ── Section 2: True or False ────────────────────────────────────────────────
 const fillQuestions = [
-  { id:1, before:'The', after:'(C1) is a ring-shaped vertebra with no vertebral body or spinous process.', answers:['atlas'] },
-  { id:2, before:'The cervicothoracic junction refers to the transition between', after:'and T1.', answers:['c7','c-7'] },
-  { id:3, before:"The Swimmer's View (Twinning Method) is performed with the patient in an", after:'position.', answers:['upright lateral','upright','erect lateral'] },
-  { id:4, before:"The Swimmer's View (Pawlow Method) is performed with the patient in a", after:'position.', answers:['recumbent lateral','recumbent','lateral recumbent'] },
-  { id:5, before:'The standard SID for the lateral cervical spine and Swimmer\'s View is', after:'inches.', answers:['72'] },
-  { id:6, before:'In the AP cervical spine projection, the central ray is angled', after:'degrees cephalad to the level of C4.', answers:['15-20','15 to 20','15–20','20','15'] },
-  { id:7, before:'The Open-Mouth (Odontoid) view demonstrates the odontoid process of', after:'.', answers:['c2','axis','c2 (axis)','the axis'] },
-  { id:8, before:'The radiographic principle of using the minimum radiation dose necessary is called the', after:'principle.', answers:['alara'] },
+  { id:1,  statement:'The Atlas (C1) has no vertebral body or spinous process.',                                                         answer:true  },
+  { id:2,  statement:'The cervical spine consists of 7 vertebrae.',                                                                      answer:true  },
+  { id:3,  statement:'The Axis (C2) is also known as the Atlas.',                                                                        answer:false },
+  { id:4,  statement:"The Swimmer's View (Twinning Method) is performed with the patient in a recumbent lateral position.",               answer:false },
+  { id:5,  statement:"The standard SID for the lateral cervical spine and Swimmer's View is 72 inches.",                                answer:true  },
+  { id:6,  statement:'The lumbar spine consists of 5 vertebrae labeled L1 through L5.',                                                  answer:true  },
+  { id:7,  statement:'The sacrum is formed by the fusion of 4 sacral vertebrae.',                                                        answer:false },
+  { id:8,  statement:'The coccyx is commonly referred to as the tailbone.',                                                              answer:true  },
+  { id:9,  statement:'Spinous processes extend anteriorly from the vertebral arch.',                                                      answer:false },
+  { id:10, statement:'Transverse processes project laterally from each side of a vertebra.',                                             answer:true  },
+  { id:11, statement:'The annulus fibrosus is the gel-like center of an intervertebral disk.',                                           answer:false },
+  { id:12, statement:'Herniation of the nucleus pulposus most commonly occurs at L4\u2013L5 or L5\u2013S1.',                           answer:true  },
+  { id:13, statement:'The sacroiliac joint connects the sacrum to the femur.',                                                           answer:false },
+  { id:14, statement:'The cervicothoracic junction (C7\u2013T1) is easily visualized on a standard lateral cervical radiograph.',       answer:false },
+  { id:15, statement:'The transverse foramen, unique to cervical vertebrae, transmits the vertebral arteries.',                          answer:true  },
 ];
 
 // ── Section 3A: Matching – Anatomy ──────────────────────────────────────────
@@ -127,7 +137,7 @@ const AssessmentContent = () => {
   const [dragSubmitted, setDragSubmitted] = useState(false);
 
   const getMCScore  = () => mcQuestions.filter((_,i) => mcAnswers[i] === mcQuestions[i].answer).length;
-  const getFillScore = () => fillQuestions.filter((_,i) => fillQuestions[i].answers.includes((fillAnswers[i]||'').trim().toLowerCase())).length;
+  const getFillScore = () => fillQuestions.filter((_,i) => fillAnswers[i] === fillQuestions[i].answer).length;
   const getMatchAScore = () => matchingA.descriptions.filter((_,i) => Number(matchAAnswers[i]) === matchingA.answers[i]).length;
   const getMatchBScore = () => matchingB.descriptions.filter((_,i) => Number(matchBAnswers[i]) === matchingB.answers[i]).length;
   const getDragScore = () => dragZones.filter(z => dragAnswers[z.id] === z.answer).length;
@@ -145,7 +155,7 @@ const AssessmentContent = () => {
 
   const tabs = [
     { id: 'mc',       label: 'Multiple Choice',    count: mcQuestions.length },
-    { id: 'fill',     label: 'Fill in the Blanks', count: fillQuestions.length },
+    { id: 'fill',     label: 'True or False',       count: fillQuestions.length },
     { id: 'matching', label: 'Matching',            count: matchingA.descriptions.length + matchingB.descriptions.length },
     { id: 'image',    label: 'Drag & Label',        count: dragZones.length },
     { id: 'results',  label: 'Results',             count: null },
@@ -259,40 +269,53 @@ const AssessmentContent = () => {
           </div>
         )}
 
-        {/* ── SECTION 2: Fill in the Blanks ───────────────────────────────── */}
+        {/* ── SECTION 2: True or False ─────────────────────────────────────── */}
         {activeSection === 'fill' && (
           <div className="practice-section">
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px' }}>
-              <h2 style={{ margin:0 }}>Fill in the Blanks</h2>
-              {fillSubmitted && <span style={{ color: getFillScore() >= 5 ? '#10b981' : '#f87171', fontWeight:'bold' }}>{getFillScore()} / {fillQuestions.length}</span>}
+              <h2 style={{ margin:0 }}>True or False</h2>
+              {fillSubmitted && <span style={{ color: getFillScore() >= 10 ? '#10b981' : '#f87171', fontWeight:'bold' }}>{getFillScore()} / {fillQuestions.length}</span>}
             </div>
-            <p style={{ color:'#64748b', fontSize:'13px', marginBottom:'16px' }}>Type the missing word or phrase in each blank. Answers are not case-sensitive.</p>
+            <p style={{ color:'#64748b', fontSize:'13px', marginBottom:'16px' }}>Read each statement and select True or False.</p>
             {fillQuestions.map((q, qi) => {
-              const val = fillAnswers[qi] || '';
-              const isCorrect = q.answers.includes(val.trim().toLowerCase());
+              const chosen    = fillAnswers[qi];
+              const isCorrect = fillSubmitted && chosen === q.answer;
+              const isWrong   = fillSubmitted && chosen !== undefined && chosen !== q.answer;
               return (
-                <div key={qi} className="question-card" style={{ marginBottom:'14px' }}>
-                  <p style={{ lineHeight:'2.2', fontWeight:'500' }}>
-                    {qi + 1}. {q.before}{' '}
-                    <input
-                      type="text" disabled={fillSubmitted} value={val}
-                      onChange={e => setFillAnswers(prev => ({ ...prev, [qi]: e.target.value }))}
-                      placeholder="____________"
-                      style={{
-                        border:'none', borderBottom: fillSubmitted ? `2px solid ${isCorrect ? '#10b981' : '#ef4444'}` : '2px solid #64748b',
-                        outline:'none', padding:'2px 8px', width:'160px', textAlign:'center',
-                        background: fillSubmitted ? (isCorrect ? '#064e3b' : '#7f1d1d') : '#1e293b',
-                        color: fillSubmitted ? (isCorrect ? '#a7f3d0' : '#fecaca') : '#f1f5f9',
-                        borderRadius:'4px', fontWeight:'600', fontSize:'14px'
-                      }}
-                    />{' '}
-                    {q.after}
-                    {fillSubmitted && !isCorrect && (
-                      <span style={{ marginLeft:'10px', color:'#16a34a', fontSize:'13px' }}>
-                        ✓ {q.answers[0].charAt(0).toUpperCase() + q.answers[0].slice(1)}
+                <div key={qi} className="question-card" style={{
+                  marginBottom:'12px',
+                  border: fillSubmitted ? `1.5px solid ${isCorrect ? '#10b981' : isWrong ? '#ef4444' : '#374151'}` : '1.5px solid #374151',
+                  background: fillSubmitted ? (isCorrect ? 'rgba(6,78,59,0.35)' : isWrong ? 'rgba(127,29,29,0.35)' : undefined) : undefined,
+                }}>
+                  <p style={{ fontWeight:'500', marginBottom:'10px' }}>{qi + 1}. {q.statement}</p>
+                  <div style={{ display:'flex', gap:'10px' }}>
+                    {[true, false].map(val => {
+                      const isSelected = chosen === val;
+                      const btnCorrect = fillSubmitted && val === q.answer;
+                      const btnWrong   = fillSubmitted && isSelected && val !== q.answer;
+                      return (
+                        <button key={String(val)}
+                          disabled={fillSubmitted}
+                          onClick={() => setFillAnswers(prev => ({ ...prev, [qi]: val }))}
+                          style={{
+                            padding:'7px 22px', borderRadius:'7px', fontWeight:'700', fontSize:'13px',
+                            cursor: fillSubmitted ? 'default' : 'pointer',
+                            border: `2px solid ${
+                              btnCorrect ? '#10b981' : btnWrong ? '#ef4444' : isSelected ? '#3b82f6' : '#374151'
+                            }`,
+                            background: btnCorrect ? '#064e3b' : btnWrong ? '#7f1d1d' : isSelected ? '#1e3a5f' : '#1f2937',
+                            color: btnCorrect ? '#a7f3d0' : btnWrong ? '#fecaca' : isSelected ? '#bfdbfe' : '#9ca3af',
+                          }}>
+                          {val ? 'True' : 'False'}
+                        </button>
+                      );
+                    })}
+                    {isWrong && (
+                      <span style={{ alignSelf:'center', fontSize:'12px', color:'#10b981', fontWeight:'600' }}>
+                        ✓ {q.answer ? 'True' : 'False'}
                       </span>
                     )}
-                  </p>
+                  </div>
                 </div>
               );
             })}
