@@ -139,6 +139,10 @@ const AssessmentContent = ({ playerName, onScoreSubmitted, onExit }) => {
   // Timers – 10 min per section
   const SECTION_TIME   = 600;
   const MAX_TIME_BONUS = 40;
+  const MC_MULT   = 1;
+  const FILL_MULT = 1.5;
+  const MATC_MULT = 1.5;
+  const DRAG_MULT = 2;
   const [sectionStartTimes, setSectionStartTimes] = useState(() => {
     try { const s = sessionStorage.getItem('sectionStartTimes'); return s ? JSON.parse(s) : {}; } catch { return {}; }
   });
@@ -158,8 +162,19 @@ const AssessmentContent = ({ playerName, onScoreSubmitted, onExit }) => {
   const getMatchBScore = () => matchingB.descriptions.filter((_,i) => Number(matchBAnswers[i]) === matchingB.answers[i]).length;
   const getDragScore = () => dragZones.filter(z => dragAnswers[z.id] === z.answer).length;
 
-  const rawScore      = (mcSubmitted ? getMCScore() : 0) + (fillSubmitted ? getFillScore() : 0) + (matchASubmitted ? getMatchAScore() : 0) + (matchBSubmitted ? getMatchBScore() : 0) + (dragSubmitted ? getDragScore() : 0);
-  const totalPossible = mcQuestions.length + fillQuestions.length + matchingA.descriptions.length + matchingB.descriptions.length + dragZones.length + MAX_TIME_BONUS;
+  const rawScore      =
+    (mcSubmitted     ? getMCScore()     * MC_MULT   : 0) +
+    (fillSubmitted   ? getFillScore()   * FILL_MULT : 0) +
+    (matchASubmitted ? getMatchAScore() * MATC_MULT : 0) +
+    (matchBSubmitted ? getMatchBScore() * MATC_MULT : 0) +
+    (dragSubmitted   ? getDragScore()   * DRAG_MULT : 0);
+  const totalPossible =
+    mcQuestions.length            * MC_MULT   +
+    fillQuestions.length          * FILL_MULT +
+    matchingA.descriptions.length * MATC_MULT +
+    matchingB.descriptions.length * MATC_MULT +
+    dragZones.length              * DRAG_MULT +
+    MAX_TIME_BONUS;
 
   const recordTime = (sectionId) => {
     setSectionTimeUsed(prev => {
@@ -723,11 +738,11 @@ const AssessmentContent = ({ playerName, onScoreSubmitted, onExit }) => {
         {activeSection === 'results' && (() => {
           const rating = getRating(totalScore, totalPossible);
           const sections = [
-            { label: 'Multiple Choice',    score: mcSubmitted     ? getMCScore()               : null, total: mcQuestions.length },
-            { label: 'True or False',      score: fillSubmitted   ? getFillScore()             : null, total: fillQuestions.length },
-            { label: 'Matching Set A',     score: matchASubmitted ? getMatchAScore()           : null, total: matchingA.descriptions.length },
-            { label: 'Matching Set B',     score: matchBSubmitted ? getMatchBScore()           : null, total: matchingB.descriptions.length },
-            { label: 'Drag & Label',       score: dragSubmitted   ? getDragScore()             : null, total: dragZones.length },
+            { label: 'Multiple Choice (×1)',   mult: MC_MULT,   raw: mcSubmitted     ? getMCScore()     : null, total: mcQuestions.length },
+            { label: 'True or False (×1.5)',   mult: FILL_MULT, raw: fillSubmitted   ? getFillScore()   : null, total: fillQuestions.length },
+            { label: 'Matching Set A (×1.5)',  mult: MATC_MULT, raw: matchASubmitted ? getMatchAScore() : null, total: matchingA.descriptions.length },
+            { label: 'Matching Set B (×1.5)',  mult: MATC_MULT, raw: matchBSubmitted ? getMatchBScore() : null, total: matchingB.descriptions.length },
+            { label: 'Drag & Label (×2)',      mult: DRAG_MULT, raw: dragSubmitted   ? getDragScore()   : null, total: dragZones.length },
           ];
           return (
             <div className="recap-section">
@@ -745,21 +760,25 @@ const AssessmentContent = ({ playerName, onScoreSubmitted, onExit }) => {
                 </div>
               </div>
               <h3 style={{ marginBottom:'12px' }}>Section Breakdown</h3>
-              {sections.map((s, i) => (
+              {sections.map((s, i) => {
+                const pct = s.raw !== null ? s.raw / s.total : null;
+                const pts = s.raw !== null ? +(s.raw * s.mult).toFixed(1) : null;
+                const max = +(s.total * s.mult).toFixed(1);
+                return (
                 <div key={i} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 16px', marginBottom:'8px', borderRadius:'10px', background:'#1f2937', border:'1px solid #374151' }}>
                   <span style={{ fontWeight:'500' }}>{s.label}</span>
-                  {s.score !== null ? (
+                  {pct !== null ? (
                     <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
                       <div style={{ width:'120px', height:'8px', background:'#e2e8f0', borderRadius:'99px', overflow:'hidden' }}>
-                        <div style={{ width:`${(s.score / s.total) * 100}%`, height:'100%', background: s.score / s.total >= 0.75 ? '#16a34a' : s.score / s.total >= 0.5 ? '#d97706' : '#dc2626', transition:'width 0.4s' }} />
+                        <div style={{ width:`${pct * 100}%`, height:'100%', background: pct >= 0.75 ? '#16a34a' : pct >= 0.5 ? '#d97706' : '#dc2626', transition:'width 0.4s' }} />
                       </div>
-                      <span style={{ fontWeight:'700', minWidth:'48px', textAlign:'right', color: s.score / s.total >= 0.75 ? '#10b981' : '#f87171' }}>{s.score} / {s.total}</span>
+                      <span style={{ fontWeight:'700', minWidth:'56px', textAlign:'right', color: pct >= 0.75 ? '#10b981' : '#f87171' }}>{pts} / {max}</span>
                     </div>
                   ) : (
                     <span style={{ color:'#6b7280', fontSize:'13px' }}>Not submitted yet</span>
                   )}
                 </div>
-              ))}
+              ); })}
               {/* Time Bonus row */}
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 16px', marginBottom:'16px', borderRadius:'10px', background:'#1c1917', border:'1px solid #44403c' }}>
                 <span style={{ fontWeight:'500', color:'#fbbf24' }}>⏱ Time Bonus</span>

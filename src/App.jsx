@@ -76,7 +76,7 @@ function App() {
       case 'assessment':
         return assessmentName
           ? <AssessmentContent playerName={assessmentName} onScoreSubmitted={refreshChampion} onExit={() => { ['assessmentName','sectionStartTimes','sectionTimeUsed'].forEach(k => sessionStorage.removeItem(k)); setAssessmentName(null); setCurrentPage('home'); }} />
-          : <NameGate onConfirm={name => { sessionStorage.setItem('assessmentName', name); setAssessmentName(name); }} />;
+          : <NameGate onConfirm={name => { sessionStorage.setItem('assessmentName', name); setAssessmentName(name); }} onClose={() => setCurrentPage('home')} />;
       case 'about':
         return <About />;
       default:

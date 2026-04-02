@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function NameGate({ onConfirm }) {
+export default function NameGate({ onConfirm, onClose }) {
   const [name, setName]   = useState('');
   const [error, setError] = useState('');
 
@@ -33,8 +33,21 @@ export default function NameGate({ onConfirm }) {
           width: '100%',
           maxWidth: '400px',
           boxShadow: '0 25px 50px rgba(0,0,0,0.6)',
+          position: 'relative',
         }}
       >
+        {onClose && (
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute', top: '14px', right: '16px',
+              background: 'none', border: 'none', color: '#6b7280',
+              fontSize: '20px', cursor: 'pointer', lineHeight: 1,
+              padding: '4px 6px', borderRadius: '6px',
+            }}
+            aria-label="Close"
+          >✕</button>
+        )}
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ fontSize: '36px', marginBottom: '10px' }}>📝</div>
           <h2 style={{ color: '#f1f5f9', margin: 0, fontSize: '22px', fontWeight: '700' }}>
