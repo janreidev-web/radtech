@@ -56,10 +56,10 @@ function About() {
 
           {/* Thesis title */}
           <section className="mt-12 rounded-2xl bg-slate-900/80 p-8 ring-1 ring-slate-800/80 shadow-xl">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-teal-400">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-teal-400 text-center">
               Thesis Title
             </h2>
-            <p className="mt-4 text-xl sm:text-2xl font-semibold leading-relaxed text-slate-100 italic">
+            <p className="mt-4 text-xl sm:text-2xl font-semibold leading-relaxed text-slate-100 italic text-center">
               “{thesisTitle}”
             </p>
           </section>
