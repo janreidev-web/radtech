@@ -3,16 +3,18 @@ import './AssessmentContent.css';
 
 // ── Section 1: Multiple Choice ──────────────────────────────────────────────
 const mcQuestions = [
-  { id:1, question:'How many vertebrae make up the cervical spine?', options:['5','7','9','12'], answer:1 },
-  { id:2, question:'Which cervical vertebra is known as the "Atlas"?', options:['C2','C1','C3','C4'], answer:1 },
-  { id:3, question:'The odontoid process (dens) is the distinctive feature of which vertebra?', options:['C1 (Atlas)','C3','C2 (Axis)','C7'], answer:2 },
-  { id:4, question:"The Swimmer's View is primarily performed to visualize which region?", options:['Upper cervical spine (C1–C2)','Cervicothoracic junction (C7–T1)','Thoracic spine (T1–T12)','Lumbar spine'], answer:1 },
-  { id:5, question:'The Twinning Method positions the patient in which stance?', options:['Supine (lying on back)','Prone (lying face down)','Upright lateral (standing or sitting)','Recumbent lateral (lying on side)'], answer:2 },
-  { id:6, question:"In the Pawlow Method, the arm on the patient's table side is:", options:['Placed at the side','Raised above the head','Crossed over the chest','Extended downward'], answer:1 },
-  { id:7, question:"What SID is recommended for the lateral cervical spine and Swimmer's View?", options:['40 inches','48 inches','60 inches','72 inches'], answer:3 },
-  { id:8, question:'Why is C7 often difficult to visualize in a standard lateral cervical radiograph?', options:['It is too small','Overlapping shoulder anatomy obscures it','It has the same density as soft tissue','It is outside the field of view'], answer:1 },
-  { id:9, question:'The ALARA principle in radiography stands for:', options:['Always Limit And Reduce Artifacts','As Low As Reasonably Achievable','Adjust Levels And Reduce Angles','All Lateral And Rotational Alignments'], answer:1 },
-  { id:10, question:'C7 is also referred to as:', options:['Atlas','Axis','Vertebra Prominens','Sacral Vertebra'], answer:2 },
+  { id:1,  question:'How many vertebrae make up the cervical spine?', options:['5','7','9','12'], answer:1 },
+  { id:2,  question:'The Atlas (C1) is distinguished from other vertebrae because it:', options:['Has the largest vertebral body','Has no vertebral body or spinous process','Bears the odontoid process (dens)','Has bifid transverse processes'], answer:1 },
+  { id:3,  question:'How many vertebrae make up the lumbar spine?', options:['3','4','5','6'], answer:2 },
+  { id:4,  question:'The sacrum is formed by the fusion of how many vertebrae?', options:['3','4','5','7'], answer:2 },
+  { id:5,  question:'The coccyx (tailbone) is typically composed of how many fused segments?', options:['2','3–5','6','8'], answer:1 },
+  { id:6,  question:'Spinous processes extend _____ from the vertebral arch and can be palpated along the midline of the back.', options:['Anteriorly','Laterally','Posteriorly','Superiorly'], answer:2 },
+  { id:7,  question:'Transverse processes of vertebrae primarily serve as attachment sites for:', options:['Intervertebral disks','Muscles and ligaments','Spinal nerve roots','The spinal cord'], answer:1 },
+  { id:8,  question:'The outer fibrous ring of an intervertebral disk is called the:', options:['Nucleus pulposus','Annulus fibrosus','Vertebral endplate','Ligamentum flavum'], answer:1 },
+  { id:9,  question:'The inner gel-like core of an intervertebral disk that absorbs shock between vertebrae is the:', options:['Annulus fibrosus','Articular cartilage','Nucleus pulposus','Posterior longitudinal ligament'], answer:2 },
+  { id:10, question:"The Swimmer's View is the primary radiographic method used to demonstrate which region?", options:['Upper cervical spine (C1–C2)','Cervicothoracic junction (C7–T1)','Thoracic spine (T1–T12)','Lumbar spine (L1–L5)'], answer:1 },
+  { id:11, question:'Why is the cervicothoracic junction (C7–T1) difficult to visualize on a standard lateral cervical radiograph?', options:['The vertebrae are too small to resolve','Overlapping shoulder anatomy obscures C7–T1','The region falls outside the collimated field','High tissue density prevents x-ray penetration'], answer:1 },
+  { id:12, question:'Which structure, unique to cervical vertebrae, transmits the vertebral arteries on each side?', options:['Spinous process','Transverse foramen','Vertebral foramen','Pedicle'], answer:1 },
 ];
 
 // ── Section 2: Fill in the Blanks ───────────────────────────────────────────
@@ -66,22 +68,41 @@ const ZONE_COLORS = [
   { stroke:'#2dd4bf', bg:'rgba(19,78,74,0.93)'   },  // id:2 teal
   { stroke:'#fb923c', bg:'rgba(67,20,7,0.93)'    },  // id:3 orange
   { stroke:'#f472b6', bg:'rgba(80,7,36,0.93)'    },  // id:4 rose
+  { stroke:'#84cc16', bg:'rgba(26,46,5,0.93)'    },  // id:5 lime
+  { stroke:'#f59e0b', bg:'rgba(69,26,3,0.93)'    },  // id:6 amber
+  { stroke:'#6366f1', bg:'rgba(30,27,75,0.93)'   },  // id:7 indigo
+  { stroke:'#06b6d4', bg:'rgba(8,51,68,0.93)'    },  // id:8 cyan
+  { stroke:'#10b981', bg:'rgba(6,46,45,0.93)'    },  // id:9 emerald
+  { stroke:'#f97316', bg:'rgba(67,20,7,0.93)'    },  // id:10 red-orange
 ];
 const dragZones = [
   // type:'point'   → dotX/dotY = red anchor on anatomy
   // type:'bracket' → bracketX = vertical bar x, topY/botY = span
-  { id:0, type:'point',   dotX:49, dotY:13.6,                               boxX:20, boxY: 7,   side:'left',  answer:'Atlas (C1)' },
-  { id:1, type:'point',   dotX:50, dotY:14.8,                               boxX:80, boxY:12,   side:'right', answer:'Axis (C2)' },
-  { id:2, type:'bracket', bracketX:48, topY:12.5, botY:24,                boxX:20, boxY:43,   side:'left',  answer:'Cervical Spine (C1\u2013C7)' },
-  { id:3, type:'bracket', bracketX:50, topY:23.8, botY:60.8,                boxX:80, boxY:58,   side:'right', answer:'Thoracic Spine (T1\u2013T12)' },
-  { id:4, type:'bracket', bracketX:48, topY:21.2, botY:24.4,                boxX:20, boxY:27,   side:'left',  answer:'Cervicothoracic Junction (C7\u2013T1)' },
+  { id:0,  type:'point',   dotX:49,   dotY:13.6,                                                                                                      boxX:20, boxY: 7,  side:'left',  answer:'Atlas (C1)' },
+  { id:1,  type:'point',   dotX:50,   dotY:14.8,                                                                                                      boxX:80, boxY:12,  side:'right', answer:'Axis (C2)' },
+  { id:2,  type:'bracket', bracketX:48, topY:12.5, botY:24,                                                                                           boxX:20, boxY:22,  side:'left',  answer:'Cervical Spine (C1\u2013C7)' },
+  { id:3,  type:'bracket', bracketX:50, topY:23.8, botY:57,                                                                                           boxX:80, boxY:30,  side:'right', answer:'Thoracic Spine (T1\u2013T12)' },
+  { id:4,  type:'bracket', bracketX:48, topY:21.2, botY:24.4,                                                                                         boxX:20, boxY:37,  side:'left',  answer:'Cervicothoracic Junction (C7\u2013T1)' },
+  { id:5,  type:'bracket', bracketX:52, topY:57.3, botY:72.5,                                                                                         boxX:80, boxY:50,  side:'right', answer:'Lumbar Spine (L1\u2013L5)' },
+  { id:6,  type:'bracket', bracketX:47, topY:73.8, botY:81.7,                                                                                         boxX:20, boxY:52,  side:'left',  answer:'Sacrum' },
+  { id:7,  type:'bracket', bracketX:52, topY:83.4, botY:87.1,                                                                                         boxX:80, boxY:67,  side:'right', answer:'Coccyx' },
+  { id:8,  type:'point',   dots:[{x:48.7,y:26.1},{x:49,y:30.4},{x:49.4,y:34.9},{x:49.2,y:39.1},{x:49.4,y:43},{x:49.4,y:48.4},{x:49.2,y:53.3}],      boxX:20, boxY:65,  side:'left',  answer:'Spinous Process' },
+  { id:9,  type:'point',   dots:[{x:53,y:29.4},{x:53.5,y:31.7},{x:53.7,y:34.5},{x:53.2,y:37.7}],                                                     boxX:80, boxY:83,  side:'right', answer:'Transverse Process' },
+  { id:10, type:'point',   dots:[{x:49,y:28.9},{x:49,y:33.8},{x:49,y:31.3},{x:49,y:37.1}],                                                   boxX:20, boxY:78,  side:'left',  answer:'Intervertebral Disk' },
 ];
+
 const dragLabels = [
   'Axis (C2)',
   'Cervicothoracic Junction (C7–T1)',
   'Atlas (C1)',
   'Thoracic Spine (T1–T12)',
   'Cervical Spine (C1–C7)',
+  'Lumbar Spine (L1–L5)',
+  'Sacrum',
+  'Coccyx',
+  'Spinous Process',
+  'Transverse Process',
+  'Intervertebral Disk',
 ];
 
 const LABELS = ['A','B','C','D'];
@@ -422,19 +443,25 @@ const AssessmentContent = () => {
                     }
 
                     // type === 'point'
+                    const dots = zone.dots || [{ x: zone.dotX, y: zone.dotY }];
+                    const anchor = dots.reduce((best, d) =>
+                      Math.abs(d.y - zone.boxY) < Math.abs(best.y - zone.boxY) ? d : best, dots[0]);
                     return (
                       <g key={zone.id} fill="none">
-                        {/* white halo */}
-                        <line x1={zone.dotX} y1={zone.dotY} x2={lineEndX} y2={zone.boxY} stroke="white" strokeWidth="1.8" strokeOpacity="0.55" />
-                        {/* coloured line */}
-                        <line x1={zone.dotX} y1={zone.dotY} x2={lineEndX} y2={zone.boxY} stroke={ZONE_COLORS[zone.id].stroke} strokeWidth="0.9" />
-                        <circle cx={zone.dotX} cy={zone.dotY} r="1.1" fill={ZONE_COLORS[zone.id].stroke} stroke="white" strokeWidth="0.4" />
+                        {/* white halo on connecting line */}
+                        <line x1={anchor.x} y1={anchor.y} x2={lineEndX} y2={zone.boxY} stroke="white" strokeWidth="1.8" strokeOpacity="0.55" />
+                        {/* coloured connecting line */}
+                        <line x1={anchor.x} y1={anchor.y} x2={lineEndX} y2={zone.boxY} stroke={ZONE_COLORS[zone.id].stroke} strokeWidth="0.9" />
+                        {/* all anchor dots */}
+                        {dots.map((d, di) => (
+                          <circle key={di} cx={d.x} cy={d.y} r="1.1" fill={ZONE_COLORS[zone.id].stroke} stroke="white" strokeWidth="0.4" />
+                        ))}
                       </g>
                     );
                   })}
                 </svg>
 
-                {/* HTML drop boxes at the end of each connector line */}
+                {/* HTML drop boxes */}
                 {dragZones.filter(zone => dragSubmitted || isZoneVisible(zone.id)).map(zone => {
                   const dropped   = dragAnswers[zone.id];
                   const isCorrect = dragSubmitted && dropped === zone.answer;
