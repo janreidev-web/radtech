@@ -75,7 +75,7 @@ function App() {
         return <ModelLoader />;
       case 'assessment':
         return assessmentName
-          ? <AssessmentContent playerName={assessmentName} onScoreSubmitted={refreshChampion} onExit={() => { ['assessmentName','sectionStartTimes','sectionTimeUsed'].forEach(k => sessionStorage.removeItem(k)); setAssessmentName(null); }} />
+          ? <AssessmentContent playerName={assessmentName} onScoreSubmitted={refreshChampion} onExit={() => { ['assessmentName','sectionStartTimes','sectionTimeUsed'].forEach(k => sessionStorage.removeItem(k)); setAssessmentName(null); setCurrentPage('home'); }} />
           : <NameGate onConfirm={name => { sessionStorage.setItem('assessmentName', name); setAssessmentName(name); }} />;
       case 'about':
         return <About />;
