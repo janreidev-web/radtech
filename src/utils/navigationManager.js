@@ -39,17 +39,8 @@ export const NavigationManager = {
     return currentPage;
   },
   
-  // Setup beforeunload listener to clear storage on tab close
+  // No-op: sessionStorage clears itself when the tab closes
   setupCleanup() {
-    const handleBeforeUnload = () => {
-      this.clearPage();
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    // Return cleanup function
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
+    return () => {};
   }
 };

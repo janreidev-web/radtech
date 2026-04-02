@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { submitScore, getLeaderboard } from '../../services/scoreService';
 import './AssessmentContent.css';
 
 // ── Section 1: Multiple Choice ──────────────────────────────────────────────
@@ -117,7 +118,7 @@ const dragLabels = [
 
 const LABELS = ['A','B','C','D'];
 
-const AssessmentContent = () => {
+const AssessmentContent = ({ playerName, onScoreSubmitted, onExit }) => {
   const [activeSection, setActiveSection] = useState('mc');
   // Multiple Choice
   const [mcAnswers, setMcAnswers] = useState({});
@@ -135,6 +136,21 @@ const AssessmentContent = () => {
   const [dragging,      setDragging]      = useState(null);
   const [dragAnswers,   setDragAnswers]   = useState({});
   const [dragSubmitted, setDragSubmitted] = useState(false);
+  // Timers – 10 min per section
+  const SECTION_TIME   = 600;
+  const MAX_TIME_BONUS = 40;
+  const [sectionStartTimes, setSectionStartTimes] = useState(() => {
+    try { const s = sessionStorage.getItem('sectionStartTimes'); return s ? JSON.parse(s) : {}; } catch { return {}; }
+  });
+  const [sectionTimeUsed,   setSectionTimeUsed]   = useState(() => {
+    try { const s = sessionStorage.getItem('sectionTimeUsed');   return s ? JSON.parse(s) : {}; } catch { return {}; }
+  });
+  const [ticker,            setTicker]            = useState(0);
+  // Score submission
+  const [scoreSubmitted,  setScoreSubmitted]  = useState(false);
+  const [scoreSubmitting, setScoreSubmitting] = useState(false);
+  const [scoreResult,     setScoreResult]     = useState(null);
+  const [leaderboard,     setLeaderboard]     = useState([]);
 
   const getMCScore  = () => mcQuestions.filter((_,i) => mcAnswers[i] === mcQuestions[i].answer).length;
   const getFillScore = () => fillQuestions.filter((_,i) => fillAnswers[i] === fillQuestions[i].answer).length;
@@ -142,8 +158,51 @@ const AssessmentContent = () => {
   const getMatchBScore = () => matchingB.descriptions.filter((_,i) => Number(matchBAnswers[i]) === matchingB.answers[i]).length;
   const getDragScore = () => dragZones.filter(z => dragAnswers[z.id] === z.answer).length;
 
-  const totalPossible = mcQuestions.length + fillQuestions.length + matchingA.descriptions.length + matchingB.descriptions.length + dragZones.length;
-  const totalScore = (mcSubmitted ? getMCScore() : 0) + (fillSubmitted ? getFillScore() : 0) + (matchASubmitted ? getMatchAScore() : 0) + (matchBSubmitted ? getMatchBScore() : 0) + (dragSubmitted ? getDragScore() : 0);
+  const rawScore      = (mcSubmitted ? getMCScore() : 0) + (fillSubmitted ? getFillScore() : 0) + (matchASubmitted ? getMatchAScore() : 0) + (matchBSubmitted ? getMatchBScore() : 0) + (dragSubmitted ? getDragScore() : 0);
+  const totalPossible = mcQuestions.length + fillQuestions.length + matchingA.descriptions.length + matchingB.descriptions.length + dragZones.length + MAX_TIME_BONUS;
+
+  const recordTime = (sectionId) => {
+    setSectionTimeUsed(prev => {
+      if (prev[sectionId] != null) return prev;
+      const start = sectionStartTimes[sectionId];
+      const used  = start ? Math.min(SECTION_TIME, (Date.now() - start) / 1000) : SECTION_TIME;
+      return { ...prev, [sectionId]: used };
+    });
+  };
+  const getTimeBonus = () =>
+    ['mc', 'fill', 'matching', 'image'].reduce((sum, id) => {
+      const used = sectionTimeUsed[id];
+      if (used == null) return sum;
+      return sum + Math.floor(Math.max(0, SECTION_TIME - used) / 60);
+    }, 0);
+  const timeBonus  = getTimeBonus();
+  const totalScore = rawScore + timeBonus;
+
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+  const getRemainingSeconds = (sectionId) => {
+    const start = sectionStartTimes[sectionId];
+    if (!start) return SECTION_TIME;
+    return Math.max(0, SECTION_TIME - (Date.now() - start) / 1000);
+  };
+  const timerBadge = (sid, submitted) => {
+    if (submitted) return null;
+    const sec     = getRemainingSeconds(sid);
+    const isAlarm = sec < 60;
+    return (
+      <span style={{
+        padding: '3px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: '700',
+        background: isAlarm ? '#7f1d1d' : '#1f2937',
+        color: isAlarm ? '#fca5a5' : '#9ca3af',
+        border: `1px solid ${isAlarm ? '#ef4444' : '#374151'}`,
+      }}>
+        ⏱ {sec > 0 ? formatTime(sec) : "Time's Up!"}
+      </span>
+    );
+  };
 
   const getRating = (score, total) => {
     const pct = score / total;
@@ -212,6 +271,63 @@ const AssessmentContent = () => {
     return {};
   };
 
+  useEffect(() => {
+    const id = setInterval(() => setTicker(t => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (activeSection === 'results') return;
+    setSectionStartTimes(prev =>
+      prev[activeSection] ? prev : { ...prev, [activeSection]: Date.now() }
+    );
+  }, [activeSection]);
+
+  useEffect(() => {
+    sessionStorage.setItem('sectionStartTimes', JSON.stringify(sectionStartTimes));
+  }, [sectionStartTimes]);
+
+  useEffect(() => {
+    sessionStorage.setItem('sectionTimeUsed', JSON.stringify(sectionTimeUsed));
+  }, [sectionTimeUsed]);
+
+  const handleSubmitScore = async () => {
+    if (scoreSubmitting || scoreSubmitted) return;
+    setScoreSubmitting(true);
+    try {
+      const result = await submitScore({
+        name:          playerName,
+        rawScore,
+        timeBonus,
+        finalScore:    totalScore,
+        totalPossible,
+        sections: {
+          mc:       { score: getMCScore(),                        timeUsed: sectionTimeUsed.mc       ?? null },
+          tf:       { score: getFillScore(),                      timeUsed: sectionTimeUsed.fill     ?? null },
+          matching: { score: getMatchAScore() + getMatchBScore(), timeUsed: sectionTimeUsed.matching ?? null },
+          drag:     { score: getDragScore(),                      timeUsed: sectionTimeUsed.image    ?? null },
+        },
+      });
+      setScoreResult(result);
+      setScoreSubmitted(true);
+      onScoreSubmitted?.();
+    } catch (err) {
+      console.error('Score submission error:', err);
+    }
+    setScoreSubmitting(false);
+  };
+
+  useEffect(() => {
+    if (activeSection !== 'results') return;
+    handleSubmitScore();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (activeSection !== 'results') return;
+    getLeaderboard().then(data => setLeaderboard(data || []));
+  }, [activeSection, scoreSubmitted]);
+
   return (
     <div className="assessment-container">
       <div className="assessment-header">
@@ -235,7 +351,10 @@ const AssessmentContent = () => {
           <div className="practice-section">
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px' }}>
               <h2 style={{ margin:0 }}>Multiple Choice</h2>
-              {mcSubmitted && <span style={{ color: getMCScore() >= 7 ? '#10b981' : '#f87171', fontWeight:'bold' }}>{getMCScore()} / {mcQuestions.length}</span>}
+              <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                {timerBadge('mc', mcSubmitted)}
+                {mcSubmitted && <span style={{ color: getMCScore() >= 7 ? '#10b981' : '#f87171', fontWeight:'bold' }}>{getMCScore()} / {mcQuestions.length}</span>}
+              </div>
             </div>
             {mcQuestions.map((q, qi) => (
               <div key={qi} className="question-card" style={{ marginBottom:'16px' }}>
@@ -260,7 +379,7 @@ const AssessmentContent = () => {
               </div>
             ))}
             {!mcSubmitted ? (
-              <button className="submit-btn" onClick={() => setMcSubmitted(true)}>Submit Answers</button>
+              <button className="submit-btn" onClick={() => { recordTime('mc'); setMcSubmitted(true); }}>Submit Answers</button>
             ) : (
               <div style={{ background:'#064e3b', border:'1px solid #10b981', borderRadius:'10px', padding:'14px', textAlign:'center', color:'#a7f3d0' }}>
                 Score: <strong>{getMCScore()} / {mcQuestions.length}</strong> — {getRating(getMCScore(), mcQuestions.length).label}
@@ -274,7 +393,10 @@ const AssessmentContent = () => {
           <div className="practice-section">
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px' }}>
               <h2 style={{ margin:0 }}>True or False</h2>
-              {fillSubmitted && <span style={{ color: getFillScore() >= 10 ? '#10b981' : '#f87171', fontWeight:'bold' }}>{getFillScore()} / {fillQuestions.length}</span>}
+              <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                {timerBadge('fill', fillSubmitted)}
+                {fillSubmitted && <span style={{ color: getFillScore() >= 10 ? '#10b981' : '#f87171', fontWeight:'bold' }}>{getFillScore()} / {fillQuestions.length}</span>}
+              </div>
             </div>
             <p style={{ color:'#64748b', fontSize:'13px', marginBottom:'16px' }}>Read each statement and select True or False.</p>
             {fillQuestions.map((q, qi) => {
@@ -320,7 +442,7 @@ const AssessmentContent = () => {
               );
             })}
             {!fillSubmitted ? (
-              <button className="submit-btn" onClick={() => setFillSubmitted(true)}>Submit Answers</button>
+              <button className="submit-btn" onClick={() => { recordTime('fill'); setFillSubmitted(true); }}>Submit Answers</button>
             ) : (
               <div style={{ background:'#064e3b', border:'1px solid #10b981', borderRadius:'10px', padding:'14px', textAlign:'center', color:'#a7f3d0' }}>
                 Score: <strong>{getFillScore()} / {fillQuestions.length}</strong> — {getRating(getFillScore(), fillQuestions.length).label}
@@ -334,11 +456,14 @@ const AssessmentContent = () => {
           <div className="practice-section">
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px' }}>
               <h2 style={{ margin:0 }}>Matching Type</h2>
-              {matchASubmitted && matchBSubmitted && (
-                <span style={{ fontWeight:'bold', color: (getMatchAScore()+getMatchBScore()) >= 7 ? '#16a34a' : '#dc2626' }}>
-                  {getMatchAScore()+getMatchBScore()} / {matchingA.descriptions.length+matchingB.descriptions.length}
-                </span>
-              )}
+              <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                {timerBadge('matching', matchASubmitted && matchBSubmitted)}
+                {matchASubmitted && matchBSubmitted && (
+                  <span style={{ fontWeight:'bold', color: (getMatchAScore()+getMatchBScore()) >= 7 ? '#16a34a' : '#dc2626' }}>
+                    {getMatchAScore()+getMatchBScore()} / {matchingA.descriptions.length+matchingB.descriptions.length}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Set A */}
@@ -401,7 +526,7 @@ const AssessmentContent = () => {
                   </div>
                 );
               })}
-              {!matchBSubmitted && <button className="submit-btn" onClick={() => setMatchBSubmitted(true)}>Submit Set B</button>}
+              {!matchBSubmitted && <button className="submit-btn" onClick={() => { recordTime('matching'); setMatchBSubmitted(true); }}>Submit Set B</button>}
               {matchBSubmitted && <div style={{ color:'#16a34a', fontWeight:'600' }}>Set B: {getMatchBScore()} / {matchingB.descriptions.length}</div>}
             </div>
           </div>
@@ -412,7 +537,10 @@ const AssessmentContent = () => {
           <div className="practice-section">
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'4px' }}>
               <h2 style={{ margin:0 }}>Drag &amp; Label</h2>
-              {dragSubmitted && <span style={{ color: getDragScore() >= 4 ? '#10b981' : '#f87171', fontWeight:'bold' }}>{getDragScore()} / {dragZones.length}</span>}
+              <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                {timerBadge('image', dragSubmitted)}
+                {dragSubmitted && <span style={{ color: getDragScore() >= 4 ? '#10b981' : '#f87171', fontWeight:'bold' }}>{getDragScore()} / {dragZones.length}</span>}
+              </div>
             </div>
             <p style={{ color:'#9ca3af', fontSize:'13px', marginBottom:'14px' }}>
               Drag each label from the pool and drop it onto the correct callout box on the skeleton.
@@ -581,7 +709,7 @@ const AssessmentContent = () => {
             </div>
 
             {!dragSubmitted ? (
-              <button className="submit-btn" onClick={() => setDragSubmitted(true)}>Submit Answers</button>
+              <button className="submit-btn" onClick={() => { recordTime('image'); setDragSubmitted(true); }}>Submit Answers</button>
             ) : (
               <div style={{ background:'#064e3b', border:'1px solid #10b981', borderRadius:'10px',
                 padding:'14px', textAlign:'center', color:'#a7f3d0' }}>
@@ -595,11 +723,11 @@ const AssessmentContent = () => {
         {activeSection === 'results' && (() => {
           const rating = getRating(totalScore, totalPossible);
           const sections = [
-            { label: 'Multiple Choice',    score: mcSubmitted   ? getMCScore()     : null, total: mcQuestions.length },
-            { label: 'Fill in the Blanks', score: fillSubmitted ? getFillScore()   : null, total: fillQuestions.length },
-            { label: 'Matching Set A',     score: matchASubmitted ? getMatchAScore() : null, total: matchingA.descriptions.length },
-            { label: 'Matching Set B',     score: matchBSubmitted ? getMatchBScore() : null, total: matchingB.descriptions.length },
-            { label: 'Drag & Label',       score: dragSubmitted ? getDragScore()   : null, total: dragZones.length },
+            { label: 'Multiple Choice',    score: mcSubmitted     ? getMCScore()               : null, total: mcQuestions.length },
+            { label: 'True or False',      score: fillSubmitted   ? getFillScore()             : null, total: fillQuestions.length },
+            { label: 'Matching Set A',     score: matchASubmitted ? getMatchAScore()           : null, total: matchingA.descriptions.length },
+            { label: 'Matching Set B',     score: matchBSubmitted ? getMatchBScore()           : null, total: matchingB.descriptions.length },
+            { label: 'Drag & Label',       score: dragSubmitted   ? getDragScore()             : null, total: dragZones.length },
           ];
           return (
             <div className="recap-section">
@@ -607,8 +735,12 @@ const AssessmentContent = () => {
               <div style={{ textAlign:'center', padding:'28px', background:'#111827', borderRadius:'16px', marginBottom:'24px', border:'2px solid #374151' }}>
                 <div style={{ fontSize:'56px', fontWeight:'800', color: rating.color }}>{totalScore}</div>
                 <div style={{ fontSize:'18px', color:'#9ca3af' }}>out of {totalPossible} points</div>
+                <div style={{ marginTop:'6px', fontSize:'13px', color:'#4b5563' }}>
+                  Raw&nbsp;<strong style={{ color:'#94a3b8' }}>{rawScore}/{totalPossible - MAX_TIME_BONUS}</strong>
+                  &nbsp;+&nbsp;Time Bonus&nbsp;<strong style={{ color:'#fbbf24' }}>+{timeBonus}</strong>
+                </div>
                 <div style={{ marginTop:'10px', fontSize:'20px', fontWeight:'700', color: rating.color }}>{rating.label}</div>
-                <div style={{ marginTop:'8px', fontSize:'13px', color:'#6b7280' }}>
+                <div style={{ marginTop:'6px', fontSize:'13px', color:'#6b7280' }}>
                   {Math.round((totalScore / totalPossible) * 100)}% overall score
                 </div>
               </div>
@@ -628,6 +760,72 @@ const AssessmentContent = () => {
                   )}
                 </div>
               ))}
+              {/* Time Bonus row */}
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 16px', marginBottom:'16px', borderRadius:'10px', background:'#1c1917', border:'1px solid #44403c' }}>
+                <span style={{ fontWeight:'500', color:'#fbbf24' }}>⏱ Time Bonus</span>
+                <span style={{ fontWeight:'700', color: timeBonus > 0 ? '#fbbf24' : '#6b7280' }}>+{timeBonus} / {MAX_TIME_BONUS}</span>
+              </div>
+              {/* Auto-submit status */}
+              {scoreSubmitting && (
+                <div style={{ padding:'12px', background:'#1f2937', border:'1px solid #374151', borderRadius:'9px', textAlign:'center', color:'#9ca3af', fontWeight:'600', marginBottom:'12px' }}>
+                  ⏳ Saving your score…
+                </div>
+              )}
+              {scoreSubmitted && (
+                <div style={{ padding:'12px 16px', background:'#064e3b', border:'1px solid #10b981', borderRadius:'9px', textAlign:'center', color:'#a7f3d0', fontWeight:'600', marginBottom:'12px' }}>
+                  ✓ Saved as <strong>{playerName}</strong>
+                  {scoreResult?.pct > 0 && <span> — you beat <strong style={{ color:'#34d399' }}>{scoreResult.pct}%</strong> of players!</span>}
+                </div>
+              )}
+
+              {/* Leaderboard */}
+              <h3 style={{ marginBottom:'10px', marginTop:'20px' }}>🏆 Leaderboard</h3>
+              {leaderboard.length === 0 ? (
+                <div style={{ color:'#6b7280', fontSize:'13px', textAlign:'center', padding:'20px', background:'#1f2937', borderRadius:'10px', marginBottom:'16px' }}>
+                  {scoreSubmitting ? 'Loading…' : 'No entries yet.'}
+                </div>
+              ) : (
+                <div style={{ borderRadius:'10px', overflow:'hidden', border:'1px solid #374151', marginBottom:'16px' }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'44px 1fr 60px 60px', background:'#111827', padding:'9px 14px', borderBottom:'1px solid #374151' }}>
+                    <span style={{ color:'#6b7280', fontSize:'11px', fontWeight:'700', textTransform:'uppercase' }}>#</span>
+                    <span style={{ color:'#6b7280', fontSize:'11px', fontWeight:'700', textTransform:'uppercase' }}>Player</span>
+                    <span style={{ color:'#6b7280', fontSize:'11px', fontWeight:'700', textTransform:'uppercase', textAlign:'right' }}>Raw</span>
+                    <span style={{ color:'#6b7280', fontSize:'11px', fontWeight:'700', textTransform:'uppercase', textAlign:'right' }}>Final</span>
+                  </div>
+                  {leaderboard.map((entry, i) => {
+                    const isMe = !!(scoreResult?.doc?._id && String(entry._id) === String(scoreResult.doc._id));
+                    const medals = ['🥇','🥈','🥉'];
+                    return (
+                      <div key={String(entry._id) || i} style={{
+                        display:'grid', gridTemplateColumns:'44px 1fr 60px 60px',
+                        padding:'10px 14px', alignItems:'center',
+                        background: isMe ? 'rgba(16,185,129,0.1)' : i % 2 === 0 ? '#1f2937' : '#1a2332',
+                        borderBottom: i < leaderboard.length - 1 ? '1px solid #2d3748' : 'none',
+                        borderLeft: `3px solid ${isMe ? '#10b981' : 'transparent'}`,
+                      }}>
+                        <span style={{ fontWeight:'700', color: i < 3 ? '#fbbf24' : '#6b7280', fontSize: i === 0 ? '17px' : '13px' }}>
+                          {medals[i] ?? i + 1}
+                        </span>
+                        <span style={{ fontWeight: isMe ? '700' : '500', color: isMe ? '#34d399' : '#e2e8f0', fontSize:'13px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                          {entry.name}{isMe && <span style={{ color:'#6b7280', fontSize:'11px', marginLeft:'5px' }}>(you)</span>}
+                        </span>
+                        <span style={{ color:'#9ca3af', fontSize:'12px', textAlign:'right' }}>{entry.rawScore}</span>
+                        <span style={{ fontWeight:'700', color:'#fbbf24', fontSize:'13px', textAlign:'right' }}>{entry.finalScore}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Exit button */}
+              <button onClick={onExit} style={{
+                width:'100%', padding:'12px',
+                background:'transparent', border:'2px solid #374151',
+                borderRadius:'9px', color:'#9ca3af',
+                fontSize:'14px', fontWeight:'600', cursor:'pointer',
+              }}>
+                ← Exit &amp; Play Again
+              </button>
             </div>
           );
         })()}

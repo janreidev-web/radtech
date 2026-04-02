@@ -5,31 +5,62 @@ import HomeContent from './features/home/HomeContent';
 import ModelLoader from './features/model-viewer/ModelLoader';
 import About from './features/about/About';
 import AssessmentContent from './features/assessment/AssessmentContent';
-import { useState, useEffect } from 'react';
+import NameGate from './features/assessment/NameGate';
+import HighScoreBanner from './shared/components/HighScoreBanner';
+import { useState, useEffect, useCallback } from 'react';
 import { NavigationManager } from './utils/navigationManager';
+import { getChampion } from './services/scoreService';
 
 function App() {
-  // Initialize currentPage using NavigationManager
   const [currentPage, setCurrentPage] = useState(() => {
     const page = NavigationManager.initialize();
-    // console removed
     return page;
-  }); 
+  });
 
-  // Save current page to sessionStorage whenever it changes
+  // Assessment name gate — persisted in sessionStorage so refresh keeps the player logged in
+  const [assessmentName, setAssessmentName] = useState(
+    () => sessionStorage.getItem('assessmentName') || null
+  );
+
+  // High-score banner
+  const [champion, setChampion]         = useState(null);
+  const [bannerVisible, setBannerVisible] = useState(false);
+  const [hasRecords, setHasRecords]       = useState(false);
+
+  const refreshChampion = useCallback(async () => {
+    const data = await getChampion();
+    if (!data) return;
+    setHasRecords(true);
+    setChampion(prev => {
+      const isNew = !prev || data.finalScore > prev.finalScore || data.name !== prev.name;
+      if (isNew) setBannerVisible(true);
+      return isNew ? data : prev;
+    });
+  }, []);
+
+  // One-time check on mount
+  useEffect(() => {
+    refreshChampion();
+  }, [refreshChampion]);
+
+  // Start polling only once records exist
+  useEffect(() => {
+    if (!hasRecords) return;
+    const id = setInterval(refreshChampion, 30000);
+    return () => clearInterval(id);
+  }, [hasRecords, refreshChampion]);
+
   useEffect(() => {
     NavigationManager.savePage(currentPage);
+    window.scrollTo(0, 0);
   }, [currentPage]);
 
-  // Setup cleanup when component mounts
   useEffect(() => {
     const cleanup = NavigationManager.setupCleanup();
     return cleanup;
   }, []);
 
-  // Enhanced navigation handler that updates both state and sessionStorage
   const handleNavClick = (pageId) => {
-    // console removed
     setCurrentPage(pageId);
     NavigationManager.savePage(pageId);
   };
@@ -43,9 +74,11 @@ function App() {
       case 'model':
         return <ModelLoader />;
       case 'assessment':
-        return <AssessmentContent />;
+        return assessmentName
+          ? <AssessmentContent playerName={assessmentName} onScoreSubmitted={refreshChampion} onExit={() => { ['assessmentName','sectionStartTimes','sectionTimeUsed'].forEach(k => sessionStorage.removeItem(k)); setAssessmentName(null); }} />
+          : <NameGate onConfirm={name => { sessionStorage.setItem('assessmentName', name); setAssessmentName(name); }} />;
       case 'about':
-        return <About/>;
+        return <About />;
       default:
         return <HomeContent onNavigate={handleNavClick} />;
     }
@@ -54,6 +87,9 @@ function App() {
   return (
     <div className={`${bg} min-h-screen flex flex-col transition-colors duration-100`}>
       <Header onNavClick={handleNavClick} currentPage={currentPage} />
+      {bannerVisible && (
+        <HighScoreBanner champion={champion} onDismiss={() => setBannerVisible(false)} />
+      )}
       <main className="flex-grow">{renderContent()}</main>
       <Footer />
     </div>
