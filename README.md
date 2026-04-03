@@ -21,6 +21,7 @@
 <img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&logo=JavaScript&logoColor=black">
 <img alt="Vercel" src="https://img.shields.io/badge/Vercel-000000.svg?style=flat&logo=Vercel&logoColor=white">
 <img alt="ESLint" src="https://img.shields.io/badge/ESLint-4B32C3.svg?style=flat&logo=ESLint&logoColor=white">
+<img alt="MongoDB" src="https://img.shields.io/badge/MongoDB-47A248.svg?style=flat&logo=MongoDB&logoColor=white">
 
 <br><br>
 
@@ -126,18 +127,28 @@ RadTech3D addresses these challenges by providing a risk-free, repeatable, inter
 - Progress bar and dot indicators.
 
 **Assessment Module**
-- Theory section covering kVp, mAs, and distance formulas.
-- 15 practice calculation problems across 5 difficulty tiers with step-by-step solutions.
-- Recap section with key points and a quick-reference formula grid.
+- Five question types: Multiple Choice, True or False, Matching Sets (A & B), and Drag & Label.
+- Weighted scoring: ×1 for MC, ×1.5 for T/F and Matching, ×2 for Drag & Label.
+- 10-minute countdown timer per section; time remaining converts to a bonus (up to +40 pts).
+- Auto-submission to leaderboard and live leaderboard table when the Results tab is opened.
+- Exit & Play Again button to reset the current player and allow the next user on the same device.
+
+**Leaderboard & Score Tracking**
+- Name gate modal required before starting the assessment (with close/dismiss button).
+- Scores saved to MongoDB Atlas via a Vercel serverless API function on Results tab open.
+- Live leaderboard sorted by final score with 🥇🥈🥉 medal indicators and "(you)" highlight.
+- High-score champion banner across all pages showing the top player, score, and percentage beaten; auto-dismisses and polls for updates every 30 seconds.
 
 **Responsive Design**
 - Mobile-first layout with a breakpoint at 768px.
 - Adaptive 3D model scaling, panel positioning, and grid layouts.
 - Touch-friendly controls for equipment adjustment and head positioning.
 
-**Page State Persistence**
-- Current page is stored in sessionStorage and survives browser refresh.
-- State is automatically cleared when the tab is closed, returning to Home on next visit.
+**Session Persistence**
+- Current page, player name, and per-section timer start times all survive browser refresh via sessionStorage.
+- Exit & Play Again wipes all session keys (name, timers, page) so the next player starts completely fresh.
+- Tab close automatically clears sessionStorage — no manual cleanup needed.
+- Page scrolls to the top on every navigation.
 
 ---
 
@@ -198,7 +209,10 @@ RadTech3D addresses these challenges by providing a risk-free, repeatable, inter
 | Animation | GSAP | 3.13.0 | Animation engine |
 | Lottie | lottie-react | 2.4.1 | JSON animation player for landing page |
 | Linting | ESLint | 9.36.0 | Code quality enforcement |
-| Deployment | Vercel | -- | Hosting and CI/CD |
+| Database | MongoDB Atlas | -- | Cloud database for score storage |
+| ORM | Mongoose | 8.x | MongoDB schema modeling |
+| Local API | Express | 4.x | Dev API server (mirrors serverless function) |
+| Deployment | Vercel | -- | Hosting, CI/CD, and serverless functions |
 
 ---
 
@@ -232,6 +246,7 @@ radtech/
 |   |-- shared/
 |   |   +-- components/
 |   |       +-- Icon.jsx            # Centralized SVG icon renderer
+|   |       +-- HighScoreBanner.jsx # Champion banner (auto-dismiss, 30s polling)
 |   |
 |   |-- layout/
 |   |   |-- Header.jsx              # Navigation header with mobile menu
@@ -276,23 +291,32 @@ radtech/
 |   |   |       +-- cameraPresets.js         # Named camera positions
 |   |   |
 |   |   |-- assessment/
-|   |   |   |-- AssessmentContent.jsx    # Theory, Practice, Recap tabs
-|   |   |   +-- AssessmentContent.css    # Assessment-specific styles
+|   |   |   |-- AssessmentContent.jsx    # MC, T/F, Matching, Drag&Label, Results
+|   |   |   |-- AssessmentContent.css    # Assessment-specific styles
+|   |   |   +-- NameGate.jsx             # Name-entry modal before assessment
 |   |   |
 |   |   +-- about/
 |   |       +-- About.jsx               # University and proponent info
+|   |
+|   |-- services/
+|   |   +-- scoreService.js              # API client: submitScore, getChampion, getLeaderboard
 |   |
 |   |-- utils/
 |   |   +-- navigationManager.js         # SessionStorage page persistence
 |   |
 |   |-- App.jsx              # Root component with page routing
-|   |-- App.css              # Global application styles
-|   +-- main.jsx             # Entry point (React Router setup)
+|   |-- App.css              # Global application styles (+ hsSlideIn animation)
+|   +-- main.jsx             # Entry point
 |
+|-- api/
+|   +-- scores.js             # Vercel serverless function (GET/POST scores to MongoDB)
+|
+|-- server.cjs                # Local Express API server (mirrors api/scores.js)
+|-- .env.example              # Environment variable template
 |-- index.html
 |-- package.json
-|-- vite.config.js
-|-- vercel.json               # Vercel deployment configuration
+|-- vite.config.js            # Vite config with /api proxy + error fallback
+|-- vercel.json               # Vercel deployment config (SPA rewrites + serverless)
 |-- eslint.config.js
 +-- DOCUMENTATION.md          # Full technical documentation
 ```
@@ -334,6 +358,18 @@ Start the Vite development server with hot module replacement:
 npm run dev
 ```
 
+To enable **score tracking**, also run the local API server in a separate terminal:
+
+```sh
+npm run server   # Express + MongoDB on http://localhost:5000
+```
+
+> **Requires a `.env` file** with `MONGODB_URI` set. Copy `.env.example` and fill in your MongoDB Atlas connection string:
+>
+> ```
+> MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<db>?appName=<app>
+> ```
+
 ### Production Build
 
 Build the application for production:
@@ -374,7 +410,7 @@ The core of the application. A full-screen 3D canvas where students interact wit
 
 ### Assessment
 
-A three-tab educational module for practicing radiographic exposure calculations. Contains theory content, 15 practice problems with solutions, and a recap with formula references. Detailed breakdown provided in a later section.
+A five-section knowledge assessment covering lateral cervicothoracic spine radiography. Students enter their name via a name gate before starting. Each section has an independent 10-minute countdown timer. Scores are weighted by section difficulty and include a time-remaining bonus. Results are auto-submitted to MongoDB and a live leaderboard is shown when the Results tab opens.
 
 ### About
 
@@ -506,39 +542,54 @@ The lateral views share the same two images because both represent valid lateral
 
 ## Assessment Module -- Detailed Breakdown
 
-The Assessment page (`AssessmentContent.jsx`) is organized into three tabs:
+The Assessment page (`AssessmentContent.jsx`) is organized into six sections accessed via tabs. A **Name Gate** modal (`NameGate.jsx`) must be completed before any section is accessible.
 
-**Theory Tab**
+### Name Gate
 
-Presents three educational cards covering the core technical factors:
+A full-screen modal requiring the student to enter their name before starting. The name is saved to `sessionStorage` and persists across refreshes. A close button (✕) dismisses the modal and returns to the Home page.
 
-| Topic | Formula | Example |
-|-------|---------|---------|
-| kVp (Kilovoltage Peak) | thickness (cm) x 2 + 40 | 20 cm: 20 x 2 + 40 = 80 kVp |
-| mAs (Milliamperage-seconds) | For every 4-5 cm, double mAs | 20 cm: 2^4 = 16x multiplier |
-| Distance and Density | mAs is proportional to distance squared | 100cm to 200cm: mAs x 4 |
+### Section Structure
 
-**Practice Tab**
+| # | Section | Type | Score Multiplier | Timer |
+|---|---------|------|-----------------|-------|
+| 1 | Multiple Choice | Select one answer per question | ×1 | 10 min |
+| 2 | True or False | Binary true/false per statement | ×1.5 | 10 min |
+| 3 | Matching Set A | Match descriptions to numbered options | ×1.5 | 10 min |
+| 4 | Matching Set B | Match descriptions to numbered options | ×1.5 | 10 min |
+| 5 | Drag & Label | Drag labels onto anatomical diagram zones | ×2 | 10 min |
+| 6 | Results | Score breakdown, leaderboard, exit | -- | -- |
 
-Contains 15 progressively difficult problems organized into 5 sets:
+### Scoring System
 
-| Set | Questions | Type | Topic |
-|-----|-----------|------|-------|
-| 1 | Q1-Q3 | Basic Calculation | kVp computation |
-| 2 | Q4-Q6 | Basic Calculation | mAs computation |
-| 3 | Q7-Q9 | Calculation | Distance and grid factors |
-| 4 | Q10-Q12 | Word Problem | Complex clinical scenarios |
-| 5 | Q13-Q15 | Word Problem | Advanced clinical scenarios (grids, distance changes, pathology) |
+```
+rawScore = (MC correct × 1) + (T/F correct × 1.5)
+         + (MatchA correct × 1.5) + (MatchB correct × 1.5)
+         + (Drag correct × 2)
 
-Each question provides a text input area for the student's answer and a "Show Solution" button that reveals step-by-step workings and the correct answer.
+timeBonus = sum of per-section bonuses (max 8 pts each, 5 sections = 40 pts max)
+  sectionBonus = floor((timeRemaining / SECTION_TIME) × MAX_SECTION_BONUS)
 
-**Recap Tab**
+finalScore = rawScore + timeBonus
+totalPossible = (all section maximums × multipliers) + 40
+```
 
-Two summary cards (Assessment Recap and Technical Recap) plus a quick-reference formula grid with four formulas:
-- kVp: Thickness x 2 + 40
-- mAs: Base x 2^(segments of 5cm)
-- Distance: mAs is proportional to distance squared
-- 15% Rule: 15% kVp increase is approximately equal to 2x mAs
+### Results & Leaderboard
+
+When the Results tab is opened:
+
+1. **Score is auto-submitted** to MongoDB Atlas via `/api/scores` (POST).
+2. **Leaderboard is fetched** from `/api/scores` (GET, sorted by `finalScore` descending).
+3. Section breakdown shows weighted scores (e.g. `4.5 / 6`) with a progress bar color-coded green (≥75%), amber (≥50%), or red (<50%).
+4. Top 3 rows receive 🥇🥈🥉 medal icons; the current player's row is highlighted.
+5. **Exit & Play Again** clears `assessmentName`, `sectionStartTimes`, and `sectionTimeUsed` from sessionStorage and navigates to Home.
+
+### High-Score Banner
+
+`HighScoreBanner.jsx` renders a slide-in banner at the top of every page showing the current champion. It:
+- Is fetched on app mount via `getChampion()`.
+- Polls every **30 seconds** for updates (only after at least one record exists).
+- Auto-dismisses after ~4 seconds; can also be manually dismissed.
+- Shows a new champion's name, score, and the percentage of all players they beat.
 
 ---
 
@@ -577,9 +628,13 @@ Two summary cards (Assessment Recap and Technical Recap) plus a quick-reference 
 
 | Input | Process | Output |
 |-------|---------|--------|
-| Tab selection (Theory/Practice/Recap) | Load corresponding content | Rendered content section |
-| Answer text and "Show Solution" click | Display stored step-by-step solution | Solution steps with correct answer |
-| Next/Previous navigation | Cycle question index, reset state | New question displayed |
+| Player name entry in NameGate | Save to sessionStorage, unlock assessment | Assessment sections enabled |
+| Section tab selection | Start section timer if not already running | Timer countdown + question UI |
+| MC / T/F / Matching answers | Store in state | Answer highlighted / selected |
+| Drag label onto zone | Update dragAnswers map | Label snaps to zone |
+| Submit section | Record time used, compute weighted score | Score feedback shown |
+| Results tab opened | Auto-submit score to API, fetch leaderboard | Score breakdown + leaderboard table |
+| Exit & Play Again | Clear sessionStorage, navigate to Home | NameGate shown on next visit |
 
 ---
 
@@ -617,7 +672,14 @@ Two summary cards (Assessment Recap and Technical Recap) plus a quick-reference 
 |   |                           |-- [Thickness Input Panel]    (conditional)
 |   |                           +-- [Post-Exposure Panel]      (conditional)
 |   |
-|   |-- [assessment] -> <AssessmentContent />
+|   |-- [assessment] -> <NameGate />              (if no name in sessionStorage)
+|   |                   <AssessmentContent />     (if name set)
+|   |                       |-- [Multiple Choice tab]
+|   |                       |-- [True or False tab]
+|   |                       |-- [Matching Set A tab]
+|   |                       |-- [Matching Set B tab]
+|   |                       |-- [Drag & Label tab]
+|   |                       +-- [Results tab → auto-submit + leaderboard]
 |   |
 |   +-- [about]      -> <About />
 |
@@ -663,9 +725,18 @@ RadTech3D uses React's built-in state management with no external state librarie
 
 `LessonAnimationContext` provides an animation event bus that decouples lesson components from the camera animation system. Components call `triggerCameraAnimation(action)` through the context, which routes to the registered handler in `ModelLoader`.
 
-**Navigation Persistence**
+**Navigation & Session Persistence**
 
-`NavigationManager` stores the current page in `sessionStorage` with the key `'currentPage'`. Valid pages are `['home', 'model', 'assessment', 'about']`. The state survives page refresh but is cleared on tab close via a `beforeunload` event listener.
+`NavigationManager` stores the current page in `sessionStorage` (`key: 'currentPage'`). Valid pages: `['home', 'model', 'assessment', 'about']`. No `beforeunload` listener is used — sessionStorage clears automatically on tab close.
+
+Additional session keys managed by the app:
+
+| Key | Owner | Cleared on |
+|-----|-------|----------|
+| `currentPage` | `NavigationManager` | Tab close |
+| `assessmentName` | `App.jsx` / `NameGate` | Exit & Play Again |
+| `sectionStartTimes` | `AssessmentContent` | Exit & Play Again |
+| `sectionTimeUsed` | `AssessmentContent` | Exit & Play Again |
 
 ---
 
@@ -689,17 +760,25 @@ The `useResponsiveFlag` hook listens to the `resize` event and returns a reactiv
 
 ## Deployment
 
-The project is deployed on **Vercel** with SPA routing configured in `vercel.json`:
+The project is deployed on **Vercel** with SPA routing and serverless functions:
 
 ```json
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
 ```
 
-This ensures all routes are handled by the React client-side router. Push to the `main` branch on GitHub triggers an automatic deployment.
+The `api/scores.js` serverless function is auto-detected by Vercel. The MongoDB URI must be set as an **environment variable** in Vercel Project Settings → Environment Variables:
+
+```
+MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/<db>?appName=<app>
+```
+
+Push to the `main` branch on GitHub triggers automatic deployment.
 
 **Repository:** [github.com/janreidev-web/radtech](https://github.com/janreidev-web/radtech)
 
