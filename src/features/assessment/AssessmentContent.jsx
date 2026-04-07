@@ -4,64 +4,64 @@ import './AssessmentContent.css';
 
 // ── Section 1: Multiple Choice ──────────────────────────────────────────────
 const mcQuestions = [
-  { id:1,  question:'How many vertebrae make up the cervical spine?', options:['5','7','9','12'], answer:1 },
-  { id:2,  question:'The Atlas (C1) is distinguished from other vertebrae because it:', options:['Has the largest vertebral body','Has no vertebral body or spinous process','Bears the odontoid process (dens)','Has bifid transverse processes'], answer:1 },
-  { id:3,  question:'How many vertebrae make up the lumbar spine?', options:['3','4','5','6'], answer:2 },
-  { id:4,  question:'The sacrum is formed by the fusion of how many vertebrae?', options:['3','4','5','7'], answer:2 },
-  { id:5,  question:'The coccyx (tailbone) is typically composed of how many fused segments?', options:['2','3–5','6','8'], answer:1 },
-  { id:6,  question:'Spinous processes extend _____ from the vertebral arch and can be palpated along the midline of the back.', options:['Anteriorly','Laterally','Posteriorly','Superiorly'], answer:2 },
-  { id:7,  question:'Transverse processes of vertebrae primarily serve as attachment sites for:', options:['Intervertebral disks','Muscles and ligaments','Spinal nerve roots','The spinal cord'], answer:1 },
-  { id:8,  question:'The outer fibrous ring of an intervertebral disk is called the:', options:['Nucleus pulposus','Annulus fibrosus','Vertebral endplate','Ligamentum flavum'], answer:1 },
-  { id:9,  question:'The inner gel-like core of an intervertebral disk that absorbs shock between vertebrae is the:', options:['Annulus fibrosus','Articular cartilage','Nucleus pulposus','Posterior longitudinal ligament'], answer:2 },
-  { id:10, question:"The Swimmer's View is the primary radiographic method used to demonstrate which region?", options:['Upper cervical spine (C1–C2)','Cervicothoracic junction (C7–T1)','Thoracic spine (T1–T12)','Lumbar spine (L1–L5)'], answer:1 },
-  { id:11, question:'Why is the cervicothoracic junction (C7–T1) difficult to visualize on a standard lateral cervical radiograph?', options:['The vertebrae are too small to resolve','Overlapping shoulder anatomy obscures C7–T1','The region falls outside the collimated field','High tissue density prevents x-ray penetration'], answer:1 },
-  { id:12, question:'Which structure, unique to cervical vertebrae, transmits the vertebral arteries on each side?', options:['Spinous process','Transverse foramen','Vertebral foramen','Pedicle'], answer:1 },
-  { id:13, question:'The largest and most weight-bearing intervertebral disk is located between which vertebrae?', options:['L2\u2013L3','L3\u2013L4','L4\u2013L5','L5\u2013S1'], answer:3 },
-  { id:14, question:'Which vertebra articulates directly with the sacrum at the lumbosacral junction?', options:['L3','L4','L5','T12'], answer:2 },
-  { id:15, question:'Herniation of the nucleus pulposus most commonly occurs at which spinal level?', options:['C4\u2013C5','T4\u2013T5','L4\u2013L5 or L5\u2013S1','S1\u2013S2'], answer:2 },
+  { id:1,  question:'In the AP Open-Mouth (Albers-Schönberg & George Method) projection, the central ray direction is:', options:['15–20° cephalad','15–20° caudad','Perpendicular (90°)','Horizontal'], answer:2 },
+  { id:2,  question:'The AP Open-Mouth projection is primarily used to demonstrate:', options:['C3–T2 vertebral bodies','Atlas (C1) and Axis (C2)','Cervicothoracic junction (C7–T1)','Intervertebral foramina of C4–C7'], answer:1 },
+  { id:3,  question:'For the Lateral projection of Atlas & Axis (supine/dorsal decubitus), the reference point is:', options:['C4','Midpoint of the open mouth','1 inch distal to mastoid tip','C7 spinous process'], answer:2 },
+  { id:4,  question:'The AP Axial Cervical Projection uses a central ray angle of:', options:['Perpendicular','15–20° caudad','15–20° cephalad','25° caudad'], answer:2 },
+  { id:5,  question:'The AP Axial Cervical Projection best demonstrates which vertebral levels?', options:['C1–C2 only','C3–T2','T1–T12','L1–L5'], answer:1 },
+  { id:6,  question:'The Grandy Method (Lateral Cervical Projection) uses a central ray directed:', options:['15° cephalad','25° caudad','Horizontal','Perpendicular'], answer:2 },
+  { id:7,  question:'In the AP Axial Oblique Projection (Barsony & Koppenstein), the body is rotated:', options:['15°','30°','45°','60°'], answer:2 },
+  { id:8,  question:'The AP Axial Oblique Projection demonstrates the intervertebral foramina and pedicles of:', options:['The side closest to the IR','The side farthest from the IR','Both sides simultaneously','The posterior elements only'], answer:1 },
+  { id:9,  question:'For the PA Axial Oblique Projection (RAO/LAO), the central ray is directed:', options:['15–20° cephalad','15–20° caudad','Perpendicular','Horizontal'], answer:1 },
+  { id:10, question:'In the Ottonello (Chewing/Wagging Jaw) Method, the mandible is:', options:['Held completely still','In a chewing motion during exposure','Pressed firmly against the IR','Elevated with a sponge'], answer:1 },
+  { id:11, question:'For the Vertebral Arch AP Axial Projection (supine, neck hyperextended), the CR is directed:', options:['25° caudad to C7','40° cephalad to C7','15–20° cephalad to C4','Horizontal to C4'], answer:0 },
+  { id:12, question:'For the Vertebral Arch PA Axial Projection (prone), the CR is directed:', options:['25° caudad to C7','35° cephalad to C7','40° cephalad to C7','Horizontal to C4'], answer:2 },
+  { id:13, question:"In the Twinning Method (Swimmer's View), the arm closest to the IR is:", options:['Pulled down along the side','Extended overhead; elbow flexed; forearm rested on head','Held at a 90° angle from the body','Crossed over the chest'], answer:1 },
+  { id:14, question:"The Swimmer's Technique (Twinning & Pawlow) is performed when:", options:['The patient cannot open the mouth','Shoulder superimposition obscures C7 on a lateral cervical radiograph','The AP projection fails to show C3–T2','Scoliosis prevents standard positioning'], answer:1 },
+  { id:15, question:'Pancoast, Pendergrass & Schaeffer recommended slight head rotation in the Lateral Atlas & Axis projection to:', options:['Open the intervertebral foramina','Extend the cervical spine further','Prevent superimposition of the laminae of the atlas','Blur the mandibular shadow'], answer:2 },
 ];
 
 // ── Section 2: True or False ────────────────────────────────────────────────
 const fillQuestions = [
-  { id:1,  statement:'The Atlas (C1) has no vertebral body or spinous process.',                                                         answer:true  },
-  { id:2,  statement:'The cervical spine consists of 7 vertebrae.',                                                                      answer:true  },
-  { id:3,  statement:'The Axis (C2) is also known as the Atlas.',                                                                        answer:false },
-  { id:4,  statement:"The Swimmer's View (Twinning Method) is performed with the patient in a recumbent lateral position.",               answer:false },
-  { id:5,  statement:"The standard SID for the lateral cervical spine and Swimmer's View is 72 inches.",                                answer:true  },
-  { id:6,  statement:'The lumbar spine consists of 5 vertebrae labeled L1 through L5.',                                                  answer:true  },
-  { id:7,  statement:'The sacrum is formed by the fusion of 4 sacral vertebrae.',                                                        answer:false },
-  { id:8,  statement:'The coccyx is commonly referred to as the tailbone.',                                                              answer:true  },
-  { id:9,  statement:'Spinous processes extend anteriorly from the vertebral arch.',                                                      answer:false },
-  { id:10, statement:'Transverse processes project laterally from each side of a vertebra.',                                             answer:true  },
-  { id:11, statement:'The annulus fibrosus is the gel-like center of an intervertebral disk.',                                           answer:false },
-  { id:12, statement:'Herniation of the nucleus pulposus most commonly occurs at L4\u2013L5 or L5\u2013S1.',                           answer:true  },
-  { id:13, statement:'The sacroiliac joint connects the sacrum to the femur.',                                                           answer:false },
-  { id:14, statement:'The cervicothoracic junction (C7\u2013T1) is easily visualized on a standard lateral cervical radiograph.',       answer:false },
-  { id:15, statement:'The transverse foramen, unique to cervical vertebrae, transmits the vertebral arteries.',                          answer:true  },
+  { id:1,  statement:'In the AP Open-Mouth projection, the patient opens the mouth as wide as possible.',                                                           answer:true  },
+  { id:2,  statement:'The Lateral projection of Atlas & Axis is performed with the IR vertical and the MSP parallel to the IR.',                                    answer:true  },
+  { id:3,  statement:'The AP Axial Cervical Projection uses a 15–20° caudad central ray.',                                                                          answer:false },
+  { id:4,  statement:'The Grandy Method (Lateral Cervical Projection) demonstrates C1–C7 including articular pillars and zygapophyseal joints (C3–C7).',            answer:true  },
+  { id:5,  statement:'In Hyperflexion, the spinous processes are elevated and widely separated.',                                                                   answer:true  },
+  { id:6,  statement:'In Hyperextension, the spinous processes are elevated.',                                                                                      answer:false },
+  { id:7,  statement:'The Ottonello Method uses a breathing technique (similar to ribs) to blur the mandible.',                                                     answer:false },
+  { id:8,  statement:'The AP Axial Oblique Projection (RPO/LPO) demonstrates the intervertebral foramina on the side farthest from the IR.',                        answer:true  },
+  { id:9,  statement:'The PA Axial Oblique Projection (RAO/LAO) uses a 15–20° caudad central ray.',                                                                 answer:true  },
+  { id:10, statement:'For the Vertebral Arch AP Axial Projection (supine), the CR is directed 25° caudad to C7.',                                                   answer:true  },
+  { id:11, statement:'The Vertebral Arch AP Axial Oblique Projection uses head rotations of 45–50° for C2–C7 articular processes.',                                 answer:true  },
+  { id:12, statement:"The Twinning Method is performed with the patient in a recumbent (lying) lateral position.",                                                   answer:false },
+  { id:13, statement:"The Pawlow Method is performed with the patient in a lateral recumbent position with the head elevated on the patient's arm.",                 answer:true  },
+  { id:14, statement:"In the Swimmer's Technique, the CR is perpendicular, or 3–5° caudad if the shoulder cannot be depressed sufficiently.",                       answer:true  },
+  { id:15, statement:'The Vertebral Arch AP Axial Projection is useful for demonstrating cervicothoracic spinous processes in patients with whiplash injury.',       answer:true  },
 ];
 
-// ── Section 3A: Matching – Anatomy ──────────────────────────────────────────
+// ── Section 3A: Matching – Projections & Central Ray ────────────────────────
 const matchingA = {
-  terms: ['Atlas (C1)','Axis (C2)','C7 (Vertebra Prominens)','Odontoid Process (Dens)','Cervicothoracic Junction (C7–T1)'],
+  terms: ['AP Open-Mouth Projection','AP Axial Cervical Projection','Grandy Method (Lateral)','AP Axial Oblique Projection','Vertebral Arch AP Axial (Supine)'],
   descriptions: [
-    'Ring-shaped vertebra that supports the skull; has no vertebral body or spinous process.',
-    'Contains the peg-like odontoid process; permits approximately 50% of head rotation.',
-    'Has the most prominent spinous process in the cervical region; easily palpated at the base of the neck.',
-    'Bony projection rising from C2 that acts as a pivot point for rotation of C1 and the skull.',
-    'Critical transition zone between the last cervical and first thoracic vertebra; commonly obscured by shoulders in lateral radiographs.',
+    'CR perpendicular; RP: midpoint of open mouth; MSP perpendicular to IR; demonstrates Atlas and Axis.',
+    'CR 15–20° cephalad; RP: C4; chin extended; demonstrates C3–T2, interpediculate spaces, and IVD spaces.',
+    'CR horizontal; RP: C4; patient seated/upright in true lateral position; demonstrates C1–C7, articular pillars, and zygapophyseal joints.',
+    'Body rotated 45°; CR 15–20° cephalad; RP: C4; RPO/LPO; demonstrates IVF and pedicles farthest from IR.',
+    'CR 25° caudad (range 20–30°); RP: C7; patient supine with neck hyperextended; demonstrates vertebral arch structures and laminae.',
   ],
   answers: [0,1,2,3,4],
 };
 
-// ── Section 3B: Matching – Positioning ──────────────────────────────────────
+// ── Section 3B: Matching – Positioning Methods ──────────────────────────────
 const matchingB = {
-  terms: ['Twinning Method','Pawlow Method','Open-Mouth (Odontoid) View','AP Cervical Projection','Lateral Cervical Projection'],
+  terms: ["Twinning Method (Swimmer's)","Pawlow Method (Swimmer's)",'Ottonello / Chewing Jaw Method','Hyperflexion Lateral','Hyperextension Lateral'],
   descriptions: [
-    'Patient stands or sits upright in a lateral position; arm on the IR side is raised above the head.',
-    'Patient lies in recumbent lateral position on the table; arm closest to the table is raised above the head.',
-    'Patient opens mouth wide to allow visualization of C1–C2 and the odontoid process (dens).',
-    'Central ray directed 15–20° cephalad to C4; best demonstrates C3–C7 vertebral bodies.',
-    'Performed at 72-inch SID with a horizontal central ray; must demonstrate all 7 cervical vertebrae.',
+    'Patient upright lateral; arm closest to IR extended overhead with elbow flexed and forearm rested on head; CR perpendicular or 3–5° caudad; demonstrates C7–T1.',
+    'Patient in lateral recumbent position on the table; head elevated on arm; breathing technique used; demonstrates cervicothoracic region (C7–T1).',
+    'Patient supine; MSP perpendicular; mandible in chewing motion during exposure; CR perpendicular to C4; blurs mandibular shadow to show entire cervical column.',
+    'Patient seated/upright lateral; head dropped forward with chin drawn as close to chest as possible; demonstrates C1–C7 with elevated and widely separated spinous processes.',
+    'Patient seated/upright lateral; chin elevated as much as possible; demonstrates C1–C7 with depressed spinous processes; used for functional motility studies.',
   ],
   answers: [0,1,2,3,4],
 };
