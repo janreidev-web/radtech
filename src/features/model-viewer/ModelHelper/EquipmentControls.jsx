@@ -230,6 +230,7 @@ function EquipmentControls({
           )}
         </div>
       )}
+
     </div>
   );
 }

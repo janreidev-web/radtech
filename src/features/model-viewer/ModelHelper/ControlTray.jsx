@@ -60,24 +60,22 @@ function ControlTray({
 
   return (
     <div style={trayStyle}>
-      {!isPawlowMethod && (
-        <button
-          style={showModelRotation ? activeButtonStyle : buttonStyle}
-          onClick={onToggleModelRotation}
-          onMouseEnter={(e) => {
-            if (!showModelRotation) {
-              e.target.style.backgroundColor = 'rgba(255,255,255,0.2)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!showModelRotation) {
-              e.target.style.backgroundColor = 'rgba(255,255,255,0.1)';
-            }
-          }}
-        >
-          Model Rotation
-        </button>
-      )}
+      <button
+        style={showModelRotation ? activeButtonStyle : buttonStyle}
+        onClick={onToggleModelRotation}
+        onMouseEnter={(e) => {
+          if (!showModelRotation) {
+            e.target.style.backgroundColor = 'rgba(255,255,255,0.2)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!showModelRotation) {
+            e.target.style.backgroundColor = 'rgba(255,255,255,0.1)';
+          }
+        }}
+      >
+        Model Rotation
+      </button>
       
       <button
         style={showEquipment ? activeButtonStyle : buttonStyle}

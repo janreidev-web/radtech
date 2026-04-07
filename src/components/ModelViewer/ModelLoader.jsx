@@ -308,6 +308,8 @@ function ModelLoader() {
         <ModelRotationControls
           currentRotation={baseRotation}
           onRotationChange={setBaseRotation}
+          armPosition={armPosition}
+          onArmPositionChange={handleArmPositionChange}
         />
       </div>
     </LessonAnimationProvider>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ModelRotationControls({ currentRotation, onRotationChange, isPawlowMethod = false }) {
+function ModelRotationControls({ currentRotation, onRotationChange, isPawlowMethod = false, armPosition, onArmPositionChange }) {
   const buttonStyle = {
     padding: '10px 16px',
     fontSize: '14px',
@@ -93,6 +93,45 @@ function ModelRotationControls({ currentRotation, onRotationChange, isPawlowMeth
           </button>
         ))}
       </div>
+
+      {onArmPositionChange && (
+        <>
+          <div style={{ ...titleStyle, marginTop: '8px' }}>Arm Position</div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+            gap: '8px',
+            width: '100%'
+          }}>
+            {[
+              { key: 'default', label: 'Default' },
+              { key: 'twinning', label: 'Twinning' },
+              { key: 'closed', label: 'Closed' },
+              { key: 'left-arm-raised', label: 'Left Arm Raised' },
+              { key: 'right-arm-raised', label: 'Right Arm Raised' },
+              { key: 'crossed', label: 'Crossed' }
+            ].map((position) => (
+              <button
+                key={position.key}
+                style={armPosition === position.key ? activeButtonStyle : buttonStyle}
+                onClick={() => onArmPositionChange(position.key)}
+                onMouseEnter={(e) => {
+                  if (armPosition !== position.key) {
+                    e.target.style.backgroundColor = '#42A5F5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (armPosition !== position.key) {
+                    e.target.style.backgroundColor = '#2196F3';
+                  }
+                }}
+              >
+                {position.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

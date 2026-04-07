@@ -42,7 +42,74 @@ function Body({ modelPath = '/Model/base.glb', scale, isMobile, armsClosed = fal
         if (object.name === 'CC_Base_R_Forearm') {
           object.rotation.set(0, 0.5, 0.05);
         }
-      } 
+      } else if (position === 'raised') {
+        if (object.name === 'CC_Base_L_Upperarm') {
+          object.rotation.set(-1.5, 0, -0.3);
+        }
+        if (object.name === 'CC_Base_L_Forearm') {
+          object.rotation.set(0, 0, 0);
+        }
+        if (object.name === 'CC_Base_R_Upperarm') {
+          object.rotation.set(-1.5, 0, 0.3);
+        }
+        if (object.name === 'CC_Base_R_Forearm') {
+          object.rotation.set(0, 0, 0);
+        }
+      } else if (position === 'sides') {
+        if (object.name === 'CC_Base_L_Upperarm') {
+          object.rotation.set(0, 0, -0.5);
+        }
+        if (object.name === 'CC_Base_L_Forearm') {
+          object.rotation.set(0, 0, 0);
+        }
+        if (object.name === 'CC_Base_R_Upperarm') {
+          object.rotation.set(0, 0, 0.5);
+        }
+        if (object.name === 'CC_Base_R_Forearm') {
+          object.rotation.set(0, 0, 0);
+        }
+      } else if (position === 'crossed') {
+        if (object.name === 'CC_Base_L_Upperarm') {
+          object.rotation.set(0.8, 0.3, -1.5);
+        }
+        if (object.name === 'CC_Base_L_Forearm') {
+          object.rotation.set(0, 1.2, 0);
+        }
+        if (object.name === 'CC_Base_R_Upperarm') {
+          object.rotation.set(0.8, -0.3, 1.5);
+        }
+        if (object.name === 'CC_Base_R_Forearm') {
+          object.rotation.set(0, -1.2, 0);
+        }
+      } else if (position === 'left-arm-raised') {
+        if (object.name === 'CC_Base_L_Upperarm') {
+          object.rotation.set(1.5, 0, 1.5);
+        }
+        if (object.name === 'CC_Base_L_Forearm') {
+          object.rotation.set(1, -0.1, 0);
+        }
+        if (object.name === 'CC_Base_R_Upperarm') {
+          object.rotation.set(0.64, -0.12, 1.25);
+        }
+        if (object.name === 'CC_Base_R_Forearm') {
+          object.rotation.set(0, 0.5, 0.05);
+        }
+      } else if (position === 'right-arm-raised') {
+        if (object.name === 'CC_Base_L_Upperarm') {
+          object.rotation.set(0.32, 0.12, -1.25);
+        }
+        if (object.name === 'CC_Base_L_Forearm') {
+          object.rotation.set(0, -0.5, -0.05);
+        }
+
+      // Mirror of left arm
+      if (object.name === 'CC_Base_R_Upperarm') {
+        object.rotation.set(1.5, 0, -1.5); // Z flipped
+      }
+      if (object.name === 'CC_Base_R_Forearm') {
+        object.rotation.set(1, 0.1, 0); // Y flipped
+      }
+    }
       
       else {
         if (object.name === 'CC_Base_L_Upperarm') {
@@ -68,18 +135,18 @@ function Body({ modelPath = '/Model/base.glb', scale, isMobile, armsClosed = fal
   // Calculate rotation based on baseRotation and isLyingDown
   const getRotation = () => {
     if (isLyingDown) {
-      // Original lying down position: [-1.5, 0, 1.56]
-      return [-1.5, 0, 1.56];
+      // front = supine (lying on back), back = prone (lying face down)
+      return baseRotation === 'back'
+        ? [-1.5, -Math.PI,-1.56]
+        : [-1.5, 0, 1.56];
     }
-    
-    // Standing positions: only Twinning method gets rotation
+
     const rotations = {
-      'front': [0, 0, 0],
+      'front':      [0, 0, 0],
       'side-right': [0, Math.PI / 2, 0],
-      'side-left': [0, -Math.PI / 2, 0],
-      'back': [0, Math.PI, 0]
+      'side-left':  [0, -Math.PI / 2, 0],
+      'back':       [0, Math.PI, 0],
     };
-    
     return rotations[baseRotation] || rotations['front'];
   };
 

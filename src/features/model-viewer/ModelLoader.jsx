@@ -721,6 +721,8 @@ return (
             currentRotation={baseRotation}
             onRotationChange={setBaseRotation}
             isPawlowMethod={showVerticalB}
+            armPosition={armPosition}
+            onArmPositionChange={handleArmPositionChange}
           />
         )}
           </>
