@@ -35,11 +35,11 @@
 
 ## 1. Project Overview
 
-**RadTech3D** is an interactive web-based 3D learning platform designed to teach radiologic technology students the principles and techniques of lateral cervicothoracic spine positioning. It replaces static textbook diagrams with a hands-on virtual lab where students can manipulate a realistic 3D human model, position radiographic equipment, compute exposure factors, and view simulated radiographic results.
+**RadTech3D** is an interactive web-based 3D learning platform designed to teach radiologic technology Radiologic Technologists the principles and techniques of lateral cervicothoracic spine positioning. It replaces static textbook diagrams with a hands-on virtual lab where Radiologic Technologists can manipulate a realistic 3D human model, position radiographic equipment, compute exposure factors, and view simulated radiographic results.
 
 ### 1.1 Problem Statement
 
-Radiologic technology interns face significant challenges mastering lateral cervicothoracic spine imaging due to:
+Radiologic technologist face significant challenges mastering lateral cervicothoracic spine imaging due to:
 
 - The cervicothoracic junction (C7–T1) is obscured by dense shoulder anatomy.
 - Positioning techniques (Swimmer's View / Twinning Method and Pawlow Method) require precise spatial understanding that is difficult to convey through 2D diagrams.
@@ -47,7 +47,7 @@ Radiologic technology interns face significant challenges mastering lateral cerv
 
 ### 1.2 Proposed Solution
 
-RadTech3D provides an immersive, risk-free virtual environment where students can:
+RadTech3D provides an immersive, risk-free virtual environment where Radiologic Technologist can:
 
 - Interact with a photorealistic 3D human body model.
 - Practice both the **Twinning Method** (standing/upright) and **Pawlow Method** (recumbent/lying down).
@@ -132,27 +132,27 @@ RadTech3D provides an immersive, risk-free virtual environment where students ca
 
 | Actor | Description |
 |-------|-------------|
-| **Student** | Primary user — a radiologic technology intern learning positioning techniques |
+| **Radiologic Technologist** | Primary user — a radiologic technology intern learning positioning techniques |
 | **System** | The RadTech3D web application |
 
 ### 3.2 Use Case List
 
 | UC# | Use Case | Actor | Priority |
 |-----|----------|-------|----------|
-| UC-01 | Navigate between pages | Student | High |
-| UC-02 | Select a lesson | Student | High |
-| UC-03 | View anatomy flashcards | Student | Medium |
-| UC-04 | Rotate 3D model | Student | High |
-| UC-05 | Position radiographic equipment | Student | High |
-| UC-06 | Control head tilt and turn | Student | Medium |
-| UC-07 | Complete positioning simulation | Student | High |
-| UC-08 | Enter body thickness | Student | High |
-| UC-09 | View radiographic result | Student | High |
-| UC-10 | Reset simulation | Student | Medium |
-| UC-11 | Study theory content | Student | Medium |
-| UC-12 | Complete assessment sections | Student | High |
-| UC-13 | View leaderboard results | Student | Medium |
-| UC-14 | View About/project info | Student | Low |
+| UC-01 | Navigate between pages | Radiologic Technologist | High |
+| UC-02 | Select a lesson | Radiologic Technologist | High |
+| UC-03 | View anatomy flashcards | Radiologic Technologist | Medium |
+| UC-04 | Rotate 3D model | Radiologic Technologist | High |
+| UC-05 | Position radiographic equipment | Radiologic Technologist | High |
+| UC-06 | Control head tilt and turn | Radiologic Technologist | Medium |
+| UC-07 | Complete positioning simulation | Radiologic Technologist | High |
+| UC-08 | Enter body thickness | Radiologic Technologist | High |
+| UC-09 | View radiographic result | Radiologic Technologist | High |
+| UC-10 | Reset simulation | Radiologic Technologist | Medium |
+| UC-11 | Study theory content | Radiologic Technologist | Medium |
+| UC-12 | Complete assessment sections | Radiologic Technologist | High |
+| UC-13 | View leaderboard results | Radiologic Technologist | Medium |
+| UC-14 | View About/project info | Radiologic Technologist | Low |
 
 ### 3.3 Detailed Use Case Descriptions
 
@@ -160,9 +160,9 @@ RadTech3D provides an immersive, risk-free virtual environment where students ca
 
 | Field | Description |
 |-------|-------------|
-| **Primary Actor** | Student |
+| **Primary Actor** | Radiologic Technologist |
 | **Precondition** | Application is loaded |
-| **Main Flow** | 1. Student clicks a navigation link (Home, Model Viewer, Assessment, About) in the header. 2. System stores current page in sessionStorage. 3. System renders the corresponding page content. |
+| **Main Flow** | 1. Radiologic Technologist clicks a navigation link (Home, Model Viewer, Assessment, About) in the header. 2. System stores current page in sessionStorage. 3. System renders the corresponding page content. |
 | **Postcondition** | Selected page is displayed; state persists on refresh. |
 | **Alternative Flow** | On page refresh, the system restores the last visited page from sessionStorage. On tab close, sessionStorage is cleared (returns to Home on next visit). |
 
@@ -170,29 +170,29 @@ RadTech3D provides an immersive, risk-free virtual environment where students ca
 
 | Field | Description |
 |-------|-------------|
-| **Primary Actor** | Student |
-| **Precondition** | Student is on the Model Viewer page |
-| **Main Flow** | 1. Student clicks a lesson category from the Lesson Dashboard. 2. System resets any previous lesson state. 3. System determines lesson type (Twinning or Pawlow). 4. System loads appropriate equipment and configures model posture. 5. Camera animates to an overview position. |
+| **Primary Actor** | Radiologic Technologist |
+| **Precondition** | Radiologic Technologist is on the Model Viewer page |
+| **Main Flow** | 1. Radiologic Technologist clicks a lesson category from the Lesson Dashboard. 2. System resets any previous lesson state. 3. System determines lesson type (Twinning or Pawlow). 4. System loads appropriate equipment and configures model posture. 5. Camera animates to an overview position. |
 | **Postcondition** | 3D scene displays model with correct posture and equipment. Control tray appears. |
 
 #### UC-05: Position Radiographic Equipment
 
 | Field | Description |
 |-------|-------------|
-| **Primary Actor** | Student |
+| **Primary Actor** | Radiologic Technologist |
 | **Precondition** | A lesson is selected and equipment is visible |
-| **Main Flow** | 1. Student opens the Equipment panel from the Control Tray. 2. Student presses Up/Down buttons to adjust cassette or vertical bucky height. 3. System applies Z-offset to the selected equipment's 3D position. 4. For Pawlow Method, student can also adjust Vertical B's horizontal (Left/Right) offset. |
-| **Postcondition** | Equipment is repositioned in the 3D scene at the student's chosen coordinates. |
+| **Main Flow** | 1. Radiologic Technologist opens the Equipment panel from the Control Tray. 2. Radiologic Technologist presses Up/Down buttons to adjust cassette or vertical bucky height. 3. System applies Z-offset to the selected equipment's 3D position. 4. For Pawlow Method, Radiologic Technologist can also adjust Vertical B's horizontal (Left/Right) offset. |
+| **Postcondition** | Equipment is repositioned in the 3D scene at the Radiologic Technologist's chosen coordinates. |
 | **Extension** | Long-press on buttons triggers continuous adjustment (300ms delay, then 100ms intervals). |
 
 #### UC-07: Complete Positioning Simulation
 
 | Field | Description |
 |-------|-------------|
-| **Primary Actor** | Student |
+| **Primary Actor** | Radiologic Technologist |
 | **Precondition** | Equipment is positioned, lesson is active |
-| **Main Flow** | 1. Student clicks "Done Positioning". 2. System shows body thickness input panel. 3. Student enters thickness (15–35 cm). 4. Student clicks "Calculate & Show Results". 5. System validates equipment coordinates are within cervicothoracic range. 6. System calculates optimal kVp and mAs. 7. System selects radiographic result image based on model rotation. 8. System displays post-exposure results panel. |
-| **Alternative Flow** | If positioning is invalid, system shows an alert with required coordinate ranges and current values. Student must readjust and retry. |
+| **Main Flow** | 1. Radiologic Technologist clicks "Done Positioning". 2. System shows body thickness input panel. 3. Radiologic Technologist enters thickness (15–35 cm). 4. Radiologic Technologist clicks "Calculate & Show Results". 5. System validates equipment coordinates are within cervicothoracic range. 6. System calculates optimal kVp and mAs. 7. System selects radiographic result image based on model rotation. 8. System displays post-exposure results panel. |
+| **Alternative Flow** | If positioning is invalid, system shows an alert with required coordinate ranges and current values. Radiologic Technologist must readjust and retry. |
 | **Postcondition** | Radiographic result image and calculated exposure factors are displayed. |
 
 ---
