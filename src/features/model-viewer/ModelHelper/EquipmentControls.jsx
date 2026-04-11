@@ -71,10 +71,13 @@ function EquipmentControls({
   showCassette,
   showVertical,
   showVerticalB = false,
+  showVerticalA = false,
   verticalLabel = 'Vertical',
+  verticalATilt = 0,
   onAdjustCassette,
   onAdjustVertical,
-  onAdjustVerticalBHorizontal
+  onAdjustVerticalBHorizontal,
+  onAdjustVerticalATilt
 }) {
   // Only show controls if at least one equipment is visible
   if (!showCassette && !showVertical) {
@@ -89,6 +92,11 @@ function EquipmentControls({
   const verticalDecrease = useCallback(() => onAdjustVertical(-step - 0.9), [onAdjustVertical]);
   const verticalBLeft = useCallback(() => onAdjustVerticalBHorizontal && onAdjustVerticalBHorizontal(-step), [onAdjustVerticalBHorizontal]);
   const verticalBRight = useCallback(() => onAdjustVerticalBHorizontal && onAdjustVerticalBHorizontal(step), [onAdjustVerticalBHorizontal]);
+  
+  // Tilt step: 1 degree per click
+  const tiltStep = 1;
+  const tiltUp = useCallback(() => onAdjustVerticalATilt && onAdjustVerticalATilt(tiltStep), [onAdjustVerticalATilt]);
+  const tiltDown = useCallback(() => onAdjustVerticalATilt && onAdjustVerticalATilt(-tiltStep), [onAdjustVerticalATilt]);
 
   const cassetteUpHandlers = useLongPressHandlers(cassetteIncrease);
   const cassetteDownHandlers = useLongPressHandlers(cassetteDecrease);
@@ -96,6 +104,8 @@ function EquipmentControls({
   const verticalDownHandlers = useLongPressHandlers(verticalDecrease);
   const verticalBLeftHandlers = useLongPressHandlers(verticalBLeft);
   const verticalBRightHandlers = useLongPressHandlers(verticalBRight);
+  const tiltUpHandlers = useLongPressHandlers(tiltUp);
+  const tiltDownHandlers = useLongPressHandlers(tiltDown);
 
   const buttonStyle = {
     padding: '8px 16px',
@@ -227,6 +237,29 @@ function EquipmentControls({
                 Right →
               </button>
             </div>
+          )}
+          {showVerticalA && onAdjustVerticalATilt && (
+            <>
+              <div style={{ ...titleStyle, marginTop: '12px', fontSize: '11px', color: '#aaa' }}>Tilt Angle</div>
+              <div style={{ ...controlsRowStyle, marginTop: '4px' }}>
+                <button 
+                  style={buttonStyle} 
+                  {...tiltUpHandlers}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                >
+                  ⟳ Up ({verticalATilt.toFixed(0)}°)
+                </button>
+                <button 
+                  style={downButtonStyle} 
+                  {...tiltDownHandlers}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#da190b'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#f44336'}
+                >
+                  ⟲ Down
+                </button>
+              </div>
+            </>
           )}
         </div>
       )}

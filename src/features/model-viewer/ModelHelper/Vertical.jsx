@@ -7,6 +7,7 @@ function Vertical({
   scale = 0.3,
   rotation = [0, 0, 0],
   heightOffset = 0,
+  tilt = 0, // Tilt angle in degrees (X-axis rotation)
   baselineZ = null,
   onPositionUpdate,
   variant = 'A' // 'A' or 'B'
@@ -16,6 +17,7 @@ function Vertical({
   const mainRef = useRef(null);
   const originalPositionRef = useRef(null);
   const originalZRef = useRef(null); // Store original Z value as baseline
+  const originalRotationRef = useRef(null); // Store original rotation for tilt calculations
 
   useEffect(() => {
     if (!scene) return;
@@ -34,6 +36,11 @@ function Vertical({
     const mainObj = findObjectByName(scene, 'main');
     if (mainObj) {
       mainRef.current = mainObj;
+      
+      // Store original rotation for tilt calculations
+      if (originalRotationRef.current === null) {
+        originalRotationRef.current = mainObj.rotation.clone();
+      }
       
       // Use baselineZ from props if provided, otherwise capture from current position
       const captureBaseline = () => {
@@ -100,12 +107,13 @@ function Vertical({
     }
   }, [scene, baselineZ, heightOffset, onPositionUpdate, variant]);
 
-  // Handle height offset adjustments - only run if original position is already captured
+  // Handle height offset and tilt adjustments
   useEffect(() => {
     const mainObj = mainRef.current;
     const originalPos = originalPositionRef.current;
     const originalZ = originalZRef.current;
-    if (!mainObj || !originalPos || originalZ === null) return;
+    const originalRot = originalRotationRef.current;
+    if (!mainObj || !originalPos || originalZ === null || !originalRot) return;
 
     // Use stored original Z as baseline, then add heightOffset
     mainObj.position.set(
@@ -113,6 +121,16 @@ function Vertical({
       originalPos.y,
       originalZ + heightOffset
     );
+    
+    // Apply tilt rotation (X-axis) on top of original rotation
+    // Convert tilt from degrees to radians
+    const tiltRad = (tilt * Math.PI) / 180;
+    mainObj.rotation.set(
+      originalRot.x + tiltRad,
+      originalRot.y,
+      originalRot.z
+    );
+    
     mainObj.updateMatrixWorld(true);
 
     let parent = mainObj.parent;
@@ -126,8 +144,8 @@ function Vertical({
       onPositionUpdate(mainObj.position.z);
     }
     
-    console.log(`Vertical ${variant}: Updated position - Original Z:`, originalZ, 'Height Offset:', heightOffset, 'Final Z:', mainObj.position.z);
-  }, [heightOffset, onPositionUpdate, variant]);
+    console.log(`Vertical ${variant}: Updated - Z:`, mainObj.position.z, 'Tilt:', tilt, '°');
+  }, [heightOffset, tilt, onPositionUpdate, variant]);
   
   return (
     <primitive

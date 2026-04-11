@@ -12,7 +12,15 @@ function Skeleton({ scale, isMobile, isLyingDown = false, baseRotation = 'front'
 
   const getRotation = () => {
     if (isLyingDown) {
-      return [-1.5, 0, 1.56];
+      // Lying down base rotation: [-1.5, 0, 1.56]
+      // Apply Y rotation based on baseRotation for different views
+      const lyingDownRotations = {
+        'front':      [-1.5, 0, 1.56],           // supine (on back)
+        'back':       [-1.5, Math.PI, 1.56],     // prone (face down)
+        'side-right': [-1.5, Math.PI / 2, 1.56], // lying on left side
+        'side-left':  [-1.5, -Math.PI / 2, 1.56]  // lying on right side
+      };
+      return lyingDownRotations[baseRotation] || lyingDownRotations['front'];
     }
 
     const rotations = {

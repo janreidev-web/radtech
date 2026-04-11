@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ModelRotationControls({ currentRotation, onRotationChange, isPawlowMethod = false, armPosition, onArmPositionChange }) {
+function ModelRotationControls({ currentRotation, onRotationChange, isPawlowMethod = false, isTwinningMethod = false, armPosition, onArmPositionChange }) {
   const buttonStyle = {
     padding: '10px 16px',
     fontSize: '14px',
@@ -89,7 +89,7 @@ function ModelRotationControls({ currentRotation, onRotationChange, isPawlowMeth
         ))}
       </div>
 
-      {onArmPositionChange && (
+      {onArmPositionChange && !isPawlowMethod && !isTwinningMethod && (
         <>
           <div style={{ ...titleStyle, marginTop: '8px' }}>Arm Position</div>
           <div style={{

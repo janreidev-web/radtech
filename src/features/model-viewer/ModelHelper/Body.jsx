@@ -135,10 +135,15 @@ function Body({ modelPath = '/Model/base.glb', scale, isMobile, armsClosed = fal
   // Calculate rotation based on baseRotation and isLyingDown
   const getRotation = () => {
     if (isLyingDown) {
-      // front = supine (lying on back), back = prone (lying face down)
-      return baseRotation === 'back'
-        ? [-1.5, -Math.PI,-1.56]
-        : [-1.5, 0, 1.56];
+      // Lying down base rotation: [-1.5, 0, 1.56]
+      // Apply Y rotation based on baseRotation for different views
+      const lyingDownRotations = {
+        'front':      [-1.5, 0, 1.56],           // supine (on back)
+        'back':       [-1.5, Math.PI, 4.7],     // prone (face down)
+        'side-right': [0.1, 0, 1.56], // lying on left side
+        'side-left':  [Math.PI, 0, 1.56]  // lying on right side
+      };
+      return lyingDownRotations[baseRotation] || lyingDownRotations['front'];
     }
 
     const rotations = {

@@ -32,6 +32,7 @@ function ModelLoader() {
   const [armPosition, setArmPosition] = useState('twinning');
   const [cassetteOffset, setCassetteOffset] = useState(0);
   const [verticalAOffset, setVerticalAOffset] = useState(0);
+  const [verticalATilt, setVerticalATilt] = useState(0); // Tilt angle in degrees (-5 to +5)
   const [verticalBOffset, setVerticalBOffset] = useState(0);
   const [verticalBHorizontalOffset, setVerticalBHorizontalOffset] = useState(0);
   const [cassetteBaselineZ, setCassetteBaselineZ] = useState(null);
@@ -68,6 +69,29 @@ function ModelLoader() {
     setArmsClosed(position === 'closed');
   }, []);
 
+  // Handle rotation change with auto arm position for both methods
+  const handleRotationChange = useCallback((rotation) => {
+    setBaseRotation(rotation);
+    
+    // Auto-set arm position based on rotation
+    if (showVerticalB || showVerticalA) {
+      // Pawlow: side-right -> left-arm-raised, side-left -> right-arm-raised
+      // Twinning: opposite (side-right -> right-arm-raised, side-left -> left-arm-raised)
+      const isTwinning = showVerticalA;
+      const armPositions = {
+        'front': 'closed',
+        'back': 'closed',
+        'side-right': isTwinning ? 'right-arm-raised' : 'left-arm-raised',
+        'side-left': isTwinning ? 'left-arm-raised' : 'right-arm-raised'
+      };
+      const newArmPosition = armPositions[rotation];
+      if (newArmPosition) {
+        setArmPosition(newArmPosition);
+        setArmsClosed(newArmPosition === 'closed');
+      }
+    }
+  }, [showVerticalB, showVerticalA]);
+
   const handleAdjustCassette = useCallback((delta) => {
     setCassetteOffset(prev => prev + delta);
   }, []);
@@ -82,6 +106,14 @@ function ModelLoader() {
 
   const handleAdjustVerticalBHorizontal = useCallback((delta) => {
     setVerticalBHorizontalOffset(prev => prev + delta);
+  }, []);
+
+  const handleAdjustVerticalATilt = useCallback((delta) => {
+    setVerticalATilt(prev => {
+      const newValue = prev + delta;
+      // Clamp between -5 and +5 degrees
+      return Math.max(-5, Math.min(5, newValue));
+    });
   }, []);
 
   // Toggle handlers for control panels - only one panel open at a time
@@ -322,6 +354,7 @@ function ModelLoader() {
     // Reset offsets first
     setCassetteOffset(0); // Reset cassette offset to original position
     setVerticalAOffset(0);
+    setVerticalATilt(0); // Reset tilt
     setVerticalBOffset(0);
     setVerticalBHorizontalOffset(0);
     // Keep baseline Z values - they persist across resets
@@ -517,6 +550,7 @@ return (
                 scale={isMobile ? 0.3 : 0.3}
                 rotation={[0, -Math.PI, 0]}
                 heightOffset={verticalAOffset}
+                tilt={verticalATilt} // Tilt angle in degrees
                 baselineZ={verticalABaselineZ}
                 onPositionUpdate={(actualZ, isBaseline) =>
                   handleVerticalBaselineUpdate('A', actualZ, isBaseline)
@@ -613,6 +647,7 @@ return (
                 handleArmPositionChange('twinning');
                 setCassetteOffset(0);
                 setVerticalAOffset(0);
+                setVerticalATilt(0); // Reset tilt
                 setIsLyingDown(false);
               }
             }}
@@ -700,10 +735,13 @@ return (
             showCassette={showCassette}
             showVertical={showVerticalA || showVerticalB}
             showVerticalB={showVerticalB}
+            showVerticalA={showVerticalA}
             verticalLabel={showVerticalA ? 'Collimator' : showVerticalB ? 'Collimator' : 'Vertical'}
+            verticalATilt={verticalATilt}
             onAdjustCassette={handleAdjustCassette}
             onAdjustVertical={handleAdjustVertical}
             onAdjustVerticalBHorizontal={showVerticalB ? handleAdjustVerticalBHorizontal : undefined}
+            onAdjustVerticalATilt={showVerticalA ? handleAdjustVerticalATilt : undefined}
           />
         )}
 
@@ -719,8 +757,9 @@ return (
         {showModelRotationPanel && (
           <ModelRotationControls
             currentRotation={baseRotation}
-            onRotationChange={setBaseRotation}
+            onRotationChange={handleRotationChange}
             isPawlowMethod={showVerticalB}
+            isTwinningMethod={showVerticalA}
             armPosition={armPosition}
             onArmPositionChange={handleArmPositionChange}
           />
