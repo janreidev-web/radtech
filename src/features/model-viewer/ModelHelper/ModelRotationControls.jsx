@@ -102,8 +102,8 @@ function ModelRotationControls({ currentRotation, onRotationChange, isPawlowMeth
               { key: 'default', label: 'Default' },
               { key: 'twinning', label: 'Twinning' },
               { key: 'closed', label: 'Closed' },
-              { key: 'left-arm-raised', label: 'Left Arm Raised' },
-              { key: 'right-arm-raised', label: 'Right Arm Raised' },
+              { key: 'right-arm-raised', label: 'Left Arm Raised' },
+              { key: 'left-arm-raised', label: 'Right Arm Raised' },
               { key: 'crossed', label: 'Crossed' }
             ].map((position) => (
               <button
