@@ -74,10 +74,12 @@ function EquipmentControls({
   showVerticalA = false,
   verticalLabel = 'Vertical',
   verticalATilt = 0,
+  verticalBTilt = 0,
   onAdjustCassette,
   onAdjustVertical,
   onAdjustVerticalBHorizontal,
-  onAdjustVerticalATilt
+  onAdjustVerticalATilt,
+  onAdjustVerticalBTilt
 }) {
   // Only show controls if at least one equipment is visible
   if (!showCassette && !showVertical) {
@@ -95,8 +97,12 @@ function EquipmentControls({
   
   // Tilt step: 1 degree per click
   const tiltStep = 1;
-  const tiltUp = useCallback(() => onAdjustVerticalATilt && onAdjustVerticalATilt(tiltStep), [onAdjustVerticalATilt]);
-  const tiltDown = useCallback(() => onAdjustVerticalATilt && onAdjustVerticalATilt(-tiltStep), [onAdjustVerticalATilt]);
+  const tiltUp = useCallback(() => onAdjustVerticalATilt && onAdjustVerticalATilt(-tiltStep), [onAdjustVerticalATilt]);
+  const tiltDown = useCallback(() => onAdjustVerticalATilt && onAdjustVerticalATilt(tiltStep), [onAdjustVerticalATilt]);
+  
+  // Table Top tilt handlers
+  const tableTopTiltUp = useCallback(() => onAdjustVerticalBTilt && onAdjustVerticalBTilt(-tiltStep), [onAdjustVerticalBTilt]);
+  const tableTopTiltDown = useCallback(() => onAdjustVerticalBTilt && onAdjustVerticalBTilt(tiltStep), [onAdjustVerticalBTilt]);
 
   const cassetteUpHandlers = useLongPressHandlers(cassetteIncrease);
   const cassetteDownHandlers = useLongPressHandlers(cassetteDecrease);
@@ -106,6 +112,8 @@ function EquipmentControls({
   const verticalBRightHandlers = useLongPressHandlers(verticalBRight);
   const tiltUpHandlers = useLongPressHandlers(tiltUp);
   const tiltDownHandlers = useLongPressHandlers(tiltDown);
+  const tableTopTiltUpHandlers = useLongPressHandlers(tableTopTiltUp);
+  const tableTopTiltDownHandlers = useLongPressHandlers(tableTopTiltDown);
 
   const buttonStyle = {
     padding: '8px 16px',
@@ -248,11 +256,34 @@ function EquipmentControls({
                   onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
                 >
-                  ⟳ Up ({verticalATilt.toFixed(0)}°)
+                  ⟳ Up ({(verticalATilt * 5).toFixed(0)}°)
                 </button>
                 <button 
                   style={downButtonStyle} 
                   {...tiltDownHandlers}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#da190b'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#f44336'}
+                >
+                  ⟲ Down
+                </button>
+              </div>
+            </>
+          )}
+          {showVerticalB && onAdjustVerticalBTilt && (
+            <>
+              <div style={{ ...titleStyle, marginTop: '12px', fontSize: '11px', color: '#aaa' }}>Tilt Angle</div>
+              <div style={{ ...controlsRowStyle, marginTop: '4px' }}>
+                <button 
+                  style={buttonStyle} 
+                  {...tableTopTiltUpHandlers}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                >
+                  ⟳ Up ({(verticalBTilt * 5).toFixed(0)}°)
+                </button>
+                <button 
+                  style={downButtonStyle} 
+                  {...tableTopTiltDownHandlers}
                   onMouseEnter={(e) => e.target.style.backgroundColor = '#da190b'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = '#f44336'}
                 >

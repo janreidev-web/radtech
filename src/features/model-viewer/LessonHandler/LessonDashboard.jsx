@@ -58,12 +58,12 @@ const Categories = [
   },
 
   {
-    title: "Swimmer's View (Twinning Method)",
+    title: "Upright Position",
     type: "practical",
     lessons: [
       { 
         id: "twinning-positioning",
-        title: "Patient Positioning", 
+        title: "Positioning the Patient", 
         type: "pre-exposure",
         description: "True Upright Lateral (Standing or Sitting)"
       }
@@ -71,12 +71,12 @@ const Categories = [
   },
 
   {
-    title: "Swimmer's View (Pawlow Method)",
+    title: "Table Top",
     type: "practical",
     lessons: [
       { 
         id: "pawlow-positioning",
-        title: "Patient Positioning", 
+        title: "Positioning the Patient", 
         type: "pre-exposure",
         description: "Recumbent Lateral Setup (Lying on Table)"
       }

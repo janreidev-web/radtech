@@ -37,9 +37,16 @@ function Vertical({
     if (mainObj) {
       mainRef.current = mainObj;
       
-      // Store original rotation for tilt calculations
-      if (originalRotationRef.current === null) {
-        originalRotationRef.current = mainObj.rotation.clone();
+      // Store original rotation on scene object (persists across remounts)
+      if (!scene.__originalMainRotation) {
+        scene.__originalMainRotation = mainObj.rotation.clone();
+      }
+      originalRotationRef.current = scene.__originalMainRotation;
+      
+      // Reset rotation to original baseline when tilt is 0 (handles reset)
+      if (tilt === 0) {
+        mainObj.rotation.copy(scene.__originalMainRotation);
+        mainObj.updateMatrixWorld(true);
       }
       
       // Use baselineZ from props if provided, otherwise capture from current position
@@ -105,7 +112,7 @@ function Vertical({
     } else {
       console.warn(`Vertical ${variant}: object named "main" not found in GLB scene.`);
     }
-  }, [scene, baselineZ, heightOffset, onPositionUpdate, variant]);
+  }, [scene, baselineZ, heightOffset, tilt, onPositionUpdate, variant]);
 
   // Handle height offset and tilt adjustments
   useEffect(() => {

@@ -34,6 +34,7 @@ function ModelLoader() {
   const [verticalAOffset, setVerticalAOffset] = useState(0);
   const [verticalATilt, setVerticalATilt] = useState(0); // Tilt angle in degrees (-5 to +5)
   const [verticalBOffset, setVerticalBOffset] = useState(0);
+  const [verticalBTilt, setVerticalBTilt] = useState(0); // Tilt angle in degrees (-5 to +5)
   const [verticalBHorizontalOffset, setVerticalBHorizontalOffset] = useState(0);
   const [cassetteBaselineZ, setCassetteBaselineZ] = useState(null);
   const [verticalABaselineZ, setVerticalABaselineZ] = useState(null);
@@ -110,6 +111,14 @@ function ModelLoader() {
 
   const handleAdjustVerticalATilt = useCallback((delta) => {
     setVerticalATilt(prev => {
+      const newValue = prev + delta;
+      // Clamp between -5 and +5 degrees
+      return Math.max(-5, Math.min(5, newValue));
+    });
+  }, []);
+
+  const handleAdjustVerticalBTilt = useCallback((delta) => {
+    setVerticalBTilt(prev => {
       const newValue = prev + delta;
       // Clamp between -5 and +5 degrees
       return Math.max(-5, Math.min(5, newValue));
@@ -356,6 +365,7 @@ function ModelLoader() {
     setVerticalAOffset(0);
     setVerticalATilt(0); // Reset tilt
     setVerticalBOffset(0);
+    setVerticalBTilt(0); // Reset tilt
     setVerticalBHorizontalOffset(0);
     // Keep baseline Z values - they persist across resets
     
@@ -566,6 +576,7 @@ return (
                 scale={isMobile ? 0.3 : 0.3}
                 rotation={[0, Math.PI, 0]}
                 heightOffset={verticalBOffset}
+                tilt={verticalBTilt} // Tilt angle in degrees
                 baselineZ={verticalBBaselineZ}
                 onPositionUpdate={(actualZ, isBaseline) =>
                   handleVerticalBaselineUpdate('B', actualZ, isBaseline)
@@ -636,6 +647,7 @@ return (
                 setShowVerticalB(true);
                 handleArmPositionChange('closed');
                 setVerticalBOffset(0);
+                setVerticalBTilt(0); // Reset tilt
                 setVerticalBHorizontalOffset(0);
                 setIsLyingDown(true);
               } else {
@@ -738,10 +750,12 @@ return (
             showVerticalA={showVerticalA}
             verticalLabel={showVerticalA ? 'Collimator' : showVerticalB ? 'Collimator' : 'Vertical'}
             verticalATilt={verticalATilt}
+            verticalBTilt={verticalBTilt}
             onAdjustCassette={handleAdjustCassette}
             onAdjustVertical={handleAdjustVertical}
             onAdjustVerticalBHorizontal={showVerticalB ? handleAdjustVerticalBHorizontal : undefined}
             onAdjustVerticalATilt={showVerticalA ? handleAdjustVerticalATilt : undefined}
+            onAdjustVerticalBTilt={showVerticalB ? handleAdjustVerticalBTilt : undefined}
           />
         )}
 
