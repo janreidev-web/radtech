@@ -700,7 +700,7 @@ return (
             showCassette={showCassette}
             showVertical={showVerticalA || showVerticalB}
             showVerticalB={showVerticalB}
-            verticalLabel={showVerticalA ? 'Vertical A' : showVerticalB ? 'Vertical B' : 'Vertical'}
+            verticalLabel={showVerticalA ? 'Collimator' : showVerticalB ? 'Collimator' : 'Vertical'}
             onAdjustCassette={handleAdjustCassette}
             onAdjustVertical={handleAdjustVertical}
             onAdjustVerticalBHorizontal={showVerticalB ? handleAdjustVerticalBHorizontal : undefined}
