@@ -185,19 +185,37 @@ function EquipmentControls({
         <div style={sectionStyle}>
           <div style={titleStyle}>Cassette</div>
           <div style={controlsRowStyle}>
-            <button 
-              style={buttonStyle} 
-              {...cassetteUpHandlers}
+            <button
+              style={buttonStyle}
+              onMouseDown={cassetteUpHandlers.onMouseDown}
+              onMouseUp={cassetteUpHandlers.onMouseUp}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#4CAF50';
+                cassetteUpHandlers.onMouseLeave?.(e);
+              }}
+              onTouchStart={cassetteUpHandlers.onTouchStart}
+              onTouchEnd={cassetteUpHandlers.onTouchEnd}
+              onTouchCancel={cassetteUpHandlers.onTouchCancel}
+              onBlur={cassetteUpHandlers.onBlur}
+              onClick={cassetteUpHandlers.onClick}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
             >
               ↑ Up
             </button>
-            <button 
-              style={downButtonStyle} 
-              {...cassetteDownHandlers}
+            <button
+              style={downButtonStyle}
+              onMouseDown={cassetteDownHandlers.onMouseDown}
+              onMouseUp={cassetteDownHandlers.onMouseUp}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#f44336';
+                cassetteDownHandlers.onMouseLeave?.(e);
+              }}
+              onTouchStart={cassetteDownHandlers.onTouchStart}
+              onTouchEnd={cassetteDownHandlers.onTouchEnd}
+              onTouchCancel={cassetteDownHandlers.onTouchCancel}
+              onBlur={cassetteDownHandlers.onBlur}
+              onClick={cassetteDownHandlers.onClick}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#da190b'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#f44336'}
             >
               ↓ Down
             </button>
@@ -209,38 +227,74 @@ function EquipmentControls({
         <div style={sectionStyle}>
           <div style={titleStyle}>{verticalLabel}</div>
           <div style={controlsRowStyle}>
-            <button 
-              style={buttonStyle} 
-              {...verticalUpHandlers}
+            <button
+              style={buttonStyle}
+              onMouseDown={verticalUpHandlers.onMouseDown}
+              onMouseUp={verticalUpHandlers.onMouseUp}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#4CAF50';
+                verticalUpHandlers.onMouseLeave?.(e);
+              }}
+              onTouchStart={verticalUpHandlers.onTouchStart}
+              onTouchEnd={verticalUpHandlers.onTouchEnd}
+              onTouchCancel={verticalUpHandlers.onTouchCancel}
+              onBlur={verticalUpHandlers.onBlur}
+              onClick={verticalUpHandlers.onClick}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
             >
               ↑ Up
             </button>
-            <button 
-              style={downButtonStyle} 
-              {...verticalDownHandlers}
+            <button
+              style={downButtonStyle}
+              onMouseDown={verticalDownHandlers.onMouseDown}
+              onMouseUp={verticalDownHandlers.onMouseUp}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#f44336';
+                verticalDownHandlers.onMouseLeave?.(e);
+              }}
+              onTouchStart={verticalDownHandlers.onTouchStart}
+              onTouchEnd={verticalDownHandlers.onTouchEnd}
+              onTouchCancel={verticalDownHandlers.onTouchCancel}
+              onBlur={verticalDownHandlers.onBlur}
+              onClick={verticalDownHandlers.onClick}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#da190b'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#f44336'}
             >
               ↓ Down
             </button>
           </div>
           {showVerticalB && onAdjustVerticalBHorizontal && (
             <div style={{ ...controlsRowStyle, marginTop: '8px' }}>
-              <button 
-                style={buttonStyle} 
-                {...verticalBLeftHandlers}
+              <button
+                style={buttonStyle}
+                onMouseDown={verticalBLeftHandlers.onMouseDown}
+                onMouseUp={verticalBLeftHandlers.onMouseUp}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#4CAF50';
+                  verticalBLeftHandlers.onMouseLeave?.(e);
+                }}
+                onTouchStart={verticalBLeftHandlers.onTouchStart}
+                onTouchEnd={verticalBLeftHandlers.onTouchEnd}
+                onTouchCancel={verticalBLeftHandlers.onTouchCancel}
+                onBlur={verticalBLeftHandlers.onBlur}
+                onClick={verticalBLeftHandlers.onClick}
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
               >
                 ← Left
               </button>
-              <button 
-                style={buttonStyle} 
-                {...verticalBRightHandlers}
+              <button
+                style={buttonStyle}
+                onMouseDown={verticalBRightHandlers.onMouseDown}
+                onMouseUp={verticalBRightHandlers.onMouseUp}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#4CAF50';
+                  verticalBRightHandlers.onMouseLeave?.(e);
+                }}
+                onTouchStart={verticalBRightHandlers.onTouchStart}
+                onTouchEnd={verticalBRightHandlers.onTouchEnd}
+                onTouchCancel={verticalBRightHandlers.onTouchCancel}
+                onBlur={verticalBRightHandlers.onBlur}
+                onClick={verticalBRightHandlers.onClick}
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
               >
                 Right →
               </button>
@@ -250,19 +304,37 @@ function EquipmentControls({
             <>
               <div style={{ ...titleStyle, marginTop: '12px', fontSize: '11px', color: '#aaa' }}>Tilt Angle</div>
               <div style={{ ...controlsRowStyle, marginTop: '4px' }}>
-                <button 
-                  style={buttonStyle} 
-                  {...tiltUpHandlers}
+                <button
+                  style={buttonStyle}
+                  onMouseDown={tiltUpHandlers.onMouseDown}
+                  onMouseUp={tiltUpHandlers.onMouseUp}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#4CAF50';
+                    tiltUpHandlers.onMouseLeave?.(e);
+                  }}
+                  onTouchStart={tiltUpHandlers.onTouchStart}
+                  onTouchEnd={tiltUpHandlers.onTouchEnd}
+                  onTouchCancel={tiltUpHandlers.onTouchCancel}
+                  onBlur={tiltUpHandlers.onBlur}
+                  onClick={tiltUpHandlers.onClick}
                   onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
                 >
-                  ⟳ Up ({(verticalATilt * 5).toFixed(0)}°)
+                  ⟳ Up ({Math.abs(verticalATilt * 5).toFixed(0)}°)
                 </button>
-                <button 
-                  style={downButtonStyle} 
-                  {...tiltDownHandlers}
+                <button
+                  style={downButtonStyle}
+                  onMouseDown={tiltDownHandlers.onMouseDown}
+                  onMouseUp={tiltDownHandlers.onMouseUp}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#f44336';
+                    tiltDownHandlers.onMouseLeave?.(e);
+                  }}
+                  onTouchStart={tiltDownHandlers.onTouchStart}
+                  onTouchEnd={tiltDownHandlers.onTouchEnd}
+                  onTouchCancel={tiltDownHandlers.onTouchCancel}
+                  onBlur={tiltDownHandlers.onBlur}
+                  onClick={tiltDownHandlers.onClick}
                   onMouseEnter={(e) => e.target.style.backgroundColor = '#da190b'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#f44336'}
                 >
                   ⟲ Down
                 </button>
@@ -273,19 +345,37 @@ function EquipmentControls({
             <>
               <div style={{ ...titleStyle, marginTop: '12px', fontSize: '11px', color: '#aaa' }}>Tilt Angle</div>
               <div style={{ ...controlsRowStyle, marginTop: '4px' }}>
-                <button 
-                  style={buttonStyle} 
-                  {...tableTopTiltUpHandlers}
+                <button
+                  style={buttonStyle}
+                  onMouseDown={tableTopTiltDownHandlers.onMouseDown}
+                  onMouseUp={tableTopTiltDownHandlers.onMouseUp}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#4CAF50';
+                    tableTopTiltDownHandlers.onMouseLeave?.(e);
+                  }}
+                  onTouchStart={tableTopTiltDownHandlers.onTouchStart}
+                  onTouchEnd={tableTopTiltDownHandlers.onTouchEnd}
+                  onTouchCancel={tableTopTiltDownHandlers.onTouchCancel}
+                  onBlur={tableTopTiltDownHandlers.onBlur}
+                  onClick={tableTopTiltDownHandlers.onClick}
                   onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
                 >
-                  ⟳ Up ({(verticalBTilt * 5).toFixed(0)}°)
+                  ⟳ Up ({Math.abs(verticalBTilt * 5).toFixed(0)}°)
                 </button>
-                <button 
-                  style={downButtonStyle} 
-                  {...tableTopTiltDownHandlers}
+                <button
+                  style={downButtonStyle}
+                  onMouseDown={tableTopTiltUpHandlers.onMouseDown}
+                  onMouseUp={tableTopTiltUpHandlers.onMouseUp}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#f44336';
+                    tableTopTiltUpHandlers.onMouseLeave?.(e);
+                  }}
+                  onTouchStart={tableTopTiltUpHandlers.onTouchStart}
+                  onTouchEnd={tableTopTiltUpHandlers.onTouchEnd}
+                  onTouchCancel={tableTopTiltUpHandlers.onTouchCancel}
+                  onBlur={tableTopTiltUpHandlers.onBlur}
+                  onClick={tableTopTiltUpHandlers.onClick}
                   onMouseEnter={(e) => e.target.style.backgroundColor = '#da190b'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#f44336'}
                 >
                   ⟲ Down
                 </button>

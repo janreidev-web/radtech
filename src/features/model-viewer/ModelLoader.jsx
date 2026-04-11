@@ -32,9 +32,9 @@ function ModelLoader() {
   const [armPosition, setArmPosition] = useState('twinning');
   const [cassetteOffset, setCassetteOffset] = useState(0);
   const [verticalAOffset, setVerticalAOffset] = useState(0);
-  const [verticalATilt, setVerticalATilt] = useState(0); // Tilt angle in degrees (-5 to +5)
+  const [verticalATilt, setVerticalATilt] = useState(0); // Tilt angle in degrees (-50 to +50)
   const [verticalBOffset, setVerticalBOffset] = useState(0);
-  const [verticalBTilt, setVerticalBTilt] = useState(0); // Tilt angle in degrees (-5 to +5)
+  const [verticalBTilt, setVerticalBTilt] = useState(0); // Tilt angle in degrees (-50 to +50)
   const [verticalBHorizontalOffset, setVerticalBHorizontalOffset] = useState(0);
   const [cassetteBaselineZ, setCassetteBaselineZ] = useState(null);
   const [verticalABaselineZ, setVerticalABaselineZ] = useState(null);
@@ -112,16 +112,16 @@ function ModelLoader() {
   const handleAdjustVerticalATilt = useCallback((delta) => {
     setVerticalATilt(prev => {
       const newValue = prev + delta;
-      // Clamp between -5 and +5 degrees
-      return Math.max(-5, Math.min(5, newValue));
+      // Clamp between -50 and +50 degrees
+      return Math.max(-10, Math.min(10, newValue));
     });
   }, []);
 
   const handleAdjustVerticalBTilt = useCallback((delta) => {
     setVerticalBTilt(prev => {
       const newValue = prev + delta;
-      // Clamp between -5 and +5 degrees
-      return Math.max(-5, Math.min(5, newValue));
+      // Clamp between -50 and +50 degrees
+      return Math.max(-10, Math.min(10, newValue));
     });
   }, []);
 
