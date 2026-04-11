@@ -82,8 +82,8 @@ function ModelLoader() {
       const armPositions = {
         'front': 'closed',
         'back': 'closed',
-        'side-right': isTwinning ? 'right-arm-raised' : 'left-arm-raised',
-        'side-left': isTwinning ? 'left-arm-raised' : 'right-arm-raised'
+        'side-left': isTwinning ? 'right-arm-raised' : 'left-arm-raised',
+        'side-right': isTwinning ? 'left-arm-raised' : 'right-arm-raised'
       };
       const newArmPosition = armPositions[rotation];
       if (newArmPosition) {
@@ -542,7 +542,7 @@ return (
             {showCassette && (
               <Cassette 
                 key={`cassette-${resetKey}`}
-                position={isMobile ? [-2, 1.5, 0] : [-1, -2.20, 1.1]} 
+                position={isMobile ? [-2, 1.5, 0] : [-1, -2.20, 0.8]} 
                 scale={isMobile ? 0.5 : 1.3}
                 rotation={[0, 0, 0]}
                 heightOffset={cassetteOffset}
@@ -556,7 +556,7 @@ return (
               <Vertical 
                 key={`vertical-a-${resetKey}`}
                 variant="A"
-                position={isMobile ? [-2, 1.5, 0] : [1.5, -3.15, 3]} 
+                position={isMobile ? [-2.5, 1.5, 0] : [1.5, -3.15, 3]} 
                 scale={isMobile ? 0.3 : 0.3}
                 rotation={[0, -Math.PI, 0]}
                 heightOffset={verticalAOffset}
@@ -634,15 +634,15 @@ return (
               }
 
               // Handle practical lessons
-              const isPawlowMethod = data.categoryTitle && data.categoryTitle.includes('Pawlow');
-              
+              const isTableTopMethod = data.categoryTitle && data.categoryTitle.includes('Table Top');
+
               // Mark that a lesson has been selected
               setHasLessonSelected(true);
-              
-              if (isPawlowMethod) {
-                // Pawlow Method: Show x-ray table and Vertical B only, make model lie down
+
+              if (isTableTopMethod) {
+                // Table Top Method: Show x-ray table and Vertical B only, make model lie down
                 setShowXRayTable(true);
-                setShowCassette(false);  // Remove cassette for Pawlow method
+                setShowCassette(false);  // Remove cassette for Table Top method
                 setShowVerticalA(false);
                 setShowVerticalB(true);
                 handleArmPositionChange('closed');
@@ -651,7 +651,7 @@ return (
                 setVerticalBHorizontalOffset(0);
                 setIsLyingDown(true);
               } else {
-                // Twinning Method: Keep standing, show cassette and Vertical A, arms closer to torso
+                // Upright Position Method: Keep standing, show cassette and Vertical A, arms closer to torso
                 setShowXRayTable(false);
                 setShowCassette(true);
                 setShowVerticalA(true);
